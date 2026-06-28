@@ -1,428 +1,125 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paper Notes — 논문 리뷰 아카이브</title>
-<meta name="description" content="컴퓨터 비전과 비전-언어 모델 논문을 읽고 정리하는 리뷰 블로그">
+<title>Hyunbin Choi — AI Research Student</title>
+<meta name="description" content="Hyunbin Choi (최현빈) — Undergraduate research student in computer vision and vision-language models, Hanbat National University.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#faf9f6;
-  --paper:#ffffff;
-  --ink:#1b1b1d;
-  --ink-soft:#54545a;
-  --ink-faint:#8e8e96;
-  --line:#e7e5dd;
-  --line-soft:#efeee8;
-  --accent:#1f4ea3;
-  --accent-soft:#eaf0fb;
-  --code-bg:#f3f2ec;
-  --disp:'Fraunces',Georgia,serif;
-  --sans:'Inter',system-ui,sans-serif;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --bg:#ffffff;--ink:#16161a;--ink-soft:#5c5c66;--ink-faint:#9a9aa4;
+  --line:#ececec;--line-strong:#dcdcdc;--pill:#16161a;--chip-bg:#f4f4f3;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
-::selection{background:var(--accent);color:#fff}
+::selection{background:var(--ink);color:#fff}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:760px;margin:0 auto;padding:0 28px}
-
-/* header */
-header{border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:40}
-.hbar{max-width:760px;margin:0 auto;padding:0 28px;height:66px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:var(--disp);font-weight:600;font-size:20px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;cursor:pointer}
-.logo .mark{font-family:var(--mono);font-size:12px;font-weight:500;color:#fff;background:var(--accent);padding:3px 7px;border-radius:5px;letter-spacing:.02em}
-.htools{display:flex;gap:22px;font-size:14px;color:var(--ink-soft)}
-.htools a{transition:color .15s}
-.htools a:hover{color:var(--accent)}
-
-/* ---- list view ---- */
-.intro{padding:62px 0 36px}
-.intro .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
-.intro h1{font-family:var(--disp);font-weight:500;font-size:clamp(34px,6vw,52px);line-height:1.08;letter-spacing:-.02em;margin-bottom:20px}
-.intro p{font-size:18px;color:var(--ink-soft);max-width:560px;line-height:1.6}
-
-.filters{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0 30px;border-bottom:1px solid var(--line);position:sticky;top:66px;background:var(--bg);z-index:30}
-.chip{font-family:var(--mono);font-size:12px;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);padding:6px 13px;border-radius:100px;cursor:pointer;transition:all .15s}
-.chip:hover{border-color:var(--accent);color:var(--accent)}
-.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-
-.list{padding:8px 0 80px}
-.post{display:block;padding:30px 0;border-bottom:1px solid var(--line);cursor:pointer;transition:transform .18s}
-.post:hover{transform:translateX(5px)}
-.post .row1{display:flex;align-items:center;gap:12px;margin-bottom:11px;font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
-.post .ptag{color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:5px;font-weight:500}
-.post h2{font-family:var(--disp);font-weight:500;font-size:25px;line-height:1.22;letter-spacing:-.01em;margin-bottom:9px}
-.post:hover h2{color:var(--accent)}
-.post .venue{font-style:italic;color:var(--ink-faint);font-size:14px;margin-bottom:9px}
-.post .excerpt{font-size:15.5px;color:var(--ink-soft);line-height:1.6}
-.post .more{margin-top:12px;font-family:var(--mono);font-size:12.5px;color:var(--accent);display:inline-flex;gap:6px;align-items:center}
-
-.empty{padding:70px 0;text-align:center;color:var(--ink-faint);font-family:var(--mono);font-size:13px}
-
-/* ---- article view ---- */
-.article{display:none;padding:48px 0 96px;animation:fade .35s ease}
-.article.show{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.back{font-family:var(--mono);font-size:13px;color:var(--ink-soft);display:inline-flex;gap:7px;align-items:center;margin-bottom:40px;cursor:pointer;transition:color .15s}
-.back:hover{color:var(--accent)}
-.art-head .row1{display:flex;gap:11px;align-items:center;font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-bottom:18px}
-.art-head .ptag{color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:5px;font-weight:500}
-.art-head h1{font-family:var(--disp);font-weight:500;font-size:clamp(30px,5vw,42px);line-height:1.12;letter-spacing:-.02em;margin-bottom:16px}
-.art-head .venue{font-style:italic;color:var(--ink-soft);font-size:15.5px;padding-bottom:30px;border-bottom:2px solid var(--ink);margin-bottom:8px}
-
-.prose{font-family:var(--disp);font-size:18.5px;line-height:1.78;color:#26262a;font-weight:400}
-.prose h2{font-family:var(--sans);font-weight:600;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin:48px 0 6px}
-.prose h2 + p{margin-top:10px}
-.prose h3{font-family:var(--disp);font-weight:600;font-size:23px;margin:36px 0 10px;letter-spacing:-.01em}
-.prose p{margin:18px 0}
-.prose ul{margin:18px 0;padding-left:24px}
-.prose li{margin:9px 0}
-.prose strong{font-weight:600;color:var(--ink)}
-.prose em{font-style:italic}
-.prose code{font-family:var(--mono);font-size:15px;background:var(--code-bg);padding:2px 6px;border-radius:4px}
-.prose blockquote{border-left:3px solid var(--accent);background:var(--paper);padding:16px 22px;margin:26px 0;font-size:17px;color:var(--ink-soft);border-radius:0 8px 8px 0}
-.prose .eq{font-family:var(--mono);font-size:15px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin:24px 0;overflow-x:auto;text-align:center;color:var(--ink)}
-.prose .fig{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin:28px 0;text-align:center}
-.prose .fig .cap{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-top:10px}
-.takeaways{background:var(--accent-soft);border-radius:12px;padding:24px 26px;margin:40px 0 0;font-family:var(--sans);font-size:15.5px;line-height:1.6}
-.takeaways h4{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.takeaways ul{padding-left:20px;margin:0}
-.takeaways li{margin:7px 0;color:var(--ink-soft)}
-
-footer{border-top:1px solid var(--line);padding:34px 0;font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
-.fbar{max-width:760px;margin:0 auto;padding:0 28px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
-
-@media(max-width:680px){
-  .wrap,.hbar,.fbar{padding-left:20px;padding-right:20px}
-  .htools{gap:16px}
-  .filters{top:66px}
-  .prose{font-size:17.5px}
-}
+.page{max-width:760px;margin:0 auto;padding:0 40px}
+.topnav{display:flex;justify-content:flex-end;padding:30px 0 0}
+.topnav a{font-size:14px;color:var(--ink-soft);transition:color .15s}
+.topnav a:hover{color:var(--ink)}
+.hero{padding:54px 0 0}
+.hero h1{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.hero h1 .ko{color:var(--ink-faint);font-weight:600;margin-left:8px}
+.hero .role{font-size:15px;font-weight:600;margin-top:16px}
+.hero .affil{font-size:14.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+.hero .lead{font-size:15px;color:var(--ink-soft);margin-top:22px;max-width:430px;line-height:1.6}
+.btn{display:inline-flex;align-items:center;gap:9px;background:var(--pill);color:#fff;font-size:14px;font-weight:500;padding:12px 22px;border-radius:100px;margin-top:30px;transition:transform .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px);opacity:.9}
+.btn .arr{display:inline-flex;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.18);align-items:center;justify-content:center;font-size:11px}
+.sec{padding:52px 0 0}
+.sec-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:20px}
+.sec p{font-size:15px;color:var(--ink-soft);margin-bottom:14px;line-height:1.65;max-width:520px}
+.sec p:last-child{margin-bottom:0}
+.tags{display:flex;flex-wrap:wrap;gap:9px}
+.tag{font-size:13px;color:var(--ink);background:var(--chip-bg);border:1px solid var(--line);padding:7px 14px;border-radius:100px}
+.proj{border-top:1px solid var(--line);padding:18px 0}
+.proj:first-of-type{border-top:1px solid var(--line-strong)}
+.proj h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.proj p{font-size:14px;color:var(--ink-soft);margin-top:5px;max-width:560px;line-height:1.55}
+.award{border:1px solid var(--line-strong);border-radius:14px;padding:24px 26px}
+.award .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.award h3{font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.35}
+.award .date{font-size:13px;color:var(--ink-faint);white-space:nowrap}
+.award .where{font-size:14px;color:var(--ink-soft);font-style:italic;margin-top:7px}
+.award ul{list-style:none;margin-top:14px}
+.award li{font-size:14px;color:var(--ink-soft);line-height:1.55;padding-left:16px;position:relative;margin-top:6px}
+.award li::before{content:"–";position:absolute;left:0;color:var(--ink-faint)}
+.contact{padding:52px 0 0}
+.contact .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.contact .links a{font-size:14px;color:var(--ink);border:1px solid var(--line-strong);border-radius:100px;padding:10px 18px;transition:border-color .15s}
+.contact .links a:hover{border-color:var(--ink)}
+footer{margin-top:60px;border-top:1px solid var(--line);padding:26px 0 50px;font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media(max-width:640px){.page{padding:0 24px}.hero h1{font-size:28px}.award .row{flex-direction:column;gap:4px}}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="hbar">
-    <div class="logo" onclick="goHome()"><span class="mark">PN</span>Paper Notes</div>
-    <nav class="htools">
-      <a onclick="goHome()" style="cursor:pointer">Reviews</a>
-      <a href="#about">About</a>
-    </nav>
-  </div>
-</header>
-
-<main class="wrap">
-
-  <!-- LIST -->
-  <div id="listview">
-    <section class="intro">
-      <div class="kicker">Paper Review Archive</div>
-      <h1>읽은 논문을<br>다시 쓰는 곳.</h1>
-      <p>컴퓨터 비전과 비전-언어 모델 논문을 읽고, 핵심 아이디어와 방법론, 한계를 제 언어로 정리합니다. 세미나에서 발표한 내용을 글로 남깁니다.</p>
-    </section>
-
-    <div class="filters" id="filters"></div>
-    <div class="list" id="list"></div>
-  </div>
-
-  <!-- ARTICLE -->
-  <article class="article" id="article"></article>
-
-</main>
-
-<footer>
-  <div class="fbar">
-    <span>© 2026 Paper Notes</span>
-    <span>Computer Vision · VLM · Multimodal</span>
-  </div>
-</footer>
-
-<script>
-/* ---------------- data ---------------- */
-const posts = [
-  {
-    id:"deimv2",
-    tag:"Detection",
-    date:"2025.11.18",
-    title:"DEIMv2 — 실시간 검출을 위한 매칭과 노이즈 설계 다시 보기",
-    venue:"DEIM: DETR with Improved Matching for Fast Convergence 계열 · 리뷰",
-    excerpt:"DETR 계열의 느린 수렴 문제를 매칭 관점에서 다시 접근한다. 어떤 설계가 수렴을 빠르게 하고, 실제 커스텀 데이터셋 학습에서 무엇이 함정이 되는지 정리했다.",
-    body:`
-<h2>한 줄 요약</h2>
-<p>DEIM 계열은 <strong>DETR의 느린 수렴</strong>을 "한 GT에 충분한 양의 positive 매칭을 공급하는가"라는 문제로 재정의한다. 핵심은 모델 구조를 키우는 것이 아니라 <em>학습 신호의 밀도</em>를 끌어올리는 데 있다.</p>
-
-<h2>배경</h2>
-<p>DETR는 set prediction과 헝가리안 매칭으로 NMS 없는 깔끔한 검출 파이프라인을 만들었지만, 초기 학습에서 각 GT에 매칭되는 positive 쿼리가 극히 적어 수렴이 느리다. one-to-one 매칭이 주는 신호가 희박하기 때문이다.</p>
-
-<h3>핵심 아이디어</h3>
-<p>이 문제를 두 갈래로 공격한다.</p>
-<ul>
-<li><strong>Dense한 매칭 신호</strong> — 하나의 GT에 더 많은 positive를 연결해 초기 gradient를 풍부하게 만든다.</li>
-<li><strong>품질을 반영한 타깃</strong> — positive를 균일하게 두지 않고 매칭 품질에 따라 가중해, 좋은 예측이 더 강한 신호를 받게 한다.</li>
-</ul>
-
-<div class="eq">L_total = λ_cls · L_cls + λ_box · L_box + λ_giou · L_giou</div>
-
-<p>분류 손실에 품질 가중을 싣는 형태가 일반적이며, box 회귀는 L1과 GIoU의 조합으로 안정화한다.</p>
-
-<h2>실무에서 걸린 지점</h2>
-<p>논문만 보면 매끈하지만, 커스텀 데이터셋에 올릴 때 실제로 시간을 잡아먹은 것들이 있었다.</p>
-<ul>
-<li><code>category_id</code>의 0-based / 1-based 처리 — COCO 변환 과정에서 한 칸 어긋나면 전 클래스가 밀린다.</li>
-<li>postprocessor의 <code>orig_size</code> 순서 — (h, w) vs (w, h)가 뒤집히면 박스가 전부 어긋난 채로 mAP만 낮게 나온다.</li>
-<li>다중 GPU 환경에서 NCCL 초기화와 dataloader 키 충돌 — config 구조를 정리하지 않으면 조용히 한 쪽 설정이 덮인다.</li>
-</ul>
-
-<blockquote>“수렴이 느리다”는 증상은 종종 모델이 아니라 <em>매칭이 신호를 충분히 만들어내지 못한다</em>는 데이터 쪽 신호일 수 있다.</blockquote>
-
-<h2>한계와 생각</h2>
-<p>dense 매칭은 작은 객체나 밀집 장면에서 false positive를 키울 수 있어, 품질 가중과 threshold를 데이터 분포에 맞춰 조정해야 한다. 실시간 검출이 목표라면 backbone 경량화(HGNetv2 등)와 함께 보는 게 자연스럽다.</p>
-
-<div class="takeaways">
-<h4>Takeaways</h4>
-<ul>
-<li>수렴 속도는 구조가 아니라 매칭 신호의 밀도 문제로 볼 수 있다.</li>
-<li>품질 가중 타깃이 dense 매칭의 노이즈를 억제하는 핵심 장치다.</li>
-<li>커스텀 학습의 버그는 대개 인덱싱·좌표 순서·config 충돌에서 나온다.</li>
-</ul>
-</div>
-`
-  },
-  {
-    id:"openvla",
-    tag:"VLA",
-    date:"2026.01.12",
-    title:"OpenVLA — 행동을 토큰으로 바꾼다는 것",
-    venue:"OpenVLA: An Open-Source Vision-Language-Action Model · 리뷰",
-    excerpt:"비전-언어 모델 위에 로봇 제어를 얹기 위해 연속적인 행동을 토큰화한다. 7-DOF 행동을 어떻게 이산화하고, 그 선택이 무엇을 잃고 얻는지 살펴봤다.",
-    body:`
-<h2>한 줄 요약</h2>
-<p>OpenVLA는 사전학습된 VLM을 그대로 활용하기 위해, <strong>연속적인 로봇 행동을 토큰 시퀀스로 이산화</strong>한다. 언어 생성과 동일한 프레임으로 제어를 다루는 것이 핵심이다.</p>
-
-<h2>왜 토큰화인가</h2>
-<p>VLM은 "다음 토큰 예측"에 최적화돼 있다. 로봇 행동(7-DOF: 위치 3 + 회전 3 + 그리퍼 1)을 각 차원마다 이산 bin으로 나눠 토큰으로 바꾸면, 제어 문제가 <em>익숙한 시퀀스 생성 문제</em>로 환원된다.</p>
-
-<div class="eq">a_t ∈ ℝ⁷  →  discretize  →  [tok₁, tok₂, …, tok₇]</div>
-
-<h3>장점</h3>
-<ul>
-<li>VLM 사전학습 자산(시각·언어 정렬)을 거의 그대로 재사용한다.</li>
-<li>멀티태스크·언어 조건부 제어가 프롬프트로 자연스럽게 표현된다.</li>
-</ul>
-
-<h3>비용</h3>
-<ul>
-<li>이산화는 <strong>정밀도를 깎는다</strong> — bin 해상도가 곧 제어 분해능의 상한이 된다.</li>
-<li>연속 제어의 부드러움이 토큰 경계에서 끊긴다.</li>
-</ul>
-
-<blockquote>토큰화는 "제어를 언어처럼 다루겠다"는 강한 가정이다. 그 가정이 통하는 작업과, 정밀 조작처럼 깨지는 작업을 구분하는 게 중요하다.</blockquote>
-
-<h2>V-JEPA 계열과의 대비</h2>
-<p>OpenVLA가 행동을 <em>토큰 생성</em>으로 본다면, V-JEPA 2 같은 접근은 표현 공간에서의 예측과 MPC 기반 플래닝으로 행동을 다룬다. 전자는 VLM 생태계 재활용에, 후자는 표현 학습과 계획에 무게가 있다.</p>
-
-<div class="takeaways">
-<h4>Takeaways</h4>
-<ul>
-<li>행동 토큰화는 VLM을 제어에 끌어오는 가장 값싼 다리다.</li>
-<li>대신 제어 정밀도가 bin 해상도에 묶인다.</li>
-<li>"언어처럼 풀리는 작업"과 "정밀 조작"을 나눠 평가해야 한다.</li>
-</ul>
-</div>
-`
-  },
-  {
-    id:"hier-kd",
-    tag:"KD",
-    date:"2025.10.27",
-    title:"계층적 지식 증류 — 라벨이 빠졌을 때를 가정하기",
-    venue:"Hierarchical Knowledge Distillation for Classification · 정리 노트",
-    excerpt:"계층 구조를 가진 분류에서, 일부 레벨의 라벨이 누락된 상황을 mask로 다루고 attention 기반으로 지식을 전달한다. 손실 설계와 일관성 제약을 정리했다.",
-    body:`
-<h2>문제 설정</h2>
-<p>분류 라벨이 <strong>L1 → L4의 계층 구조</strong>를 가질 때, 실제 데이터에서는 일부 레벨 라벨이 비어 있는 경우가 많다. 이 누락을 무시하면 상위·하위 레벨 예측이 서로 모순되기 쉽다.</p>
-
-<h2>접근</h2>
-<ul>
-<li><strong>Availability mask</strong> — 어떤 레벨의 라벨이 존재하는지 마스크로 표시하고, 손실 계산에서 누락 레벨을 자연스럽게 배제한다.</li>
-<li><strong>Attention 기반 증류</strong> — Multi-head Cross Attention으로 교사의 레벨별 표현을 학생에 전달하되, L1→L4 순서로 순차 정렬한다.</li>
-<li><strong>계층 일관성 손실</strong> — 하위 예측이 상위 예측과 모순되지 않도록 제약한다.</li>
-</ul>
-
-<div class="eq">L_total = α·L_cls + β·L_dist + γ·L_consist   (α=1, β=0.3, γ=0.3)</div>
-
-<p>분류 손실이 주축이고, 증류와 일관성은 보조 신호로 약하게 건다. β, γ를 키우면 일관성은 좋아지지만 분류 정확도가 눌릴 수 있어 균형이 필요하다.</p>
-
-<h2>검증에서 본 것</h2>
-<ul>
-<li>구성 요소별 ablation에서 일관성 손실이 <em>모순 예측 비율</em>을 눈에 띄게 줄였다.</li>
-<li>합성 누락률(synthetic missing rate)을 올려가며 robustness를 봤을 때, mask 설계가 누락에 강했다.</li>
-</ul>
-
-<blockquote>계층 분류의 진짜 난점은 "정확도"보다 "상위·하위가 서로 말이 되는가"에 있다.</blockquote>
-
-<div class="takeaways">
-<h4>Takeaways</h4>
-<ul>
-<li>라벨 누락은 버리는 대신 mask로 명시적으로 다루는 게 낫다.</li>
-<li>일관성 손실은 정확도가 아니라 예측의 모순을 줄인다.</li>
-<li>증류·일관성 가중치는 분류를 누르지 않는 선에서 약하게.</li>
-</ul>
-</div>
-`
-  },
-  {
-    id:"clip-aesthetic",
-    tag:"VLM",
-    date:"2025.12.05",
-    title:"미적 형용사를 CLIP으로 다룰 수 있을까",
-    venue:"CLIP / LACLIP / FG-CLIP 계열 · 서베이 노트",
-    excerpt:"'고급스러운', '단순한' 같은 미적 형용사로 이미지를 다중 라벨 분류하려 할 때, 기성 CLIP이 어디까지 통하고 어디서 막히는지 관련 연구를 묶어 정리했다.",
-    body:`
-<h2>문제</h2>
-<p>전통 문양 이미지에 <strong>22개의 미적 형용사 라벨</strong>(예: 고급스러운, 단순한)을 다중 라벨로 붙이는 작업. 각 이미지에 정확히 5개 라벨이 달린다. 문제는 이런 <em>주관적·추상적 형용사</em>를 위한 공개 CLIP 가중치가 사실상 없다는 점이다.</p>
-
-<h2>접근 후보 정리</h2>
-<h3>1) Frozen CLIP + linear head</h3>
-<ul>
-<li>OpenCLIP ViT-B/32를 동결된 특징 추출기로 쓰고, 선형 분류 head만 학습.</li>
-<li><code>BCEWithLogitsLoss</code>로 다중 라벨을 다루고 top-5를 뽑는다.</li>
-<li>가볍고 빠르지만, CLIP 표현이 미적 뉘앙스를 충분히 담는지가 관건.</li>
-</ul>
-
-<h3>2) VLM 기반</h3>
-<ul>
-<li>Qwen2.5-VL 같은 VLM에 이미지를 직접 넣어 형용사를 추론.</li>
-<li>표현력은 크지만 추론 비용이 크고, 출력 형식 제어가 까다롭다.</li>
-</ul>
-
-<h2>관련 연구에서 얻은 단서</h2>
-<ul>
-<li><strong>LACLIP</strong> 계열은 캡션 증강으로 텍스트 쪽 표현을 풍부하게 한다 — 형용사 다양성 확보에 시사점.</li>
-<li><strong>FG-CLIP</strong>은 fine-grained 정렬을 강조 — 미세한 미적 차이 구분에 참고가 된다.</li>
-<li>다만 <em>미적 형용사 전용으로 학습된 공개 가중치는 찾지 못했다.</em></li>
-</ul>
-
-<blockquote>객관적 객체명과 달리, 미적 형용사는 라벨 자체가 분포를 가진다. 평가도 exact match만이 아니라 키워드 부분 일치로 함께 봐야 한다.</blockquote>
-
-<h2>평가 설계</h2>
-<p>exact match rate(5개 전부 일치)와 average keyword match rate(부분 일치)를 함께 본다. 전자만 보면 거의 모든 모델이 낮게 나와 차이가 드러나지 않는다.</p>
-
-<div class="takeaways">
-<h4>Takeaways</h4>
-<ul>
-<li>미적 형용사용 공개 CLIP 가중치는 부재 — 직접 head를 얹거나 VLM을 쓴다.</li>
-<li>frozen CLIP + linear head는 싸고 빠른 베이스라인.</li>
-<li>평가는 exact match와 부분 일치를 병행해야 의미가 보인다.</li>
-</ul>
-</div>
-`
-  },
-  {
-    id:"vjepa",
-    tag:"VLM",
-    date:"2026.01.20",
-    title:"V-JEPA — 픽셀이 아니라 표현을 예측하기",
-    venue:"V-JEPA 1/2: Self-Supervised Video Representation · 리뷰",
-    excerpt:"마스킹된 영역을 픽셀로 복원하는 대신 표현 공간에서 예측한다. 이 선택이 표현 학습에 주는 이점과, 행동 조건부 후학습으로의 확장을 정리했다.",
-    body:`
-<h2>핵심 전환</h2>
-<p>MAE류가 마스킹된 픽셀을 복원한다면, V-JEPA는 <strong>표현 공간에서 마스킹된 부분의 표현을 예측</strong>한다. 픽셀 단위 디테일(텍스처·노이즈)에 낭비하지 않고 의미 있는 구조에 집중하게 된다.</p>
-
-<h2>왜 표현 예측인가</h2>
-<ul>
-<li>픽셀 복원은 예측이 불가능에 가까운 고주파 디테일까지 맞추라고 강요한다.</li>
-<li>표현 공간 예측은 <em>예측 가능한 추상 수준</em>에서 학습 신호를 만든다.</li>
-</ul>
-
-<blockquote>"무엇을 예측하지 않을지"를 정하는 게 자기지도 학습 설계의 절반이다.</blockquote>
-
-<h2>V-JEPA 2로의 확장</h2>
-<p>2편에서는 <strong>행동 조건부 후학습</strong>과 MPC 기반 플래닝이 붙는다. 학습된 표현 위에서 행동을 조건으로 미래 표현을 예측하고, 그 예측을 계획에 쓴다. OpenVLA가 행동을 토큰 생성으로 보는 것과 대비되는 노선이다.</p>
-
-<h2>마스킹 전략</h2>
-<p>비디오에서 시공간 블록을 큰 비율로 마스킹하는 전략이 표현 품질에 크게 작용한다. 너무 쉬우면 지름길 학습, 너무 어려우면 신호가 무너진다.</p>
-
-<div class="takeaways">
-<h4>Takeaways</h4>
-<ul>
-<li>표현 공간 예측은 고주파 디테일 낭비를 피한다.</li>
-<li>마스킹 비율·구조가 표현 품질의 핵심 레버다.</li>
-<li>2편의 행동 조건부 예측은 토큰화 노선의 대안이다.</li>
-</ul>
-</div>
-`
-  },
-];
-
-/* ---------------- render list ---------------- */
-const tags = ["All", ...Array.from(new Set(posts.map(p=>p.tag)))];
-let activeTag = "All";
-
-function renderFilters(){
-  document.getElementById("filters").innerHTML = tags.map(t=>
-    `<span class="chip ${t===activeTag?'on':''}" data-tag="${t}">${t}</span>`
-  ).join("");
-  document.querySelectorAll(".chip").forEach(c=>{
-    c.onclick=()=>{activeTag=c.dataset.tag;renderFilters();renderList();};
-  });
-}
-function renderList(){
-  const items = posts.filter(p=>activeTag==="All"||p.tag===activeTag);
-  const el = document.getElementById("list");
-  if(!items.length){el.innerHTML=`<div class="empty">이 태그의 글이 아직 없습니다.</div>`;return;}
-  el.innerHTML = items.map(p=>`
-    <div class="post" data-id="${p.id}">
-      <div class="row1"><span class="ptag">${p.tag}</span><span>${p.date}</span></div>
-      <h2>${p.title}</h2>
-      <div class="venue">${p.venue}</div>
-      <div class="excerpt">${p.excerpt}</div>
-      <span class="more">리뷰 읽기 →</span>
-    </div>`).join("");
-  document.querySelectorAll(".post").forEach(p=>{
-    p.onclick=()=>openArticle(p.dataset.id);
-  });
-}
-
-/* ---------------- article view ---------------- */
-function openArticle(id){
-  const p = posts.find(x=>x.id===id);
-  if(!p) return;
-  document.getElementById("article").innerHTML = `
-    <span class="back" onclick="goHome()">← 목록으로</span>
-    <div class="art-head">
-      <div class="row1"><span class="ptag">${p.tag}</span><span>${p.date}</span></div>
-      <h1>${p.title}</h1>
-      <div class="venue">${p.venue}</div>
+<div class="page">
+  <nav class="topnav"><a href="blog.html">Blog</a></nav>
+  <header class="hero">
+    <h1>Hyunbin Choi <span class="ko">최현빈</span></h1>
+    <div class="role">Undergraduate Research Student</div>
+    <div class="affil">
+      Hanbat National University, Dept. of Information &amp; Communication Engineering<br>
+      AI / Computer Vision Research Lab
     </div>
-    <div class="prose">${p.body}</div>`;
-  document.getElementById("listview").style.display="none";
-  document.getElementById("article").classList.add("show");
-  location.hash = id;
-  window.scrollTo({top:0});
-}
-function goHome(){
-  document.getElementById("article").classList.remove("show");
-  document.getElementById("listview").style.display="block";
-  if(location.hash) history.replaceState(null,"",location.pathname);
-  window.scrollTo({top:0});
-}
-window.addEventListener("hashchange",()=>{
-  const h=location.hash.replace("#","");
-  if(h && posts.find(x=>x.id===h)) openArticle(h);
-  else if(!h) goHome();
-});
-
-renderFilters();
-renderList();
-const initial = location.hash.replace("#","");
-if(initial && posts.find(x=>x.id===initial)) openArticle(initial);
-</script>
+    <p class="lead">Studies, implements, and writes about vision-language and multimodal models.</p>
+    <a class="btn" href="blog.html">Read the Blog <span class="arr">→</span></a>
+  </header>
+  <section class="sec">
+    <div class="sec-label">About</div>
+    <p>I am an undergraduate researcher interested in how machines perceive and reason about the world through multiple modalities. I focus on reading papers at their architectural depth, implementing them from scratch, and documenting my findings to bridge the gap between theory and practice.</p>
+    <p>My current research interests center around vision-language models (VLM/VLA), multimodal learning, object detection, and knowledge distillation.</p>
+  </section>
+  <section class="sec">
+    <div class="sec-label">Research Interests</div>
+    <div class="tags">
+      <span class="tag">Vision-Language &amp; Multimodal</span>
+      <span class="tag">VLM / VLA</span>
+      <span class="tag">Multimodal QA</span>
+      <span class="tag">Object Detection</span>
+      <span class="tag">Fine-grained Classification</span>
+      <span class="tag">Knowledge Distillation</span>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="sec-label">Selected Projects</div>
+    <div class="proj"><h3>Maritime Multimodal QA LLM</h3><p>Multimodal question answering over maritime imagery, combining a vision encoder with a language model for scene-grounded responses.</p></div>
+    <div class="proj"><h3>Persona LLM for Painting-Style Feedback</h3><p>A RAG pipeline that evaluates traditional paintings with the Six Canons (六法) framework, combining CLIP, FAISS, and a vision-language model.</p></div>
+    <div class="proj"><h3>Satellite Building Segmentation</h3><p>Building extraction from satellite imagery, benchmarking segmentation models and refining boundary precision with post-processing.</p></div>
+    <div class="proj"><h3>AI-Generated Text Detection</h3><p>Competition project: document-level binary detection (decoder-only + LoRA) and sentence-level AI-ratio prediction (encoder-only, per-sentence prediction with aggregation).</p></div>
+  </section>
+  <section class="sec">
+    <div class="sec-label">Honors</div>
+    <div class="award">
+      <div class="row">
+        <h3>2nd Place, 2025 SW-Centered University SW·AI Competition</h3>
+        <span class="date">Jun. 2025</span>
+      </div>
+      <div class="where">Campus AI competition for AI-generated text detection · Hanbat National University</div>
+      <ul>
+        <li>Served as team leader, coordinating role distribution and project workflow</li>
+        <li>Advanced to the National SW-Centered University Joint Competition as university representative</li>
+      </ul>
+    </div>
+  </section>
+  <section class="contact">
+    <div class="sec-label">Contact</div>
+    <div class="links">
+      <a href="mailto:20212066@edu.hanbat.ac.kr">20212066@edu.hanbat.ac.kr</a>
+      <a href="https://github.com/chb2066" target="_blank" rel="noopener">GitHub</a>
+      <a href="blog.html">Blog</a>
+    </div>
+  </section>
+  <footer>
+    <span>© 2026 Hyunbin Choi</span>
+    <span>Computer Vision · VLM · Multimodal</span>
+  </footer>
+</div>
 </body>
 </html>
