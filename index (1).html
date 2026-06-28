@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hyunbin Choi — AI Research Student</title>
+<meta name="description" content="Hyunbin Choi (최현빈) — Undergraduate research student in computer vision and vision-language models, Hanbat National University.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;--ink:#16161a;--ink-soft:#5c5c66;--ink-faint:#9a9aa4;
+  --line:#ececec;--line-strong:#dcdcdc;--pill:#16161a;--chip-bg:#f4f4f3;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--ink);color:#fff}
+a{color:inherit;text-decoration:none}
+.page{max-width:760px;margin:0 auto;padding:0 40px}
+.topnav{display:flex;justify-content:flex-end;padding:30px 0 0}
+.topnav a{font-size:14px;color:var(--ink-soft);transition:color .15s}
+.topnav a:hover{color:var(--ink)}
+.hero{padding:54px 0 0}
+.hero h1{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.hero h1 .ko{color:var(--ink-faint);font-weight:600;margin-left:8px}
+.hero .role{font-size:15px;font-weight:600;margin-top:16px}
+.hero .affil{font-size:14.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+.hero .lead{font-size:15px;color:var(--ink-soft);margin-top:22px;max-width:430px;line-height:1.6}
+.btn{display:inline-flex;align-items:center;gap:9px;background:var(--pill);color:#fff;font-size:14px;font-weight:500;padding:12px 22px;border-radius:100px;margin-top:30px;transition:transform .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px);opacity:.9}
+.btn .arr{display:inline-flex;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.18);align-items:center;justify-content:center;font-size:11px}
+.sec{padding:52px 0 0}
+.sec-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:20px}
+.sec p{font-size:15px;color:var(--ink-soft);margin-bottom:14px;line-height:1.65;max-width:520px}
+.sec p:last-child{margin-bottom:0}
+.tags{display:flex;flex-wrap:wrap;gap:9px}
+.tag{font-size:13px;color:var(--ink);background:var(--chip-bg);border:1px solid var(--line);padding:7px 14px;border-radius:100px}
+.proj{border-top:1px solid var(--line);padding:18px 0}
+.proj:first-of-type{border-top:1px solid var(--line-strong)}
+.proj h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.proj p{font-size:14px;color:var(--ink-soft);margin-top:5px;max-width:560px;line-height:1.55}
+.award{border:1px solid var(--line-strong);border-radius:14px;padding:24px 26px}
+.award .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.award h3{font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.35}
+.award .date{font-size:13px;color:var(--ink-faint);white-space:nowrap}
+.award .where{font-size:14px;color:var(--ink-soft);font-style:italic;margin-top:7px}
+.award ul{list-style:none;margin-top:14px}
+.award li{font-size:14px;color:var(--ink-soft);line-height:1.55;padding-left:16px;position:relative;margin-top:6px}
+.award li::before{content:"–";position:absolute;left:0;color:var(--ink-faint)}
+.contact{padding:52px 0 0}
+.contact .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.contact .links a{font-size:14px;color:var(--ink);border:1px solid var(--line-strong);border-radius:100px;padding:10px 18px;transition:border-color .15s}
+.contact .links a:hover{border-color:var(--ink)}
+footer{margin-top:60px;border-top:1px solid var(--line);padding:26px 0 50px;font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media(max-width:640px){.page{padding:0 24px}.hero h1{font-size:28px}.award .row{flex-direction:column;gap:4px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <nav class="topnav"><a href="blog.html">Blog</a></nav>
+  <header class="hero">
+    <h1>Hyunbin Choi <span class="ko">최현빈</span></h1>
+    <div class="role">Undergraduate Research Student</div>
+    <div class="affil">
+      Hanbat National University, Dept. of Information &amp; Communication Engineering<br>
+      AI / Computer Vision Research Lab
+    </div>
+    <p class="lead">Studies, implements, and writes about vision-language and multimodal models.</p>
+    <a class="btn" href="blog.html">Read the Blog <span class="arr">→</span></a>
+  </header>
+  <section class="sec">
+    <div class="sec-label">About</div>
+    <p>I am an undergraduate researcher interested in how machines perceive and reason about the world through multiple modalities. I focus on reading papers at their architectural depth, implementing them from scratch, and documenting my findings to bridge the gap between theory and practice.</p>
+    <p>My current research interests center around vision-language models (VLM/VLA), multimodal learning, object detection, and knowledge distillation.</p>
+  </section>
+  <section class="sec">
+    <div class="sec-label">Research Interests</div>
+    <div class="tags">
+      <span class="tag">Vision-Language &amp; Multimodal</span>
+      <span class="tag">VLM / VLA</span>
+      <span class="tag">Multimodal QA</span>
+      <span class="tag">Object Detection</span>
+      <span class="tag">Fine-grained Classification</span>
+      <span class="tag">Knowledge Distillation</span>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="sec-label">Selected Projects</div>
+    <div class="proj"><h3>Maritime Multimodal QA LLM</h3><p>Multimodal question answering over maritime imagery, combining a vision encoder with a language model for scene-grounded responses.</p></div>
+    <div class="proj"><h3>Persona LLM for Painting-Style Feedback</h3><p>A RAG pipeline that evaluates traditional paintings with the Six Canons (六法) framework, combining CLIP, FAISS, and a vision-language model.</p></div>
+    <div class="proj"><h3>Satellite Building Segmentation</h3><p>Building extraction from satellite imagery, benchmarking segmentation models and refining boundary precision with post-processing.</p></div>
+    <div class="proj"><h3>AI-Generated Text Detection</h3><p>Competition project: document-level binary detection (decoder-only + LoRA) and sentence-level AI-ratio prediction (encoder-only, per-sentence prediction with aggregation).</p></div>
+  </section>
+  <section class="sec">
+    <div class="sec-label">Honors</div>
+    <div class="award">
+      <div class="row">
+        <h3>2nd Place, 2025 SW-Centered University SW·AI Competition</h3>
+        <span class="date">Jun. 2025</span>
+      </div>
+      <div class="where">Campus AI competition for AI-generated text detection · Hanbat National University</div>
+      <ul>
+        <li>Served as team leader, coordinating role distribution and project workflow</li>
+        <li>Advanced to the National SW-Centered University Joint Competition as university representative</li>
+      </ul>
+    </div>
+  </section>
+  <section class="contact">
+    <div class="sec-label">Contact</div>
+    <div class="links">
+      <a href="mailto:20212066@edu.hanbat.ac.kr">20212066@edu.hanbat.ac.kr</a>
+      <a href="https://github.com/chb2066" target="_blank" rel="noopener">GitHub</a>
+      <a href="blog.html">Blog</a>
+    </div>
+  </section>
+  <footer>
+    <span>© 2026 Hyunbin Choi</span>
+    <span>Computer Vision · VLM · Multimodal</span>
+  </footer>
+</div>
+</body>
+</html>
