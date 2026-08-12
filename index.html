@@ -74,10 +74,15 @@ a{color:inherit;text-decoration:none}
 .hero-links{padding-bottom:20px}
 
 /* ---------- sections: no rules between them, space does the separating ---------- */
-.block{display:grid;grid-template-columns:150px 1fr;gap:36px;padding:0 0 62px}
+.block{display:grid;grid-template-columns:150px 1fr;gap:36px;padding:0 0 62px;scroll-margin-top:80px}
 .block > h2{
   font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--faint);padding-top:5px;
+  text-transform:uppercase;color:var(--ink);padding-top:5px;
+  position:relative;
+}
+.block > h2::before{
+  content:"";position:absolute;left:-14px;top:11px;
+  width:6px;height:6px;border-radius:50%;background:var(--accent);
 }
 .body > p{color:var(--slate);margin-bottom:15px;max-width:600px}
 .body > p:last-child{margin-bottom:0}
@@ -98,6 +103,16 @@ a{color:inherit;text-decoration:none}
 .entry li:first-child{margin-top:0}
 .entry li::before{content:"";position:absolute;left:0;top:12px;width:8px;height:1px;background:var(--faint)}
 .authors{font-size:14.5px;color:var(--slate);margin-top:10px;line-height:1.6}
+
+/* publications get a little more weight than the rest */
+.pub{border-left:2px solid var(--accent);padding-left:22px}
+.pub h3{font-size:18.5px;line-height:1.35}
+.venue{
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--accent);background:var(--accent-wash);border-radius:100px;
+  padding:4px 10px;display:inline-block;margin-top:12px;
+}
+@media(max-width:760px){.pub{padding-left:16px}}
 .authors b{color:var(--ink);font-weight:600;border-bottom:1.5px solid var(--accent)}
 
 /* tags */
@@ -206,12 +221,13 @@ footer{border-top:1px solid var(--rule);margin-top:10px;padding:28px 0 64px;disp
   <section class="block" id="publications">
     <h2>Publications</h2>
     <div class="body">
-      <div class="entry">
+      <div class="entry pub">
         <div class="head">
           <h3>Hierarchical Knowledge Distillation-Based Image Classification Network for Incomplete Real-World Data Environments</h3>
           <span class="when">Jun. 2026</span>
         </div>
-        <div class="where">실세계의 불완전한 데이터 환경을 위한 계층적 지식 증류 기반 이미지 분류 네트워크<br><i>KINGComputing</i> (KCI)</div>
+        <div class="where">실세계의 불완전한 데이터 환경을 위한 계층적 지식 증류 기반 이미지 분류 네트워크</div>
+        <span class="venue">KINGComputing · KCI</span>
         <div class="authors">Taeseop Kim, Hayun Jang, <b>Hyunbin Choi</b>, Hyobin Park, Yuhyun Kim, Dong-Geol Choi</div>
         <p>Hierarchical knowledge distillation for image classification under incomplete hierarchical labels. I ran the training and benchmark comparison experiments.</p>
       </div>
@@ -229,6 +245,15 @@ footer{border-top:1px solid var(--rule);margin-top:10px;padding:28px 0 64px;disp
         </div>
         <div class="where">AiRLab · ETRI-funded project</div>
         <p>Classifying traditional pattern images into aesthetic adjective labels, trained end-to-end on the images and their Korean descriptions.</p>
+      </div>
+
+      <div class="entry">
+        <div class="head">
+          <h3>Abnormal Behavior and Anomaly Detection in Subway Stations</h3>
+          <span class="when">May 2026 – Jul. 2026</span>
+        </div>
+        <div class="where">AiRLab</div>
+        <p>Fine-tuned a transformer-based detector for abnormal behavior and hazards (89% mAP@50 on fire/smoke). Collected data across varied locations to close the domain gap in deployment, and cut false positives from static light glare using bounding-box movement between adjacent frames.</p>
       </div>
 
       <div class="entry">
