@@ -3,123 +3,294 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hyunbin Choi — AI Research Student</title>
-<meta name="description" content="Hyunbin Choi (최현빈) — Undergraduate research student in computer vision and vision-language models, Hanbat National University.">
+<title>Hyunbin Choi — Computer Vision Research</title>
+<meta name="description" content="Hyunbin Choi (최현빈) — Undergraduate researcher at AiRLab, Hanbat National University. Computer vision and vision-language models.">
+<meta property="og:title" content="Hyunbin Choi — Computer Vision Research">
+<meta property="og:description" content="Undergraduate researcher at AiRLab, Hanbat National University. Computer vision and vision-language models.">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#ffffff;--ink:#16161a;--ink-soft:#5c5c66;--ink-faint:#9a9aa4;
-  --line:#ececec;--line-strong:#dcdcdc;--pill:#16161a;--chip-bg:#f4f4f3;
-  --sans:'Inter',system-ui,-apple-system,sans-serif;
+  --paper:#ffffff;
+  --ink:#14141a;
+  --slate:#5a5f6b;
+  --faint:#9a9ea8;
+  --rule:#e7e8ec;
+  --rule-soft:#f1f2f5;
+  --accent:#1b4de4;
+  --accent-wash:rgba(27,77,228,.07);
+  --display:'Archivo',system-ui,-apple-system,sans-serif;
+  --serif:'Source Serif 4',Georgia,serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
-::selection{background:var(--ink);color:#fff}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:16.5px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--accent);color:#fff}
 a{color:inherit;text-decoration:none}
-.page{max-width:760px;margin:0 auto;padding:0 40px}
-.topnav{display:flex;justify-content:flex-end;padding:30px 0 0}
-.topnav a{font-size:14px;color:var(--ink-soft);transition:color .15s}
-.topnav a:hover{color:var(--ink)}
-.hero{padding:54px 0 0}
-.hero h1{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.hero h1 .ko{color:var(--ink-faint);font-weight:600;margin-left:8px}
-.hero .role{font-size:15px;font-weight:600;margin-top:16px}
-.hero .affil{font-size:14.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
-.hero .lead{font-size:15px;color:var(--ink-soft);margin-top:22px;max-width:430px;line-height:1.6}
-.btn{display:inline-flex;align-items:center;gap:9px;background:var(--pill);color:#fff;font-size:14px;font-weight:500;padding:12px 22px;border-radius:100px;margin-top:30px;transition:transform .15s,opacity .15s}
-.btn:hover{transform:translateY(-1px);opacity:.9}
-.btn .arr{display:inline-flex;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.18);align-items:center;justify-content:center;font-size:11px}
-.sec{padding:52px 0 0}
-.sec-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:20px}
-.sec p{font-size:15px;color:var(--ink-soft);margin-bottom:14px;line-height:1.65;max-width:520px}
-.sec p:last-child{margin-bottom:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+.wrap{max-width:860px;margin:0 auto;padding:0 36px}
+
+/* ---------- top bar ---------- */
+.bar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule-soft)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.mark{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em}
+.mark span{color:var(--faint)}
+.bar nav{display:flex;gap:22px}
+.bar nav a{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--faint);transition:color .15s}
+.bar nav a:hover{color:var(--accent)}
+@media(max-width:620px){.bar nav a:nth-child(-n+2){display:none}}
+
+/* ---------- hero ---------- */
+.hero{padding:88px 0 40px;display:grid;grid-template-columns:1fr 124px;gap:40px;align-items:start}
+.hero h1{font-family:var(--display);font-size:42px;font-weight:700;letter-spacing:-.025em;line-height:1.05}
+.hero h1 .ko{display:block;font-size:19px;font-weight:500;color:var(--faint);letter-spacing:0;margin-top:12px}
+.hero .role{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:28px}
+.hero .affil{font-size:16px;color:var(--slate);margin-top:12px;line-height:1.6}
+
+/* signature: patch grid */
+.patches{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;width:124px}
+.patches i{display:block;aspect-ratio:1;background:var(--accent);border-radius:1px;opacity:0;animation:tok .5s ease forwards}
+@keyframes tok{to{opacity:var(--o)}}
+.patches i:hover{opacity:.95;transition:opacity .12s}
+
+/* ---------- link pills ---------- */
+.links{display:flex;flex-wrap:wrap;gap:10px}
+.links a{
+  font-family:var(--mono);font-size:12.5px;
+  border:1px solid var(--rule);border-radius:100px;padding:10px 18px;color:var(--slate);
+  transition:border-color .15s,color .15s,background .15s;
+}
+.links a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-wash)}
+.links a.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.links a.primary:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.hero-links{padding-bottom:20px}
+
+/* ---------- sections: no rules between them, space does the separating ---------- */
+.block{display:grid;grid-template-columns:150px 1fr;gap:36px;padding:0 0 62px}
+.block > h2{
+  font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--faint);padding-top:5px;
+}
+.body > p{color:var(--slate);margin-bottom:15px;max-width:600px}
+.body > p:last-child{margin-bottom:0}
+.body em{font-style:italic;color:var(--ink)}
+.inline-link{color:var(--accent);border-bottom:1px solid transparent;transition:border-color .15s}
+.inline-link:hover{border-color:var(--accent)}
+
+/* entries: rules only *within* a section, to separate items of the same kind */
+.entry + .entry{border-top:1px solid var(--rule);margin-top:30px;padding-top:30px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap}
+.entry h3{font-family:var(--display);font-size:16.5px;font-weight:600;letter-spacing:-.012em;line-height:1.4}
+.when{font-family:var(--mono);font-size:11.5px;color:var(--faint);white-space:nowrap}
+.where{font-size:15px;color:var(--slate);margin-top:8px;line-height:1.65}
+.where b{font-weight:600;color:var(--ink)}
+.entry > p{font-size:15.5px;color:var(--slate);line-height:1.65;margin-top:14px;max-width:600px}
+.entry ul{list-style:none;margin-top:16px}
+.entry li{font-size:15.5px;color:var(--slate);line-height:1.65;padding-left:18px;position:relative;margin-top:9px;max-width:620px}
+.entry li:first-child{margin-top:0}
+.entry li::before{content:"";position:absolute;left:0;top:12px;width:8px;height:1px;background:var(--faint)}
+.authors{font-size:14.5px;color:var(--slate);margin-top:10px;line-height:1.6}
+.authors b{color:var(--ink);font-weight:600;border-bottom:1.5px solid var(--accent)}
+
+/* tags */
 .tags{display:flex;flex-wrap:wrap;gap:9px}
-.tag{font-size:13px;color:var(--ink);background:var(--chip-bg);border:1px solid var(--line);padding:7px 14px;border-radius:100px}
-.proj{border-top:1px solid var(--line);padding:18px 0}
-.proj:first-of-type{border-top:1px solid var(--line-strong)}
-.proj h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
-.proj p{font-size:14px;color:var(--ink-soft);margin-top:5px;max-width:560px;line-height:1.55}
-.award{border:1px solid var(--line-strong);border-radius:14px;padding:24px 26px}
-.award .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
-.award h3{font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.35}
-.award .date{font-size:13px;color:var(--ink-faint);white-space:nowrap}
-.award .where{font-size:14px;color:var(--ink-soft);font-style:italic;margin-top:7px}
-.award ul{list-style:none;margin-top:14px}
-.award li{font-size:14px;color:var(--ink-soft);line-height:1.55;padding-left:16px;position:relative;margin-top:6px}
-.award li::before{content:"–";position:absolute;left:0;color:var(--ink-faint)}
-.contact{padding:52px 0 0}
-.contact .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-.contact .links a{font-size:14px;color:var(--ink);border:1px solid var(--line-strong);border-radius:100px;padding:10px 18px;transition:border-color .15s}
-.contact .links a:hover{border-color:var(--ink)}
-footer{margin-top:60px;border-top:1px solid var(--line);padding:26px 0 50px;font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-@media(max-width:640px){.page{padding:0 24px}.hero h1{font-size:28px}.award .row{flex-direction:column;gap:4px}}
+.tag{font-family:var(--mono);font-size:12px;color:var(--ink);border:1px solid var(--rule);padding:7px 14px;border-radius:100px}
+
+footer{border-top:1px solid var(--rule);margin-top:10px;padding:28px 0 64px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+
+@media(max-width:760px){
+  .wrap{padding:0 24px}
+  .hero{grid-template-columns:1fr;padding:60px 0 32px}
+  .hero h1{font-size:33px}
+  .patches{width:100px;order:-1}
+  .block{grid-template-columns:1fr;gap:18px;padding-bottom:52px}
+  .head{gap:4px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .patches i{animation:none;opacity:var(--o)}
+}
 </style>
 </head>
 <body>
-<div class="page">
-  <nav class="topnav"><a href="https://velog.io/@chb2066" target="_blank" rel="noopener">Blog</a></nav>
+
+<div class="bar">
+  <div class="wrap">
+    <a class="mark" href="#top">HYUNBIN CHOI <span>/ 최현빈</span></a>
+    <nav>
+      <a href="#research">Research</a>
+      <a href="#projects">Projects</a>
+      <a href="https://confused-chili-ebd.notion.site/" target="_blank" rel="noopener">Paper notes ↗</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap" id="top">
+
   <header class="hero">
-    <h1>Hyunbin Choi <span class="ko">최현빈</span></h1>
-    <div class="role">Undergraduate Research Student</div>
-    <div class="affil">
-      Hanbat National University, Dept. of Information &amp; Communication Engineering<br>
-      AI / Computer Vision Research Lab
+    <div>
+      <h1>Hyunbin Choi<span class="ko">최현빈</span></h1>
+      <div class="role">Undergraduate Researcher</div>
+      <div class="affil">AiRLab, Hanbat National University<br>Dept. of Information &amp; Communication Engineering</div>
     </div>
-    <p class="lead">Studies, implements, and writes about vision-language and multimodal models.</p>
-    <a class="btn" href="https://velog.io/@chb2066" target="_blank" rel="noopener">Read the Blog <span class="arr">→</span></a>
+    <div class="patches" id="patches" aria-hidden="true"></div>
   </header>
-  <section class="sec">
-    <div class="sec-label">About</div>
-    <p>I am an undergraduate researcher interested in how machines perceive and reason about the world through multiple modalities. I focus on reading papers at their architectural depth, implementing them from scratch, and documenting my findings to bridge the gap between theory and practice.</p>
-    <p>My current research interests center around vision-language models (VLM/VLA), multimodal learning, object detection, and knowledge distillation.</p>
-  </section>
-  <section class="sec">
-    <div class="sec-label">Research Interests</div>
-    <div class="tags">
-      <span class="tag">Vision-Language &amp; Multimodal</span>
-      <span class="tag">VLM / VLA</span>
-      <span class="tag">Multimodal QA</span>
-      <span class="tag">Object Detection</span>
-      <span class="tag">Fine-grained Classification</span>
-      <span class="tag">Knowledge Distillation</span>
+
+  <div class="links hero-links">
+    <a class="primary" href="https://confused-chili-ebd.notion.site/" target="_blank" rel="noopener">Paper notes ↗</a>
+    <a href="https://github.com/chb2066" target="_blank" rel="noopener">GitHub</a>
+    <!-- TODO: 구글 스칼라 주소 넣기 -->
+    <a href="https://scholar.google.com/" target="_blank" rel="noopener">Google Scholar</a>
+    <a href="mailto:hyunbin.choi@edu.hanbat.ac.kr">Email</a>
+  </div>
+
+  <section class="block" id="about">
+    <h2>About</h2>
+    <div class="body">
+      <p>I am an undergraduate researcher at AiRLab, Hanbat National University, advised by <em>Prof. Dong-Geol Choi</em>. I mainly work on computer vision, and I have also worked on vision-language models.</p>
+      <p>I read papers, reimplement the parts that matter, and keep my notes in <a class="inline-link" href="https://confused-chili-ebd.notion.site/" target="_blank" rel="noopener">Notion</a>.</p>
     </div>
   </section>
-  <section class="sec">
-    <div class="sec-label">Selected Projects</div>
-    <div class="proj"><h3>Maritime Multimodal QA LLM</h3><p>Multimodal question answering over maritime imagery, combining a vision encoder with a language model for scene-grounded responses.</p></div>
-    <div class="proj"><h3>Persona LLM for Painting-Style Feedback</h3><p>A RAG pipeline that evaluates traditional paintings with the Six Canons (六法) framework, combining CLIP, FAISS, and a vision-language model.</p></div>
-    <div class="proj"><h3>Satellite Building Segmentation</h3><p>Building extraction from satellite imagery, benchmarking segmentation models and refining boundary precision with post-processing.</p></div>
-    <div class="proj"><h3>AI-Generated Text Detection</h3><p>Competition project: document-level binary detection (decoder-only + LoRA) and sentence-level AI-ratio prediction (encoder-only, per-sentence prediction with aggregation).</p></div>
-  </section>
-  <section class="sec">
-    <div class="sec-label">Honors</div>
-    <div class="award">
-      <div class="row">
-        <h3>2nd Place, 2025 SW-Centered University SW·AI Competition</h3>
-        <span class="date">Jun. 2025</span>
+
+  <section class="block" id="interests">
+    <h2>Interests</h2>
+    <div class="body">
+      <div class="tags">
+        <span class="tag">Object Detection</span>
+        <span class="tag">Segmentation</span>
+        <span class="tag">Knowledge Distillation</span>
+        <span class="tag">Vision-Language Models</span>
       </div>
-      <div class="where">Campus AI competition for AI-generated text detection · Hanbat National University</div>
-      <ul>
-        <li>Served as team leader, coordinating role distribution and project workflow</li>
-        <li>Advanced to the National SW-Centered University Joint Competition as university representative</li>
-      </ul>
     </div>
   </section>
-  <section class="contact">
-    <div class="sec-label">Contact</div>
-    <div class="links">
-      <a href="mailto:20212066@edu.hanbat.ac.kr">20212066@edu.hanbat.ac.kr</a>
-      <a href="https://github.com/chb2066" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://velog.io/@chb2066">Blog</a>
+
+  <section class="block" id="education">
+    <h2>Education</h2>
+    <div class="body">
+      <div class="entry">
+        <div class="head">
+          <h3>Hanbat National University</h3>
+          <span class="when">Mar. 2021 – Present</span>
+        </div>
+        <div class="where">B.S. in Information &amp; Communication Engineering · Daejeon, Republic of Korea</div>
+      </div>
     </div>
   </section>
+
+  <section class="block" id="research">
+    <h2>Research</h2>
+    <div class="body">
+      <div class="entry">
+        <div class="head">
+          <h3>AiRLab, Hanbat National University</h3>
+          <span class="when">Jan. 2025 – Present</span>
+        </div>
+        <div class="where">Undergraduate Researcher · Advised by <b>Prof. Dong-Geol Choi</b></div>
+        <ul>
+          <li>Research on computer vision, vision-language models, and LLMs; weekly paper seminars</li>
+          <li>Participate in lab research projects, including ETRI-funded work</li>
+          <li>Maintain the lab's multi-GPU servers and distributed training environment</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="publications">
+    <h2>Publications</h2>
+    <div class="body">
+      <div class="entry">
+        <div class="head">
+          <h3>Hierarchical Knowledge Distillation-Based Image Classification Network for Incomplete Real-World Data Environments</h3>
+          <span class="when">Jun. 2026</span>
+        </div>
+        <div class="where">실세계의 불완전한 데이터 환경을 위한 계층적 지식 증류 기반 이미지 분류 네트워크<br><i>KINGComputing</i> (KCI)</div>
+        <div class="authors">Taeseop Kim, Hayun Jang, <b>Hyunbin Choi</b>, Hyobin Park, Yuhyun Kim, Dong-Geol Choi</div>
+        <p>Hierarchical knowledge distillation for image classification under incomplete hierarchical labels. I ran the training and benchmark comparison experiments.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="projects">
+    <h2>Projects</h2>
+    <div class="body">
+
+      <div class="entry">
+        <div class="head">
+          <h3>Multi-Label Classification of Korean Traditional Patterns</h3>
+          <span class="when">Jun. 2026 – Present</span>
+        </div>
+        <div class="where">AiRLab · ETRI-funded project</div>
+        <p>Classifying traditional pattern images into aesthetic adjective labels, using the Korean text descriptions alongside the images.</p>
+      </div>
+
+      <div class="entry">
+        <div class="head">
+          <h3>Satellite Image Building Area Segmentation</h3>
+          <span class="when">Jan. 2026 – Feb. 2026</span>
+        </div>
+        <div class="where">Personal project</div>
+        <p>Building extraction from satellite imagery. Benchmarked segmentation models and reworked the train/inference resolution pipeline.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="block" id="honors">
+    <h2>Honors</h2>
+    <div class="body">
+      <div class="entry">
+        <div class="head">
+          <h3>2nd Place — 2025 SW-Centered University SW·AI Competition</h3>
+          <span class="when">Jun. 2025</span>
+        </div>
+        <div class="where">Campus AI competition · Hanbat National University</div>
+        <p>Detection of AI-generated versus human-written text. Advanced to the National SW-Centered University Joint Competition as university representative.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="contact">
+    <h2>Contact</h2>
+    <div class="body">
+      <p>Feel free to reach out about anything on this page.</p>
+      <div class="links" style="margin-top:20px">
+        <a href="mailto:hyunbin.choi@edu.hanbat.ac.kr">hyunbin.choi@edu.hanbat.ac.kr</a>
+        <a href="https://github.com/chb2066" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://confused-chili-ebd.notion.site/" target="_blank" rel="noopener">Paper notes ↗</a>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <span>© 2026 Hyunbin Choi</span>
-    <span>Computer Vision · VLM · Multimodal</span>
+    <span>Last updated Aug. 2026</span>
   </footer>
 </div>
+
+<script>
+(function () {
+  var host = document.getElementById('patches');
+  if (!host) return;
+  var n = 64, frag = document.createDocumentFragment();
+  for (var i = 0; i < n; i++) {
+    var col = i % 8, row = Math.floor(i / 8);
+    var d = Math.sqrt(col * col + row * row) / 9.9;
+    var o = Math.max(0.06, 0.85 - d * 0.9);
+    var el = document.createElement('i');
+    el.style.setProperty('--o', o.toFixed(3));
+    el.style.animationDelay = (i * 11) + 'ms';
+    frag.appendChild(el);
+  }
+  host.appendChild(frag);
+})();
+</script>
 </body>
 </html>
