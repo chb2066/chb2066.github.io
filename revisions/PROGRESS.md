@@ -17,8 +17,8 @@
 | 3 | `personaplex` | PersonaPlex: Voice and Role Control for Full Duplex Conversational Speech Models | 2602.06053 | **완료** |
 | 4 | `dinov2` | DINOv2: Learning Robust Visual Features without Supervision | 2304.07193 | **완료** |
 | 5 | `dit` | Scalable Diffusion Models with Transformers | 2212.09748 | **완료** |
-| 6 | `ibot` | iBOT: Image BERT Pre-Training with Online Tokenizer | 2111.07832 | 대기 |
-| 7 | `clip` | Learning Transferable Visual Models From Natural Language Supervision | 2103.00020 | 대기 |
+| 6 | `ibot` | iBOT: Image BERT Pre-Training with Online Tokenizer | 2111.07832 | **완료** |
+| 7 | `clip` | Learning Transferable Visual Models From Natural Language Supervision | 2103.00020 | **완료** |
 | 8 | `efficientnet` | EfficientNet: Rethinking Model Scaling for CNNs | 1905.11946 | 대기 |
 | 9 | `swin` | Swin Transformer | 2103.14030 | 대기 |
 | 10 | `mask-rcnn` | Mask R-CNN | 1703.06870 | 대기 |
@@ -84,3 +84,5 @@
 | 2026-09-10 | `personaplex` | 배경 지식·실험 결과(Table 1·2 수치) 신설. 절 번호를 내용 제목으로 교체 |
 | 2026-09-10 | `dinov2` | 끊긴 마지막 문장(distill)을 논문 5절로 완성. 데이터 구축 수치·효율화 절 신설 |
 | 2026-09-10 | `dit` | 조건 주입 4가지 비교·스케일링 절 신설. 끊긴 문장 완성. FID 2.27 등 수치 보강 |
+| 2026-09-10 | `ibot` | 형식 재배치. 뒤엉킨 문장 분리, prediction ratio·linear probing 82.3% 보강 |
+| 2026-09-10 | `clip` | 「왜 contrastive 인가」(3배·4배 효율 근거), prompt engineering 절 신설 |
