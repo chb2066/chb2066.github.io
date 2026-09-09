@@ -19,8 +19,8 @@
 | 5 | `dit` | Scalable Diffusion Models with Transformers | 2212.09748 | **완료** |
 | 6 | `ibot` | iBOT: Image BERT Pre-Training with Online Tokenizer | 2111.07832 | **완료** |
 | 7 | `clip` | Learning Transferable Visual Models From Natural Language Supervision | 2103.00020 | **완료** |
-| 8 | `efficientnet` | EfficientNet: Rethinking Model Scaling for CNNs | 1905.11946 | 대기 |
-| 9 | `swin` | Swin Transformer | 2103.14030 | 대기 |
+| 8 | `efficientnet` | EfficientNet: Rethinking Model Scaling for CNNs | 1905.11946 | **완료** |
+| 9 | `swin` | Swin Transformer | 2103.14030 | **완료** |
 | 10 | `mask-rcnn` | Mask R-CNN | 1703.06870 | 대기 |
 | 11 | `ssd` | SSD: Single Shot MultiBox Detector | 1512.02325 | 대기 |
 
@@ -86,3 +86,5 @@
 | 2026-09-10 | `dit` | 조건 주입 4가지 비교·스케일링 절 신설. 끊긴 문장 완성. FID 2.27 등 수치 보강 |
 | 2026-09-10 | `ibot` | 형식 재배치. 뒤엉킨 문장 분리, prediction ratio·linear probing 82.3% 보강 |
 | 2026-09-10 | `clip` | 「왜 contrastive 인가」(3배·4배 효율 근거), prompt engineering 절 신설 |
+| 2026-09-10 | `efficientnet` | α·β²·γ²≈2 제약의 근거(FLOPs 비대칭) 보강. B0 구조표·결과 수치 추가. 고찰 유지 |
+| 2026-09-10 | `swin` | 복잡도 식을 텍스트로 명시. cyclic vs padding 비교 추가. 결과를 실제 수치로 교체 |
