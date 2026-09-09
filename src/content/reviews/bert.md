@@ -22,7 +22,7 @@ BERT는 기본적으로 대량의 단어 임베딩에 대해 사전 학습이 �
 
 #### **구조**
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 1](/img/bert/01.png)
 
 세 임베딩 합으로 구성. 세 임베딩 모두 학습 가능한  embedding 을 사용한다.(nn.Embedding 사용, nn.Embedding(num_embeddings, embedding_dim)을 의미하고 내부에 파라미터가 존재)
 
@@ -73,7 +73,7 @@ self.token_embeddings = nn.Embedding(vocab_size, hidden_size)
 #(bert-base-uncased, bert-large-uncased 등등)
 ```
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 2](/img/bert/02.png)
 
 Segment Embedding
 
@@ -92,7 +92,8 @@ self.position_embeddings = nn.Embedding(max_position_embeddings, hidden_size)
 ```
 
 각 위치에 해당하는 고유한 위치 벡터
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 3](/img/bert/03.png)
 
 **Pre-training**
 NSP

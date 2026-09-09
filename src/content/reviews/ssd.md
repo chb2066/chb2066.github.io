@@ -15,7 +15,8 @@ draft: false
 **기존 Object Detection 모델의 구조 및 한계:**
 - 구조:
   (1) Bounding Box 를 생성→(2) pixels or features resampling→(3) High quality classifier
-  > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/ssd/01.png)
 
 - 한계:
   Faster R-CNN은 (1), (2) 과정으로 인해 속도 느림, YOLO는 single-shot detection으로 속도를 높였으나 accuracy 부족하다
@@ -36,14 +37,16 @@ SSD는 하나의 CNN을 사용하여 고정된 개수의 Default Box를 기반�
     - Feature map 통과 시 모든 픽셀마다 동일한 기준의 boxes생성
     - default box 기반 classification, bounding box regression
 **구조:**
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 2](/img/ssd/02.png)
+
+![그림 3](/img/ssd/03.png)
 
 1. 기존 VGG-16 네트워크를 Backbone 으로 사용하며 FC Layer를 제거한 후,  feature map을 더 다양하게 만들어 이 feature map들을 통해 classification 하게 된다. 이후 마지막 conv가 예측 내용을 취합해 최종 예측을 위한 진행한다.
 1. 이후 feature map에서 객체를 탐지하기 위해 bounding box regression과 classification을 담당하는 head 들을 추가한다.
 1. 각 Feature Map의 모든 픽셀에 있는 여러 개의 Default box를 Ground Truth와 비교하여 평가하고, 객체의 존재 여부와 box의 위치를 조정한다.
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 4](/img/ssd/04.png)
 
 1. NMS를 적용하여 최종 탐지 결과를 결정.
   NMS의 동작 과정:
@@ -76,7 +79,8 @@ SSD는 하나의 CNN을 사용하여 고정된 개수의 Default Box를 기반�
     - L2에 비해서 튀는 값을 잘 반영한다.(값을 예측해야하기 때문에 L2, L1같은 회귀 loss를 사용한다.)
   - **Confidence Loss (클래스 오차)**: 각 default box에서 예측한 class 확률과 실제 class 간 차이를 Softmax Loss 를 사용하여 계산.
   - 총 손실 함수:
-    > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 5](/img/ssd/05.png)
 
     - N은 매칭된 기본 박스의 개수.
 1. **Hard Negative Mining**

@@ -45,7 +45,8 @@ iMAE는 이미지랑 영상으로 학습시켰다. 한 논문에서는 MAE를 �
         1. outputs: 맥락 기반 정답 추측
         1. context representation으로부터 target-representation을 예측
     1. Loss는 L1 loss 사용, 타켓 인코더의 출력과 full video(masked token+unmasked toeknl)을 비교한 L1 loss 이다.
-  > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/v-jepa/01.png)
 
   d. input
   - 비디오에서 랜덤 시작점으로 연속 64프레임 클립 추출, temporal stride 4로 16프레임 균등 샘플링

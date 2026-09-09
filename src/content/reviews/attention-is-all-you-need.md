@@ -12,7 +12,7 @@ draft: true
 
 ## **사전 개념(attention)**
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 1](/img/attention-is-all-you-need/01.png)
 
 “어떤 정보를 찾아야 하는가”(query)와 encoder에서 입력 받은 문장의 모든 단어(key,답)를 비교하여 단어 간 관련성에 따라 attention score 출력. 여기에 단어들의 정보(Value)를 곱하여 이를 반영한 정보가 새로운 벡터를 생성
 →이 높은 attention score에 정보가 곱해진 벡터를 통해 다양한 task 진행
@@ -39,9 +39,10 @@ Transformer은 단어를 한번에 병렬적 처리
 →단어 간 순서 정보 손실 문제 발생
 **적용 방식:**
 토큰에 위치 정보 값 더하는 방식
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 2](/img/attention-is-all-you-need/02.png)
+
+![그림 3](/img/attention-is-all-you-need/03.png)
 
 벡터의 차원 수가 매우 크기에 식을 사용한 값을 더하게 될 시 각 위치가 특정될 수 있다.
 
@@ -49,10 +50,12 @@ Transformer은 단어를 한번에 병렬적 처리
 
 자기 자신을 q,k,v에 넣음
 (입력 문장의 모든 단어를 서로 비교해서 각 단어가 다른 단어와 얼마나 관련이 있는지 학습하는 과정)
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 4](/img/attention-is-all-you-need/04.png)
 
 q, k를 내적하여 각 단어 별 단어에 대한 중요도에 따른 확률로 변환, 이걸
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 5](/img/attention-is-all-you-need/05.png)
 
 해서 중요도 높은 값의 v(단어)이 많이 반영된 context 벡터 생성(출력될 단어가 입력된 단어 각각에 대해 어느 정도 초점을 맞춰야 하는 지에 대한 정보 반영)
 **→이 vector가 다음 self-attention에서 사용됨.**
@@ -62,11 +65,13 @@ q, k를 내적하여 각 단어 별 단어에 대한 중요도에 따른 확률�
 위 벡터를 원본 입력 벡터와 더하고 normalization함.
 20250319 수정 필요 FFN 거침
 단어들을 개별 벡터로 변형하고
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 6](/img/attention-is-all-you-need/06.png)
 
 를 거쳐서 ~~~~
 이후 또 skipconnection으로
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 7](/img/attention-is-all-you-need/07.png)
 
 거쳐서 h’ 정보 추가함.
 
@@ -90,26 +95,31 @@ ex) [start] i am a student [EOS] ([start] 기준 예시)
 
 1. FFN
   1. 2.b의 vector를 FFN에 넣음
-    > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 8](/img/attention-is-all-you-need/08.png)
 
     1. 차원 확장, ReLU로 필요 없는 정보 날림, 차원 축소 구조로 중요 정보 강조
 1. 단어 예측
   1. FFN 거친 벡터를 아래 선형 함수에 넣어 단어에 맞는 점수(확률 분포)로 변환
-    > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 9](/img/attention-is-all-you-need/09.png)
 
     1. W(vocab)는 모든 단어에 대한 매핑 역할을 함.
   1. 위 logits 값을 softmax에 넣어 단어에 대한 확률로 바꿈
-  > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 10](/img/attention-is-all-you-need/10.png)
 
 1. 가장 확률 높은 단어를 다음 단어로 사용
 1. self-attention 과정에 다음 단어를 추가하여 위 과정 반복
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 11](/img/attention-is-all-you-need/11.png)
 
 ## Multi-Head Attention
 
 단순히 embedding(고차원 벡터변환)할 때 단순히 임베딩 사이즈를 헤드 수로 나눠서 사용하는 것 (Multi-head 수 만큼)
 →이걸 d_k *num_heads 를 projection 하고 view()로 head 단위 분리
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 12](/img/attention-is-all-you-need/12.png)
 
 ```text
    x.shape = [batch_size, seq_len, d_model]
@@ -132,8 +142,8 @@ def forward(self, x):
 
 d_model= 임베딩 차원 수.
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 13](/img/attention-is-all-you-need/13.png)
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 14](/img/attention-is-all-you-need/14.png)
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 15](/img/attention-is-all-you-need/15.png)

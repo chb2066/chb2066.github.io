@@ -14,7 +14,8 @@ draft: false
 
 - Mask R-CNN은 Faster R-CNN을 확장한 모델,  기존 Classification 및 bounding box regression와 병렬로 객체 존재 여부를 예측하는 새로운 branch를 추가하였다.
   - Faster R-CNN은 anchor box 기반의 Two-stage object detection모델이다.
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/mask-rcnn/01.png)
 
 - 새로운 Branch의 Mask 예측을 위해 기존 Faster R-CNN의 RoIPool 대신 RoIAlign을 제안
 
@@ -31,7 +32,7 @@ FC Layer 사용을 위해 크기를 고정하는 과정
 **RoIAlign에 의한 개선점:**
 정량화 없는 RoIAlign을 도입하여 공간적 정보를 유지하도록 설계되었고 Localization 기준이 엄격할수록 큰 성능 향상을 보였다.
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 2](/img/mask-rcnn/02.png)
 
 ---
 
@@ -44,7 +45,8 @@ segmentation→Classification
 **Mask R-CNN의 접근 방식**
 어떤 class인지와 bounding box를 먼저 예측 후 박스 안 각 픽셀의 객체 존재 여부 예측
 → 객체들을 먼저(염소 1, 염소2처럼) 예측하기 때문에 instance segmentation의 효과를 갖는다.
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 3](/img/mask-rcnn/03.png)
 
 ---
 
@@ -68,11 +70,13 @@ mask branch는 K개 클래스 각각에 대해 독립적으로 sigmoid를 적용
 **Lmask(mask에 대한 loss):**
 RoI에서 최종 선택된 클래스에 대한 마스크만 pixel 단위 sigmoid function를 적용하고 loss계산에 사용, Lmask를 binary cross-entropy loss로 정의
 **ROI에 대한 손실 함수(Multi-Task Loss):**
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 4](/img/mask-rcnn/04.png)
 
 **FCN:**
 각 RoI(Region of Interest)에서 m×m 크기의 마스크를 예측하기 위해 FCN를 사용한다. 이 방식은 공간 구조 유지할 수 있도록 한다.(FC Layer의 Flatten과정이 없기 때문)
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 5](/img/mask-rcnn/05.png)
 
 FCN 방식이 FC 방식보다 더 적은 parameters로 더 높은 정확도(accuracy)를 제공한다.(Mask Prediction 기준)
 
@@ -90,7 +94,8 @@ RoIAlign Layer를 제안, 강제로 정량화 하는 것이 아닌 추출된 fea
 - 이때, 양선형 보간(Bilinear Interpolation)을 사용하여 정확한 값 계산
   - 샘플링 위치가 픽셀 중심이 아니면 위치 값을 못얻는다. 따라서 인접한 네 개의 픽셀 값을 가중합하여 샘플링 위치의 값을 추정 (xs,ys)=w11V(x1,y1)+w21V(x2,y1)+w12V(x1,y2)+w22V(x2,y2) 여기서 w 값들은 샘플링 위치와의 거리에 따라 결정되는 가중치
 - 최종적으로, max pooling을 적용하여 결과를 집계
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 6](/img/mask-rcnn/06.png)
 
 #### **Network architecture **
 
@@ -104,14 +109,15 @@ Mask R-CNN 구성:
 Resnet과 같은 Backbone 에 보강을 위한 FPN(**Feature Pyramid Network**) 추가하여 사용.
 이유: 기존 CNN의 경우 Deep feature만 사용하기 때문에 해상도가 낮아 작은 객체 탐지가 어렵다.
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 7](/img/mask-rcnn/07.png)
 
 **FPN 핵심 아이디어**
 top-down path
 상위 계층을 upsampling하여 해상도 증가시킴(작은 객체 탐지 도움).
 lateral connections
 upsampling된 특징과 하위 계층을 결합하여 위치정보 활용
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 8](/img/mask-rcnn/08.png)
 
 1. Resnet의 stage에서 feature map 추출, C2, C3, C4, C5 등등
 1. 고수준 특징(C5)에서 부터 아래로 내려오면서 upsampling 후 저수준 저수준 특징에 결합
@@ -120,7 +126,8 @@ upsampling된 특징과 하위 계층을 결합하여 위치정보 활용
   1. C3에 1*1 Conv를 적용한 뒤 업샘플링한 P4를 더해 P3 생성
 최종적으로 **여러 해상도의 피처 맵 P2,P3,P4,P5를 출력**
 → 이를 통해 다양한 크기의 객체 탐지가 가능해진다.
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 9](/img/mask-rcnn/09.png)
 
 1. **Network Head**
 - RoI Align 이후 Classification 과 mask 예측이 동시 진행.

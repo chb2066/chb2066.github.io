@@ -38,10 +38,12 @@ if 변화량 > clip_범위:
 1. 수집된 데이터로 일정 에폭동안 minibatch 학습으로 정책 최적화
 1. 정책 업데이트
 1. CLIP 을 통해서 정책 변화가 너무 커지지 않게 막음
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/rlhf/01.png)
 
 용례:
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 2](/img/rlhf/02.png)
 
 1. 병렬 액터가 환경을 동시에 실행
   1. 각 환경은 독립적으로 에이전트와 상호작용
@@ -57,7 +59,8 @@ if 변화량 > clip_범위:
 #### Learning to summarize from human feedback(RLHF 관련 첫 논문)
 
 [https://arxiv.org/pdf/2009.01325](https://arxiv.org/pdf/2009.01325)
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 3](/img/rlhf/03.png)
 
 1. 데이터 수집(Redit 같은 곳에서 원 데이터 가져옴.).
 1. 수집 데이터 기반으로 미리 만들어진 정책을 주고 병렬적 액터(한 정책에 한 액)가 요약문 생성.
@@ -95,7 +98,8 @@ PPO에 **사전 훈련 분포의 로그 가능도를 높이는 업데이트를 �
 
 알고리즘:
 [https://arxiv.org/pdf/2203.02155](https://arxiv.org/pdf/2203.02155)
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 4](/img/rlhf/04.png)
 
   1. prompt dataset 가져옴.
   1. 라벨러가 prompt에 대한 ‘좋은 예시 답변’을 작성한다.
@@ -125,9 +129,9 @@ loss = -E[log(σ(r_θ(x, y_w) - r_θ(x, y_l)))]
   - 행동은 text, token화하여 token 단위 loss로 학습 진행
 - 이를 통해 사람의 행동을 모사하여 정보를 retrival하고 synthesis 하는 방식을 학습 시킬 것이다. 추론은 rejection sampling을 통해 여러 답변을 생성하고 reward model 기준으로 최고 점수 답변을 출력한다.
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 5](/img/rlhf/05.png)
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 6](/img/rlhf/06.png)
 
 과정:
 **1. 데이터 수집 및 학습 단계**

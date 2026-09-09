@@ -15,10 +15,12 @@ mask prediction → mask denoising(L1 loss)도 차이점.
 2단계 상세 내용:
 1. 데이터셋은 소규모인 로봇조작 영상을 사용, 로봇팔 움직임에 대한 라벨 등을 사용하여 인과 관계를 학습 시킴.
 1. Loss(total)= Loss(teacher-forcing)+Loss(rollout)(다 회귀 loss)
-  > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/v-jepa-2/01.png)
 
   1. Loss(teacher-forcing)
-    > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 2](/img/v-jepa-2/02.png)
 
     1. at=액션, st= 현재상태, E(xt)는 현재 이미지를 predictor 에 넣은 것(출력은 st+1이 무엇일 지 예측하는 것)
     1. 현재 상태 st에 at라는 행동 데이터가 들어갔을 때의 출력 임베딩 벡터와 이후 실제 데이터 st+1의 임베딩 벡터 간 데이터의 분포를 최소화하여 임베딩 공간 상의 차이를 최소화 하는 것이 목적
@@ -27,7 +29,8 @@ mask prediction → mask denoising(L1 loss)도 차이점.
     1. 현재 상황 st 기준, predictor에 at 액션 넣고 나온 출력 st+1를 다시 모델에 넣고 at+1을 넣음(Autoregressive). 해당 과정을 T번 반복하여 st 상황에서 T 번 이후의 상황 at+T을 s1의 현재 상황과 액션(at~at+T까지)만 보고 예측하게 함.
     1. 예측한 결과의 임베딩과 실제 임베딩을 비교하여 임베딩 벡터 분포 차이 최소화
     → 행동과 액션 시퀀스에 따른 장기 상황 예측을 통해 행동 양상에 대한 예측과 단기 예측에 대한 보정 등을 가능하게 함.
-    > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 3](/img/v-jepa-2/03.png)
 
 1. V-JEPA 2-AC를 downstream tasks에 적용하는 법(옮겨진 객체 이미지로 손을 움직이게 하는 것이 목표)
   1. 현재 보고 있는 이미지와 물건이 옮겨진 이미지를 넣는다.

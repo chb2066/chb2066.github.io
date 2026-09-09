@@ -24,7 +24,8 @@ draft: true
 1. 대칭 U자형 구조
 1. FC Layer없이 conv 연산만을 사용.(공간 정보 소실 막음)
 1. 다운샘플링 경로에서 추출된 고해상도 특징을 업샘플링 경로와 결합하여 세밀한 정보를 복원(작은 이미지 정보)
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/unet/01.png)
 
 Encoder에서 CNN과정을 통해 이미지에 대한 전역적인 문맥을 학습하고 Decoder 과정에서 해상도를 복원하고 경계를 복원할 수 있다.
 **Encoder(축소) Contraction Path(Down 과정):**
@@ -54,15 +55,18 @@ skip connection을 하게 되면 upsampling 된 feature map에 인코더의 feat
 
 **학습 설정:**
 SGD 사용 , GPU memory한계 때문에 Overlap-Tile Strategy을 통해 large input tiles 사용(더 많은 문맥 정보 습득 가능)하고 batch_size를 1, Momentum 0.99 사용(배치크기가 작아서 이전 학습 샘플 영향 크게 받음.)
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 2](/img/unet/02.png)
 
 **손실 함수:**
 - 픽셀 단위 Softmax+ Cross Entropy loss 사용
 - Weight Map을 추가하여 경계를 강조 (Boundary Loss 적용)
-  > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 3](/img/unet/03.png)
 
 - 같은 클래스 내 인접한 객체들이 붙어 있는 경우, 경계를 학습하도록 추가 가중치 부여
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 4](/img/unet/04.png)
 
 **가중치 초기화:**
 네트워크의 Feature Map이 단위 분산을 유지하도록 초기 가중치 조정.

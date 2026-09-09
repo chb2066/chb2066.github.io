@@ -46,11 +46,12 @@ MAE, BEiT 같은 기법
     - x로부터 z에 해당하는 y의 임베딩을 예측하도록 학습함.
   - loss는 context encoder의 가중치를 조정하게 함
   - 붕괴 방지를 위해 target encoder는 EMA로 조금씩 변경
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/i-jepa/01.png)
 
 #### I-JEPA 세부 아키텍처
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 2](/img/i-jepa/02.png)
 
 > 위 사진에 context는 tagets에 해당되는 부분을 임의로 제거한 입력될 이미지이고 자른 사각형은 context내 검은 외부 배경 부분을 제외한 것을 의미
 

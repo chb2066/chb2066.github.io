@@ -29,7 +29,8 @@ cnn은 고정 파라미터에서 개발되고 자원을 많이 쓸 수 있으면
     - β = width 계수(채널 수)
     - γ= 입력 이미지의 해상도
 → 예시: depth는 건물의 층 수, width는 각 층의 면적을 의미한다고 보면 편함. width의 의미로 동일한 층 내에서 channel 수를 늘림에 따라 얻을 수 있는 특징 수가 늘어난다.)
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/efficientnet/01.png)
 
 #### Compound Model Scaling
 
@@ -39,7 +40,7 @@ cnn은 고정 파라미터에서 개발되고 자원을 많이 쓸 수 있으면
 
 #### EfficientNet Architecture
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 2](/img/efficientnet/02.png)
 
 - conv1, conv6 는 channels를 1배, 6배한 것을 의미함.
   1. channels n배(1 or 6)
@@ -58,11 +59,13 @@ cnn은 고정 파라미터에서 개발되고 자원을 많이 쓸 수 있으면
 - w= β(1.1) ^ φ
 - r= γ(1.15) ^ φ
 ex : B1: φ=1 → 2배, B2: φ=2 →4배 크기
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 3](/img/efficientnet/03.png)
 
 고찰: 동일 배율로 증가 시킨다 가정해도 배율이 작을 때와 클 때 최적의 파라미터 구성이 다를 수도 있지않나?
 → 맞다. 하지만 거의 유사한 경향성을 보이고 단순한 제한 조건으로도 좋은 성능을 내는 방향성이다.
 mobile net-v2 base로 변환 시킨 EfficientNet-B0 사용
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 4](/img/efficientnet/04.png)
 
 동일 성능 대 model에서 훨씬 더 적은 params 를 확인 가능

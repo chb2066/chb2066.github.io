@@ -36,7 +36,8 @@ Method
         - z= Emb(t) + Emb(c)
         - MLP(z) = γ, β
         - adaLN(x, z)= γ(z) * LayerNorm(x) + β (z)
-          > *[그림 자리 — Notion 원본에서 옮겨야 함]*
+
+![그림 1](/img/dit/01.png)
 
   - DiT block 구조:
     - adaLN-Zero 에 통과하여 해당 이미지의 시간과 클래스 정보가 입력됨.

@@ -79,9 +79,9 @@ x = attention_pooling(x)     # [batch, 2048] ← GAP 대신 attention 사용
 x = projection_to_embed(x)   # [batch, embed_dim]
 ```
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 1](/img/clip/01.png)
 
-> *[그림 자리 — Notion 원본에서 옮겨야 함]*
+![그림 2](/img/clip/02.png)
 
 1. ViT:
   1. 기본 ViT 논문에 있는 내용 그대로 사용. patch and position embeddings 전에 layer normalization을 추가하고 가벼운 초기화 방식으로 변경
