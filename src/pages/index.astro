@@ -1,0 +1,123 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const reviews = (await getCollection('reviews')).filter(e => !e.data.draft);
+const knowledge = (await getCollection('knowledge')).filter(e => !e.data.draft);
+const projects = (await getCollection('projects')).filter(e => !e.data.draft);
+const latest = [...reviews].sort((a,b) => b.data.date - a.data.date).slice(0,4);
+
+const areas = ['Vision-Language Models', 'LLM', 'Object Detection', 'Segmentation'];
+---
+<Base title="Hyunbin Choi — Computer Vision" description="Undergraduate researcher working on vision-language models. Paper reviews, concept notes, and project write-ups.">
+  <div class="wide">
+
+    <section style="padding:88px 0 56px;max-width:40rem">
+      <h1 class="h-hero rv">Hyunbin Choi</h1>
+      <p class="sub rv rv-1" style="margin-top:18px;font-size:17px">
+        Undergraduate researcher working on vision-language models.
+      </p>
+      <p class="sub rv rv-2" style="margin-top:12px">
+        Previously at AiRLab, Hanbat National University.
+      </p>
+      <div class="rv rv-3" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:22px">
+        {areas.map(a => <span class="badge badge-solid">{a}</span>)}
+      </div>
+      <div class="rv rv-4" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:26px">
+        <a class="btn" href="/reviews/">Paper reviews</a>
+        <a class="btn btn-outline" href="https://scholar.google.com/citations?user=8g2iGIkAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+        <a class="btn btn-ghost" href="mailto:hyunbin.choi@edu.hanbat.ac.kr">hyunbin.choi@edu.hanbat.ac.kr</a>
+      </div>
+    </section>
+
+    <section class="grid3 rv rv-5">
+      <a class="spot" href="/reviews/">
+        <div class="sh"><h3>Paper Reviews</h3><span class="cnt">{reviews.length}</span></div>
+        <p>What the paper claims, and where I disagree.</p>
+      </a>
+      <a class="spot" href="/knowledge/">
+        <div class="sh"><h3>Knowledge Base</h3><span class="cnt">{knowledge.length}</span></div>
+        <p>Concepts I keep coming back to, in my own words.</p>
+      </a>
+      <a class="spot" href="/projects/">
+        <div class="sh"><h3>Project Notes</h3><span class="cnt">{projects.length}</span></div>
+        <p>What I tried, what failed, why I changed direction.</p>
+      </a>
+    </section>
+
+    {latest.length > 0 && (
+      <section class="sect">
+        <div class="sect-head"><h2>Recent reviews</h2><a href="/reviews/">All reviews →</a></div>
+        <div class="rows">
+          {latest.map(e => (
+            <a class="row" href={`/reviews/${e.id}/`}>
+              <div class="rt">
+                <h3>{e.data.title}</h3>
+                {e.data.venue && <span class="num">{e.data.venue}</span>}
+              </div>
+              <p class="rd">{e.data.claim}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section class="sect">
+      <div class="sect-head"><h2>Background</h2></div>
+      <div class="rows">
+        <div class="row" style="cursor:default">
+          <div class="rt"><h3>Hanbat National University</h3><span class="num">2021.03 – 2027.02</span></div>
+          <p class="rd">B.S. in Information and Communication Engineering. Daejeon, Korea.</p>
+        </div>
+        <div class="row" style="cursor:default">
+          <div class="rt"><h3>AiRLab · Undergraduate Researcher</h3><span class="num">2025.01 – 2026.08</span></div>
+          <p class="rd">Advised by Prof. Dong-Geol Choi. Computer vision and vision-language models, an ETRI-funded project, and the lab's multi-GPU training infrastructure.</p>
+        </div>
+        <div class="row" style="cursor:default">
+          <div class="rt"><h3>2nd place, 2025 SW·AI Competition</h3><span class="num">2025.06</span></div>
+          <p class="rd">Campus competition at Hanbat National University. Advanced to the national round as a university representative.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sect">
+      <div class="sect-head"><h2>Publication</h2></div>
+      <div class="panel panel-pad">
+        <h3 style="font-size:15.5px;font-weight:600;line-height:1.5">
+          Hierarchical Knowledge Distillation Network for Image Classification in Incomplete Real-World Data Environments
+        </h3>
+        <p class="small" style="margin-top:10px">
+          Taeseop Kim, Hayun Jang, <b style="color:var(--foreground)">Hyunbin Choi</b>, Hyobin Park, Yuhyun Kim, Dong-Geol Choi
+        </p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px">
+          <span class="badge badge-brand">KCI</span>
+          <span class="badge">J. Korean Inst. Next Gener. Comput.</span>
+          <span class="badge">22(3), pp. 71–84, 2026</span>
+        </div>
+        <p class="small" style="margin-top:14px">
+          Hierarchical knowledge distillation under incomplete hierarchical labels. I ran the training and benchmark comparison experiments.
+        </p>
+      </div>
+    </section>
+
+    <section class="sect" style="padding-bottom:80px">
+      <div class="sect-head"><h2>Projects</h2><a href="/projects/">Notes →</a></div>
+      <div class="rows">
+        <a class="row" href="/projects/traditional-patterns/">
+          <div class="rt"><h3>Emotion labels for Korean traditional patterns</h3><span class="num">2026.06 – 2026.08</span></div>
+          <p class="rd">Image-only accuracy would not move past a ceiling that turned out to be a property of the data, not the models. Redesigned around a fusion model where the image measurably contributes.</p>
+          <div class="rmeta"><span class="badge">Write-up available</span></div>
+        </a>
+        <div class="row" style="cursor:default">
+          <div class="rt"><h3>Anomaly and hazard detection</h3><span class="num">2026.05 – 2026.07</span></div>
+          <p class="rd">Built the training set from self-collected video since no public dataset covered the targets, and split one joint detector into two because the target types differ in appearance and temporal behavior.</p>
+        </div>
+        <div class="row" style="cursor:default">
+          <div class="rt"><h3>Building segmentation from satellite imagery</h3><span class="num">2026.01 – 2026.02</span></div>
+          <p class="rd">The same low score reproduced across three unrelated architectures, which pointed at a train/test resolution mismatch rather than model capacity.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</Base>

@@ -1,0 +1,67 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import TopBar from '../components/TopBar.astro';
+import CommandPalette from '../components/CommandPalette.astro';
+const { title, description = 'Hyunbin Choi — undergraduate researcher in computer vision.', katex = false } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  {katex && <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />}
+  <ClientRouter />
+  <script is:inline>
+    (function(){try{
+      var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    }catch(e){}})();
+  </script>
+</head>
+<body>
+  <div class="stack">
+    <TopBar />
+    <slot />
+    <footer class="foot">
+      <div class="in">
+        <p>© 2026 Hyunbin Choi</p>
+        <div class="lk">
+          <a href="/reviews/">Reviews</a>
+          <a href="/knowledge/">Knowledge</a>
+          <a href="/projects/">Projects</a>
+          <a href="mailto:hyunbin.choi@edu.hanbat.ac.kr">Email</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <CommandPalette />
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const b = document.getElementById('tbtn');
+      if (b && !b.dataset.on) {
+        b.dataset.on = '1';
+        b.addEventListener('click', () => {
+          const r = document.documentElement;
+          const next = r.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          r.setAttribute('data-theme', next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+        });
+      }
+      document.querySelectorAll('.spot').forEach(el => {
+        if (el.dataset.on) return;
+        el.dataset.on = '1';
+        el.addEventListener('pointermove', e => {
+          const r = el.getBoundingClientRect();
+          el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+          el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+---
+import Doc from '../../layouts/Doc.astro';
+import { getCollection } from 'astro:content';
+const items = (await getCollection('projects')).filter(e => !e.data.draft)
+  .sort((a,b) => b.data.date - a.data.date);
+---
+<Doc title="Project Notes — Hyunbin Choi" description="What I tried, what failed, and why I changed direction.">
+  <h1 class="h-page rv">Project Notes</h1>
+  <p class="sub rv rv-1" style="margin-top:12px">
+    Process over results — what I tried, what failed, and what changed my mind.
+  </p>
+  <section class="sect">
+    {items.length ? (
+      <div class="rows">
+        {items.map(e => (
+          <a class="row" href={`/projects/${e.id}/`}>
+            <div class="rt"><h3>{e.data.title}</h3><span class="num">{e.data.period ?? ''}</span></div>
+            <p class="rd">{e.data.summary}</p>
+            <div class="rmeta">
+              {e.data.context && <span class="badge badge-solid">{e.data.context}</span>}
+              {e.data.tags.map(t => <span class="badge">{t}</span>)}
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : <div class="blank">No notes yet.</div>}
+  </section>
+</Doc>

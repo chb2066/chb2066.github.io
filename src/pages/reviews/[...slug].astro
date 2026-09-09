@@ -1,0 +1,22 @@
+---
+import Entry from '../../layouts/Entry.astro';
+import { getCollection, render } from 'astro:content';
+export async function getStaticPaths() {
+  const es = (await getCollection('reviews')).filter(e => !e.data.draft);
+  return es.map(e => ({ params: { slug: e.id }, props: { e } }));
+}
+const { e } = Astro.props;
+const { Content, headings } = await render(e);
+const d = e.data;
+const meta = [];
+if (d.paper)   meta.push({ k: 'Paper', v: d.paper });
+if (d.venue)   meta.push({ k: 'Venue', v: d.venue });
+if (d.authors) meta.push({ k: 'Authors', v: d.authors });
+if (d.link)    meta.push({ k: 'Link', v: `<a href="${d.link}" target="_blank" rel="noopener">${d.link.replace(/^https?:\/\//,'')}</a>` });
+meta.push({ k: 'Claim', v: d.claim });
+if (d.take)    meta.push({ k: 'My take', v: d.take });
+---
+<Entry title={d.title} kicker={d.tier === 'main' ? 'Paper review' : 'Foundational'}
+  back="/reviews/" backLabel="Reviews" meta={meta} tags={d.tags} headings={headings}>
+  <Content />
+</Entry>

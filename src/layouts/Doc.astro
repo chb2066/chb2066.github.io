@@ -1,0 +1,12 @@
+---
+import Base from './Base.astro';
+import Sidebar from '../components/Sidebar.astro';
+const { title, description, katex = false, toc = false } = Astro.props;
+---
+<Base title={title} description={description} katex={katex}>
+  <div class:list={['shell', toc && 'with-toc']}>
+    <Sidebar />
+    <main class="main"><slot /></main>
+    {toc && <slot name="toc" />}
+  </div>
+</Base>

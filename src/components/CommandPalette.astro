@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+const r = (await getCollection('reviews')).filter(e => !e.data.draft);
+const k = (await getCollection('knowledge')).filter(e => !e.data.draft);
+const p = (await getCollection('projects')).filter(e => !e.data.draft);
+const index = [
+  ...r.map(e => ({ t: e.data.title, u: `/reviews/${e.id}/`,   g: 'Review',     s: [e.data.venue, ...e.data.tags].filter(Boolean).join(' ') })),
+  ...k.map(e => ({ t: e.data.title, u: `/knowledge/${e.id}/`, g: 'Knowledge',     s: e.data.tags.join(' ') })),
+  ...p.map(e => ({ t: e.data.title, u: `/projects/${e.id}/`,  g: 'Project', s: e.data.tags.join(' ') })),
+  { t: 'All paper reviews', u: '/reviews/', g: 'Go', s: 'reviews' },
+  { t: 'Knowledge base', u: '/knowledge/', g: 'Go', s: 'knowledge' },
+  { t: 'Project notes', u: '/projects/', g: 'Go', s: 'projects' },
+  { t: 'Home', u: '/', g: 'Go', s: 'home' },
+];
+---
+<div class="cmdk" id="cmdk" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="ov" data-close></div>
+  <div class="box">
+    <div class="top">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--subtle)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg>
+      <input id="cq" type="text" placeholder="Search titles, venues, tags" autocomplete="off" spellcheck="false" />
+      <kbd>ESC</kbd>
+    </div>
+    <div class="list" id="clist"></div>
+  </div>
+</div>
+<script is:inline define:vars={{ index }}>
+(function(){
+  var el=document.getElementById('cmdk'), q=document.getElementById('cq'),
+      list=document.getElementById('clist'), open=document.getElementById('kopen');
+  if(!el) return;
+  var sel=0, shown=index;
+  function render(){
+    if(!shown.length){ list.innerHTML='<div class="none">No results</div>'; return; }
+    list.innerHTML=shown.map(function(i,n){
+      return '<a class="it" href="'+i.u+'"'+(n===sel?' data-sel':'')+'>'+
+             '<span class="t">'+i.t+'</span><span class="g">'+i.g+'</span></a>';
+    }).join('');
+  }
+  function filter(){
+    var v=(q.value||'').trim().toLowerCase(); sel=0;
+    shown=!v?index:index.filter(function(i){
+      return (i.t+' '+i.s+' '+i.g).toLowerCase().indexOf(v)>-1;
+    });
+    render();
+  }
+  function show(){ el.hidden=false; q.value=''; filter(); setTimeout(function(){q.focus()},10); }
+  function hide(){ el.hidden=true; }
+  if(open) open.addEventListener('click',show);
+  el.addEventListener('click',function(e){ if(e.target.hasAttribute('data-close')) hide(); });
+  q.addEventListener('input',filter);
+  document.addEventListener('keydown',function(e){
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); el.hidden?show():hide(); return; }
+    if(el.hidden) return;
+    if(e.key==='Escape'){ hide(); }
+    else if(e.key==='ArrowDown'){ e.preventDefault(); sel=Math.min(sel+1,shown.length-1); render(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); sel=Math.max(sel-1,0); render(); }
+    else if(e.key==='Enter'){ if(shown[sel]){ e.preventDefault(); location.href=shown[sel].u; } }
+  });
+  render();
+})();
+</script>

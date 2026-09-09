@@ -1,0 +1,87 @@
+---
+import Doc from '../../layouts/Doc.astro';
+import { getCollection } from 'astro:content';
+const all = (await getCollection('reviews')).filter(e => !e.data.draft)
+  .sort((a,b) => b.data.date - a.data.date);
+const main = all.filter(e => e.data.tier === 'main');
+const basic = all.filter(e => e.data.tier === 'basic');
+const tags = [...new Set(all.flatMap(e => e.data.tags))].sort();
+---
+<Doc title="Paper Reviews — Hyunbin Choi" description="What the paper claims, and where I disagree.">
+  <h1 class="h-page rv">Paper Reviews</h1>
+  <p class="sub rv rv-1" style="margin-top:12px">
+    Papers in my area get a full write-up. Foundational ones I already know get a single line.
+  </p>
+
+  <div class="rv rv-2" style="max-width:30rem;margin-top:24px">
+    <div class="field">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--subtle)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg>
+      <input id="q" type="search" placeholder="Title, venue, tag" autocomplete="off" />
+    </div>
+    {tags.length > 0 && <div class="chips" id="chips">{tags.map(t => <button class="chip" type="button" data-tag={t}>{t}</button>)}</div>}
+  </div>
+
+  <section class="sect">
+    <div class="sect-head"><h2>In depth</h2><span class="tiny">{main.length}</span></div>
+    {main.length ? (
+      <div class="rows" id="mainrows">
+        {main.map(e => (
+          <a class="row" href={`/reviews/${e.id}/`} data-t={e.data.title} data-v={e.data.venue ?? ''} data-g={e.data.tags.join(' ')}>
+            <div class="rt">
+              <h3>{e.data.title}</h3>
+              {e.data.venue && <span class="num">{e.data.venue}</span>}
+            </div>
+            <p class="rd">{e.data.claim}</p>
+            {e.data.take && <p class="rtake">{e.data.take}</p>}
+            <div class="rmeta">{e.data.tags.map(t => <span class="badge">{t}</span>)}</div>
+          </a>
+        ))}
+      </div>
+    ) : <div class="blank">No reviews yet.</div>}
+  </section>
+
+  {basic.length > 0 && (
+    <section class="sect">
+      <div class="sect-head"><h2>Foundational</h2><span class="tiny">{basic.length}</span></div>
+      <div class="rows" id="basicrows">
+        {basic.map(e => (
+          <a class="row" href={`/reviews/${e.id}/`} data-t={e.data.title} data-v={e.data.venue ?? ''} data-g={e.data.tags.join(' ')}>
+            <div class="rt">
+              <h3 style="font-weight:500">{e.data.title}</h3>
+              {e.data.venue && <span class="num">{e.data.venue}</span>}
+            </div>
+            <p class="rd">{e.data.claim}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+  <div class="blank" id="none" style="display:none">No results.</div>
+
+  <script is:inline>
+  document.addEventListener('astro:page-load', function(){
+    var q=document.getElementById('q'), chips=document.getElementById('chips');
+    if(!q) return;
+    var rows=[].slice.call(document.querySelectorAll('.row[data-t]'));
+    var none=document.getElementById('none'), on=[];
+    function apply(){
+      var v=(q.value||'').trim().toLowerCase(), n=0;
+      rows.forEach(function(r){
+        var hay=(r.dataset.t+' '+r.dataset.v+' '+r.dataset.g).toLowerCase();
+        var okQ=!v||hay.indexOf(v)>-1;
+        var g=(r.dataset.g||'').split(' ');
+        var okT=!on.length||on.some(function(t){return g.indexOf(t)>-1});
+        var vis=okQ&&okT; r.style.display=vis?'':'none'; if(vis)n++;
+      });
+      if(none) none.style.display=n?'none':'block';
+    }
+    q.addEventListener('input',apply);
+    if(chips) chips.addEventListener('click',function(e){
+      var b=e.target.closest('.chip'); if(!b) return;
+      var t=b.dataset.tag, i=on.indexOf(t);
+      if(i>-1){on.splice(i,1);b.removeAttribute('data-on')} else {on.push(t);b.setAttribute('data-on','')}
+      apply();
+    });
+  });
+  </script>
+</Doc>

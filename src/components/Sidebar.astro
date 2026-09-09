@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+const path = Astro.url.pathname;
+const n = async (c) => (await getCollection(c)).filter(e => !e.data.draft).length;
+const groups = [
+  { lbl: 'Writing', items: [
+    { href: '/reviews/',   label: 'Paper Reviews', count: await n('reviews') },
+    { href: '/knowledge/', label: 'Knowledge Base', count: await n('knowledge') },
+    { href: '/projects/',  label: 'Project Notes', count: await n('projects') },
+  ]},
+  { lbl: 'About', items: [{ href: '/', label: 'Profile' }] },
+];
+---
+<aside class="side">
+  {groups.map(g => (
+    <div class="grp">
+      <div class="lbl">{g.lbl}</div>
+      {g.items.map(i => (
+        <a href={i.href} data-active={path === i.href ? '' : undefined}>
+          <span>{i.label}</span>
+          {i.count !== undefined && <span class="n">{i.count}</span>}
+        </a>
+      ))}
+    </div>
+  ))}
+</aside>

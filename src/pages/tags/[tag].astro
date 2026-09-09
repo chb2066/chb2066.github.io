@@ -1,0 +1,34 @@
+---
+import Doc from '../../layouts/Doc.astro';
+import { getCollection } from 'astro:content';
+export async function getStaticPaths() {
+  const r = (await getCollection('reviews')).filter(e => !e.data.draft);
+  const k = (await getCollection('knowledge')).filter(e => !e.data.draft);
+  const p = (await getCollection('projects')).filter(e => !e.data.draft);
+  const tags = [...new Set([...r, ...k, ...p].flatMap(e => e.data.tags))];
+  return tags.map(tag => ({
+    params: { tag },
+    props: { tag, items: [
+      ...r.filter(e => e.data.tags.includes(tag)).map(e => ({ e, kind: 'Review', base: 'reviews', d: e.data.claim })),
+      ...k.filter(e => e.data.tags.includes(tag)).map(e => ({ e, kind: 'Knowledge', base: 'knowledge', d: e.data.summary })),
+      ...p.filter(e => e.data.tags.includes(tag)).map(e => ({ e, kind: 'Project', base: 'projects', d: e.data.summary })),
+    ]},
+  }));
+}
+const { tag, items } = Astro.props;
+---
+<Doc title={`${tag} — Hyunbin Choi`}>
+  <div class="badge badge-brand rv">Tag</div>
+  <h1 class="h-page rv rv-1" style="margin-top:12px">{tag}</h1>
+  <p class="sub rv rv-2" style="margin-top:10px">{items.length} {items.length === 1 ? "entry" : "entries"} on this topic.</p>
+  <section class="sect">
+    <div class="rows">
+      {items.map(o => (
+        <a class="row" href={`/${o.base}/${o.e.id}/`}>
+          <div class="rt"><h3>{o.e.data.title}</h3><span class="badge">{o.kind}</span></div>
+          <p class="rd">{o.d}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</Doc>

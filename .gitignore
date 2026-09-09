@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+*.log
+
+# 로컬 개발 환경
+.venv/
+.vscode/
+
+# 원본 아카이브
+*.zip

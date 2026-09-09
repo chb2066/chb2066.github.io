@@ -1,0 +1,20 @@
+---
+import Entry from '../../layouts/Entry.astro';
+import { getCollection, render } from 'astro:content';
+export async function getStaticPaths() {
+  const es = (await getCollection('projects')).filter(e => !e.data.draft);
+  return es.map(e => ({ params: { slug: e.id }, props: { e } }));
+}
+const { e } = Astro.props;
+const { Content, headings } = await render(e);
+const d = e.data;
+const meta = [];
+if (d.context) meta.push({ k: 'Context', v: d.context });
+if (d.period)  meta.push({ k: 'Period', v: d.period });
+if (d.role)    meta.push({ k: 'Role', v: d.role });
+if (d.stack)   meta.push({ k: 'Stack', v: d.stack });
+---
+<Entry title={d.title} kicker="Project note" summary={d.summary}
+  back="/projects/" backLabel="Project Notes" meta={meta} tags={d.tags} headings={headings}>
+  <Content />
+</Entry>

@@ -1,0 +1,55 @@
+---
+import Base from './Base.astro';
+import Sidebar from '../components/Sidebar.astro';
+const { title, kicker, back, backLabel, summary, meta = [], tags = [], headings = [] } = Astro.props;
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+const hasToc = toc.length > 2;
+---
+<Base title={`${title} — Hyunbin Choi`} description={summary} katex={true}>
+  <div class:list={['shell', hasToc && 'with-toc']}>
+    <Sidebar />
+    <main class="main">
+      <a class="small" href={back} style="display:inline-block;margin-bottom:18px">← {backLabel}</a>
+      {kicker && <div class="badge badge-brand rv" style="margin-bottom:12px">{kicker}</div>}
+      <h1 class="h-page rv rv-1">{title}</h1>
+      {summary && <p class="sub rv rv-2" style="margin-top:12px">{summary}</p>}
+      {tags.length > 0 && (
+        <div class="rv rv-2" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:16px">
+          {tags.map(t => <a class="badge" href={`/tags/${encodeURIComponent(t)}/`}>{t}</a>)}
+        </div>
+      )}
+      {meta.length > 0 && (
+        <div class="panel panel-pad rv rv-3" style="margin-top:24px">
+          <dl class="kv">{meta.map(m => (<><dt>{m.k}</dt><dd set:html={m.v} /></>))}</dl>
+        </div>
+      )}
+      <hr class="sep" style="margin:34px 0" />
+      <article class="prose"><slot /></article>
+    </main>
+    {hasToc && (
+      <nav class="toc">
+        <div class="lbl">On this page</div>
+        {toc.map(h => <a href={`#${h.slug}`} class={h.depth === 3 ? 'd3' : ''}>{h.text}</a>)}
+      </nav>
+    )}
+  </div>
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const links = [...document.querySelectorAll('.toc a')];
+      if (!links.length) return;
+      const map = new Map();
+      links.forEach(a => {
+        const el = document.getElementById(decodeURIComponent(a.hash.slice(1)));
+        if (el) map.set(el, a);
+      });
+      const io = new IntersectionObserver(es => {
+        es.forEach(en => {
+          if (!en.isIntersecting) return;
+          links.forEach(a => a.removeAttribute('data-on'));
+          map.get(en.target)?.setAttribute('data-on', '');
+        });
+      }, { rootMargin: '-90px 0px -72% 0px' });
+      map.forEach((_, el) => io.observe(el));
+    });
+  </script>
+</Base>

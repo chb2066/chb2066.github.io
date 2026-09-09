@@ -1,0 +1,14 @@
+---
+import Entry from '../../layouts/Entry.astro';
+import { getCollection, render } from 'astro:content';
+export async function getStaticPaths() {
+  const es = (await getCollection('knowledge')).filter(e => !e.data.draft);
+  return es.map(e => ({ params: { slug: e.id }, props: { e } }));
+}
+const { e } = Astro.props;
+const { Content, headings } = await render(e);
+---
+<Entry title={e.data.title} kicker="Knowledge" summary={e.data.summary}
+  back="/knowledge/" backLabel="Knowledge Base" tags={e.data.tags} headings={headings}>
+  <Content />
+</Entry>
