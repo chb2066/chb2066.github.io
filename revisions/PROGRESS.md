@@ -24,14 +24,14 @@
 | 10 | `mask-rcnn` | Mask R-CNN | 1703.06870 | **완료** |
 | 11 | `ssd` | SSD: Single Shot MultiBox Detector | 1512.02325 | **완료** |
 
-## 우선순위 2 — 손볼 곳이 명확한 숨긴 글 (4편)
+## 우선순위 2 — 손볼 곳이 명확한 숨긴 글 (4편)  ✅ 전부 완료
 
 | # | slug | 문제 | arXiv | 상태 |
 |---|---|---|---|---|
 | 12 | `v-jepa` | related work 가 원문 직역. `Vidusal encoder-decoder`, `미세조장할 때` 같은 오타. 마지막 문장이 `EMA로 업데이` 에서 끊김 | 2404.08471 | **완료** |
 | 13 | `dinov1` | 「해결책」에 `centering`, `sharpness` 두 단어만 있고 설명이 없음 | 2104.14294 | **완료** |
 | 14 | `attention-is-all-you-need` | 본문에 `20250319 수정 필요`, `거쳐서 ~~~~` 가 남아 있음. 그림 15장 | 1706.03762 | **완료** |
-| 15 | `rlhf` | 논문 4편이 한 글에 뭉쳐 있음 → **분리 필요** (아래 참조) | — | 대기 |
+| 15 | `rlhf` | 논문 4편이 한 글에 뭉쳐 있음 → **분리 필요** (아래 참조) | — | **완료 (4편 분리)** |
 
 ### `rlhf` 분리 계획
 
@@ -93,3 +93,4 @@
 | 2026-09-10 | `v-jepa` | related work 전면 재작성(원문 직역·오타 제거). 끊긴 문장 완성. frozen 결과표 신설 |
 | 2026-09-10 | `dinov1` | 비어 있던 centering/sharpening 을 논문 3절로 채움(서로 반대 작용). k-NN 78.3% 등 결과 |
 | 2026-09-10 | `attention-is-all-you-need` | 미완성 표시 3곳을 encoder 블록 구조(FFN·residual·LayerNorm)로 채움. BLEU 결과 신설 |
+| 2026-09-10 | `rlhf` | ppo / learning-to-summarize / instructgpt / webgpt 4편으로 분리. Table 1 TODO 를 논문 명령어표로 채움 |
