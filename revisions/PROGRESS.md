@@ -13,8 +13,8 @@
 | # | slug | 논문 | arXiv | 상태 |
 |---|---|---|---|---|
 | 1 | `i-jepa` | Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture | 2301.08243 | **기준 형식** — 개정 불필요 |
-| 2 | `vla` | OpenVLA: An Open-Source Vision-Language-Action Model | 2406.09246 | 대기 |
-| 3 | `personaplex` | PersonaPlex: Voice and Role Control for Full Duplex Conversational Speech Models | 2602.06053 | 대기 |
+| 2 | `vla` | OpenVLA: An Open-Source Vision-Language-Action Model | 2406.09246 | **완료** |
+| 3 | `personaplex` | PersonaPlex: Voice and Role Control for Full Duplex Conversational Speech Models | 2602.06053 | **완료** |
 | 4 | `dinov2` | DINOv2: Learning Robust Visual Features without Supervision | 2304.07193 | 대기 |
 | 5 | `dit` | Scalable Diffusion Models with Transformers | 2212.09748 | 대기 |
 | 6 | `ibot` | iBOT: Image BERT Pre-Training with Online Tokenizer | 2111.07832 | 대기 |
@@ -80,3 +80,5 @@
 | 날짜 | slug | 한 일 |
 |---|---|---|
 | 2026-09-10 | — | 형식 명세와 진행표 작성. `vla` frontmatter 에 OpenVLA 링크·서지 확인해 반영 |
+| 2026-09-10 | `vla` | 배경 지식·세부 아키텍처·학습 설정·실험 결과 신설. 논문 3.1~4절에서 확인. 끝맺음 평서형 통일 |
+| 2026-09-10 | `personaplex` | 배경 지식·실험 결과(Table 1·2 수치) 신설. 절 번호를 내용 제목으로 교체 |
