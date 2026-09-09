@@ -6,7 +6,7 @@
 작업할 때마다 **위에서부터 `대기` 인 것 하나**를 골라 처리하고 이 표를 갱신한다.
 한 번에 한 편만 한다. 서두르지 않는다.
 
-## 우선순위 1 — 공개 중 (11편)
+## 우선순위 1 — 공개 중 (11편)  ✅ 전부 완료
 
 지금 사이트에 떠 있는 글들이라 먼저 손본다.
 
@@ -21,8 +21,8 @@
 | 7 | `clip` | Learning Transferable Visual Models From Natural Language Supervision | 2103.00020 | **완료** |
 | 8 | `efficientnet` | EfficientNet: Rethinking Model Scaling for CNNs | 1905.11946 | **완료** |
 | 9 | `swin` | Swin Transformer | 2103.14030 | **완료** |
-| 10 | `mask-rcnn` | Mask R-CNN | 1703.06870 | 대기 |
-| 11 | `ssd` | SSD: Single Shot MultiBox Detector | 1512.02325 | 대기 |
+| 10 | `mask-rcnn` | Mask R-CNN | 1703.06870 | **완료** |
+| 11 | `ssd` | SSD: Single Shot MultiBox Detector | 1512.02325 | **완료** |
 
 ## 우선순위 2 — 손볼 곳이 명확한 숨긴 글 (4편)
 
@@ -88,3 +88,5 @@
 | 2026-09-10 | `clip` | 「왜 contrastive 인가」(3배·4배 효율 근거), prompt engineering 절 신설 |
 | 2026-09-10 | `efficientnet` | α·β²·γ²≈2 제약의 근거(FLOPs 비대칭) 보강. B0 구조표·결과 수치 추가. 고찰 유지 |
 | 2026-09-10 | `swin` | 복잡도 식을 텍스트로 명시. cyclic vs padding 비교 추가. 결과를 실제 수치로 교체 |
+| 2026-09-10 | `mask-rcnn` | RoIAlign 효과(상대 10~50%)·COCO 결과표 보강. RoIAlign 전개와 FPN 추적은 유지 |
+| 2026-09-10 | `ssd` | VOC2007 결과표(74.3%/59FPS, Faster R-CNN·YOLO 대비) 신설. NMS 예시는 유지 |
