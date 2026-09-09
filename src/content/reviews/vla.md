@@ -1,5 +1,9 @@
 ---
-title: VLA
+title: OpenVLA
+paper: "OpenVLA: An Open-Source Vision-Language-Action Model"
+venue: CoRL 2024
+authors: Moo Jin Kim, Karl Pertsch, Siddharth Karamcheti, et al.
+link: https://arxiv.org/abs/2406.09246
 claim: 이미지와 언어 지시를 VLM 백본에 넣고, 연속적인 로봇 action을 이산 토큰으로 양자화해 autoregressive하게 생성한다.
 tags: [Vision-Language, Robotics]
 tier: main
