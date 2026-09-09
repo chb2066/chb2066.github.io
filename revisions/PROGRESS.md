@@ -15,8 +15,8 @@
 | 1 | `i-jepa` | Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture | 2301.08243 | **기준 형식** — 개정 불필요 |
 | 2 | `vla` | OpenVLA: An Open-Source Vision-Language-Action Model | 2406.09246 | **완료** |
 | 3 | `personaplex` | PersonaPlex: Voice and Role Control for Full Duplex Conversational Speech Models | 2602.06053 | **완료** |
-| 4 | `dinov2` | DINOv2: Learning Robust Visual Features without Supervision | 2304.07193 | 대기 |
-| 5 | `dit` | Scalable Diffusion Models with Transformers | 2212.09748 | 대기 |
+| 4 | `dinov2` | DINOv2: Learning Robust Visual Features without Supervision | 2304.07193 | **완료** |
+| 5 | `dit` | Scalable Diffusion Models with Transformers | 2212.09748 | **완료** |
 | 6 | `ibot` | iBOT: Image BERT Pre-Training with Online Tokenizer | 2111.07832 | 대기 |
 | 7 | `clip` | Learning Transferable Visual Models From Natural Language Supervision | 2103.00020 | 대기 |
 | 8 | `efficientnet` | EfficientNet: Rethinking Model Scaling for CNNs | 1905.11946 | 대기 |
@@ -82,3 +82,5 @@
 | 2026-09-10 | — | 형식 명세와 진행표 작성. `vla` frontmatter 에 OpenVLA 링크·서지 확인해 반영 |
 | 2026-09-10 | `vla` | 배경 지식·세부 아키텍처·학습 설정·실험 결과 신설. 논문 3.1~4절에서 확인. 끝맺음 평서형 통일 |
 | 2026-09-10 | `personaplex` | 배경 지식·실험 결과(Table 1·2 수치) 신설. 절 번호를 내용 제목으로 교체 |
+| 2026-09-10 | `dinov2` | 끊긴 마지막 문장(distill)을 논문 5절로 완성. 데이터 구축 수치·효율화 절 신설 |
+| 2026-09-10 | `dit` | 조건 주입 4가지 비교·스케일링 절 신설. 끊긴 문장 완성. FID 2.27 등 수치 보강 |
