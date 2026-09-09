@@ -28,9 +28,9 @@
 
 | # | slug | 문제 | arXiv | 상태 |
 |---|---|---|---|---|
-| 12 | `v-jepa` | related work 가 원문 직역. `Vidusal encoder-decoder`, `미세조장할 때` 같은 오타. 마지막 문장이 `EMA로 업데이` 에서 끊김 | 2404.08471 | 대기 |
-| 13 | `dinov1` | 「해결책」에 `centering`, `sharpness` 두 단어만 있고 설명이 없음 | 2104.14294 | 대기 |
-| 14 | `attention-is-all-you-need` | 본문에 `20250319 수정 필요`, `거쳐서 ~~~~` 가 남아 있음. 그림 15장 | 1706.03762 | 대기 |
+| 12 | `v-jepa` | related work 가 원문 직역. `Vidusal encoder-decoder`, `미세조장할 때` 같은 오타. 마지막 문장이 `EMA로 업데이` 에서 끊김 | 2404.08471 | **완료** |
+| 13 | `dinov1` | 「해결책」에 `centering`, `sharpness` 두 단어만 있고 설명이 없음 | 2104.14294 | **완료** |
+| 14 | `attention-is-all-you-need` | 본문에 `20250319 수정 필요`, `거쳐서 ~~~~` 가 남아 있음. 그림 15장 | 1706.03762 | **완료** |
 | 15 | `rlhf` | 논문 4편이 한 글에 뭉쳐 있음 → **분리 필요** (아래 참조) | — | 대기 |
 
 ### `rlhf` 분리 계획
@@ -90,3 +90,6 @@
 | 2026-09-10 | `swin` | 복잡도 식을 텍스트로 명시. cyclic vs padding 비교 추가. 결과를 실제 수치로 교체 |
 | 2026-09-10 | `mask-rcnn` | RoIAlign 효과(상대 10~50%)·COCO 결과표 보강. RoIAlign 전개와 FPN 추적은 유지 |
 | 2026-09-10 | `ssd` | VOC2007 결과표(74.3%/59FPS, Faster R-CNN·YOLO 대비) 신설. NMS 예시는 유지 |
+| 2026-09-10 | `v-jepa` | related work 전면 재작성(원문 직역·오타 제거). 끊긴 문장 완성. frozen 결과표 신설 |
+| 2026-09-10 | `dinov1` | 비어 있던 centering/sharpening 을 논문 3절로 채움(서로 반대 작용). k-NN 78.3% 등 결과 |
+| 2026-09-10 | `attention-is-all-you-need` | 미완성 표시 3곳을 encoder 블록 구조(FFN·residual·LayerNorm)로 채움. BLEU 결과 신설 |
