@@ -4,10 +4,11 @@ import { getCollection } from 'astro:content';
 const items = (await getCollection('knowledge')).filter(e => !e.data.draft)
   .sort((a,b) => a.data.title.localeCompare(b.data.title, 'ko'));
 ---
-<Doc title="Knowledge Base — Hyunbin Choi" description="Concepts I keep coming back to, rewritten in my own words.">
+<Doc title="Knowledge Base — Hyunbin Choi" description="Techniques written down by what they do, not what they are called — and the assumption each one depends on.">
   <h1 class="h-page rv">Knowledge Base</h1>
   <p class="sub rv rv-1" style="margin-top:12px">
-    Concepts I keep coming back to. Rewritten in my own words, including where I got them wrong first.
+    Techniques written down by what they <i>do</i>, not what they are called. Each entry ends with the
+    assumption it quietly depends on — that is usually where the interesting work starts.
   </p>
   <section class="sect">
     {items.length ? (
