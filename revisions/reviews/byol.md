@@ -17,6 +17,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: BYOL
@@ -31,8 +33,8 @@ draft: true
 ---
 
 #### 주요 전략
-1. online network에만 predictor를 두는 비대칭과 stop-gradient로 negative pair 없이 collapse 방지.
-2. target network를 EMA로 천천히 갱신해 안정적인 예측 목표 확보.
+1. online network에만 predictor를 두는 비대칭과 stop-gradient로 negative pair 없이 collapse 방지함.
+2. target network를 EMA로 천천히 갱신해 안정적인 예측 목표 확보함.
 
 #### 배경 지식
 
@@ -48,18 +50,18 @@ draft: true
 
 **두 네트워크**
 
-- **online network** — 학습 대상이다. encoder → projection head → **predictor**로 이어진다.
-- **target network** — encoder → projection head까지만 있고 **predictor가 없다.**
+- **online network** — 학습 대상임. encoder → projection head → **predictor**로 이어짐.
+- **target network** — encoder → projection head까지만 있고 **predictor가 없음.**
 
 동일한 이미지를 다르게 augmentation한 두 view에 대해 학습한다.
 
 **흐름**
 
-1. 같은 이미지에서 두 개의 view를 만든다.
-2. view 1은 online network를, view 2는 target network를 통과한다.
-3. online network는 projection 뒤에 **predictor(MLP)**를 한 번 더 거친다.
-4. predictor의 최종 출력 차원이 target network의 projection 출력 차원과 같으므로, **두 값을 직접 비교**할 수 있다.
-5. 그 차이를 loss로 줄인다.
+1. 같은 이미지에서 두 개의 view를 만듦.
+2. view 1은 online network를, view 2는 target network를 통과함.
+3. online network는 projection 뒤에 **predictor**(MLP)를 한 번 더 거침.
+4. predictor의 최종 출력 차원이 target network의 projection 출력 차원과 같으므로, **두 값을 직접 비교**할 수 있음.
+5. 그 차이를 loss로 줄임.
 
 **비대칭이 핵심이다.** online 쪽에만 predictor가 있고, target 쪽에는 없다. 양쪽이 대칭이면 두 출력이 같아지는 자명한 해로 무너진다.
 
@@ -71,8 +73,8 @@ MSE를 쓴다. 정확히는 정규화된 두 벡터의 평균제곱오차이고,
 
 **갱신 방식**
 
-- **online network** — loss로 역전파해서 학습한다. target의 분포와 최대한 가까워지는 방향으로 움직인다.
-- **target network** — 역전파하지 않는다. **online network의 파라미터를 EMA로 따라간다.**
+- **online network** — loss로 역전파해서 학습함. target의 분포와 최대한 가까워지는 방향으로 움직임.
+- **target network** — 역전파하지 않음. **online network의 파라미터를 EMA로 따라감.**
 
 ```text
 ξ ← τ·ξ + (1 − τ)·θ
@@ -100,9 +102,9 @@ target network는 online network의 과거 버전이다. 즉 **자기 자신의 
 
 #### 실험에서 확인된 것
 
-- **ImageNet linear evaluation 74.3%** (ResNet-50). 음성 샘플을 쓰는 당시 최고 방법들을 앞섰다.
-- **배치 크기에 덜 민감하다.** SimCLR은 배치가 작아지면 성능이 크게 떨어지는데, BYOL은 음성 샘플에 의존하지 않으므로 그 영향이 작다.
-- **augmentation 선택에도 더 강건하다.** contrastive 방법은 특정 augmentation(색상 왜곡 등)을 빼면 성능이 급락하는데, BYOL은 덜 그렇다.
+- **ImageNet linear evaluation 74.3%** (ResNet-50). 음성 샘플을 쓰는 당시 최고 방법들을 앞섰음.
+- **배치 크기에 덜 민감함.** SimCLR은 배치가 작아지면 성능이 크게 떨어지는데, BYOL은 음성 샘플에 의존하지 않으므로 그 영향이 작음.
+- **augmentation 선택에도 더 강건함.** contrastive 방법은 특정 augmentation(색상 왜곡 등)을 빼면 성능이 급락하는데, BYOL은 덜 그러함.
 
 두 번째와 세 번째가 실용적으로 중요하다. 큰 배치를 감당할 수 없거나, 도메인에 맞는 augmentation을 잘 모를 때 선택지가 된다.
 

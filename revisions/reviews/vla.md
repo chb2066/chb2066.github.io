@@ -14,6 +14,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: OpenVLA
@@ -29,8 +31,8 @@ draft: false
 ---
 
 #### 주요 전략
-1. 연속 행동을 quantile binning으로 256개 bin에 이산화하고, Llama tokenizer의 덜 쓰이는 토큰 256개에 덮어써서 연속 행동을 사용.
-2. SigLIP과 DINOv2의 임베딩을 모두 사용한 공간 이해도 증대.
+1. 연속 행동을 quantile binning으로 256개 bin에 이산화하고, Llama tokenizer의 덜 쓰이는 토큰 256개에 덮어써서 연속 행동을 사용함.
+2. SigLIP과 DINOv2의 임베딩을 모두 사용한 공간 이해도 증대함.
 
 #### 배경 지식
 
@@ -42,8 +44,8 @@ draft: false
 
 가장 가까운 선행 연구는 RT-2-X다. Open X-Embodiment 데이터로 학습한 55B 파라미터 VLA 정책이고, 당시 최고 성능이었다. 그런데 두 가지 문제가 있었다.
 
-1. **모델이 닫혀 있다.** 가중치도 학습 코드도 공개되지 않아서 아무도 이어서 연구할 수 없다.
-2. **새 태스크로 효율적으로 fine-tuning하는 방법이 탐색되지 않았다.** 실제로 쓰려면 이게 핵심인데 비어 있었다.
+1. **모델이 닫혀 있음.** 가중치도 학습 코드도 공개되지 않아서 아무도 이어서 연구할 수 없음.
+2. **새 태스크로 효율적으로 fine-tuning하는 방법이 탐색되지 않았음.** 실제로 쓰려면 이게 핵심인데 비어 있었음.
 
 #### OpenVLA method
 
@@ -55,8 +57,8 @@ draft: false
 
 **입력 구조**
 
-- vision encoder(DINOv2, SigLIP)로 이미지를 임베딩하고, Llama tokenizer로 언어 지시를 임베딩한다.
-- 이미지 패치 토큰과 언어 지시 토큰을 concat해서 LLM backbone에 넣는다.
+- vision encoder(DINOv2, SigLIP)로 이미지를 임베딩하고, Llama tokenizer로 언어 지시를 임베딩함.
+- 이미지 패치 토큰과 언어 지시 토큰을 concat해서 LLM backbone에 넣음.
 
 #### SigLIP을 쓰는 이유
 
@@ -76,7 +78,7 @@ CLIP은 배치 내 모든 쌍에 대해 softmax 기반 contrastive loss를 써�
 
 **백본: Prismatic-7B VLM**
 
-- **visual encoder** — SigLIP과 DINOv2 두 개. 입력 이미지 패치를 양쪽에 통과시킨 뒤 **feature를 채널 방향으로 concat**한다.
+- **visual encoder** — SigLIP과 DINOv2 두 개. 입력 이미지 패치를 양쪽에 통과시킨 뒤 **feature를 채널 방향으로 concat**함.
 - **projector** — 융합된 시각 feature를 언어 모델의 임베딩 차원으로 사상하는 2층 MLP.
 - **LLM backbone** — Llama 2 7B.
 
@@ -85,8 +87,8 @@ CLIP은 배치 내 모든 쌍에 대해 softmax 기반 contrastive loss를 써�
 연속 행동을 LLM이 다룰 수 있는 정수 토큰으로 바꾼다.
 
 - 실제 action 값 예시: `[0.023, -0.11, 0.87, 0.002, -0.45, 0.33, 1.0]` — 7-DOF (x, y, z, roll, pitch, yaw, gripper).
-- LLM은 토큰(정수)만 생성할 수 있는데 action은 연속값이다. 그래서 **각 차원을 독립적으로 256개 bin에 이산화**한다.
-- bin 폭은 학습 데이터 action 분포의 **1st ~ 99th quantile 구간을 균등 분할**해서 정한다.
+- LLM은 토큰(정수)만 생성할 수 있는데 action은 연속값임. 그래서 **각 차원을 독립적으로 256개 bin에 이산화**함.
+- bin 폭은 학습 데이터 action 분포의 **1st ~ 99th quantile 구간을 균등 분할**해서 정함.
 
 ```
        q1                          q99
@@ -134,9 +136,9 @@ Loss = (CE_x + CE_y + CE_z + CE_roll + CE_pitch + CE_yaw + CE_gripper) / 7
 
 #### 실험에서 확인된 것
 
-- **RT-2-X(55B) 대비 절대 성공률 +16.5%p.** 29개 태스크, 여러 로봇 embodiment에서. **파라미터는 7배 적다.**
-- **Diffusion Policy 대비 +20.4%p.** 여러 물체가 등장하고 강한 language grounding이 필요한 다중 태스크 환경에서 특히 강했다.
-- **LoRA로 소비자용 GPU에서 fine-tuning이 가능하고, 양자화해서 서빙해도 downstream 성공률이 떨어지지 않는다.**
+- **RT-2-X(55B) 대비 절대 성공률 +16.5%p.** 29개 태스크, 여러 로봇 embodiment에서. **파라미터는 7배 적음.**
+- **Diffusion Policy 대비 +20.4%p.** 여러 물체가 등장하고 강한 language grounding이 필요한 다중 태스크 환경에서 특히 강했음.
+- **LoRA로 소비자용 GPU에서 fine-tuning이 가능하고, 양자화해서 서빙해도 downstream 성공률이 떨어지지 않음.**
 
 #### 정리
 

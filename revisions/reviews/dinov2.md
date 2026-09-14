@@ -15,6 +15,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: DINOv2
@@ -29,15 +31,15 @@ draft: false
 ---
 
 #### 주요 전략
-1. 정제된 데이터를 검색 query로 삼아 비정제 데이터에서 유사한 것만 retrieval하는 자동 큐레이션.
-2. DINO와 iBOT loss를 함께 쓰고, 대규모 ViT에서 소형 모델로 distillation.
+1. 정제된 데이터를 검색 query로 삼아 비정제 데이터에서 유사한 것만 retrieval하는 방식으로 자동 큐레이션함.
+2. DINO와 iBOT loss를 함께 쓰고, 대규모 ViT에서 소형 모델로 distillation함.
 
 #### 배경 지식
 
 **Self-supervised learning의 두 갈래**
 
-- **Intra-image SSL** — 이미지의 가려진 부분을 복원하는 방식이다. 표현은 나오지만 fine-tuning을 해야 쓸 수 있다.
-- **Discriminative SSL** — 이미지 그룹 간 판별 신호로 특징을 학습한다. DINO, iBOT이 여기 속한다.
+- **Intra-image SSL** — 이미지의 가려진 부분을 복원하는 방식임. 표현은 나오지만 fine-tuning을 해야 쓸 수 있음.
+- **Discriminative SSL** — 이미지 그룹 간 판별 신호로 특징을 학습함. DINO, iBOT이 여기 속함.
 
 **Scaling의 문제**
 
@@ -49,8 +51,8 @@ ImageNet 같은 정제된 데이터로 특징을 뽑고, 인터넷의 비정제 
 
 검색 규칙은 query pool 크기에 따라 달라진다.
 
-- 기준 데이터가 크면 → 각 기준 이미지마다 가장 가까운 **N개**를 찾아온다.
-- 기준 데이터가 작으면 → 기준 이미지가 속한 **클러스터에서 M개**를 샘플링한다. 소수 데이터를 많이 가져온다는 뜻이다.
+- 기준 데이터가 크면 → 각 기준 이미지마다 가장 가까운 **N개**를 찾아옴.
+- 기준 데이터가 작으면 → 기준 이미지가 속한 **클러스터에서 M개**를 샘플링함. 소수 데이터를 많이 가져온다는 뜻임.
 
 유사도는 `q·k` 내적으로 구한다.
 
@@ -58,10 +60,10 @@ ImageNet 같은 정제된 데이터로 특징을 뽑고, 인터넷의 비정제 
 
 비정제 데이터 풀에서 정제 데이터와 닮은 이미지를 retrieval해서 최종 데이터셋을 만든다.
 
-1. 웹에서 `img` 태그의 URL을 추출한다. 부적절 URL 필터링, NSFW 필터링, 얼굴 블러 처리를 거쳐 **1.2B개의 고유 이미지**가 남는다.
-2. 중복을 제거한다. copy detection 파이프라인을 써서 비정제 데이터 안의 중복을 먼저 없애고, 정제 데이터와 겹치는 것도 뺀다.
-3. ViT 모델로 임베딩하고 이미지 간 유사도는 **cosine similarity**로 잰다.
-4. 비정제 데이터에 **k-means clustering**을 적용한 뒤 위의 retrieval 규칙으로 뽑는다.
+1. 웹에서 `img` 태그의 URL을 추출함. 부적절 URL 필터링, NSFW 필터링, 얼굴 블러 처리를 거쳐 **1.2B개의 고유 이미지**가 남음.
+2. 중복을 제거함. copy detection 파이프라인을 써서 비정제 데이터 안의 중복을 먼저 없애고, 정제 데이터와 겹치는 것도 뺌.
+3. ViT 모델로 임베딩하고 이미지 간 유사도는 **cosine similarity**로 측정함.
+4. 비정제 데이터에 **k-means clustering**을 적용한 뒤 위의 retrieval 규칙으로 뽑음.
 
 결과가 **LVD-142M**, 1억 4200만 장이다. 검색과 중복 제거는 Faiss 라이브러리로 처리한다.
 
@@ -83,8 +85,8 @@ DINO loss와 iBOT loss가 각각 학습 가능한 MLP projection head를 쓴다.
 
 teacher가 feature를 뽑고 projection head로 점수를 매기는 데까지는 같다. 그 다음이 갈린다.
 
-- **기존(DINO)** — softmax로 확률을 출력한 뒤 정답의 이동평균을 저장한다. centering으로 특정 칼럼이 정답으로 많이 나왔으면 점수를 깎고, sharpening으로 temperature를 조절한다.
-- **DINOv2** — MLP를 통과시켜 logit을 뽑고, 배치 내 전체 이미지가 정답 칸에 골고루 들어가도록 **SwAV의 Sinkhorn-Knopp 정규화**를 쓴다. 모든 칼럼을 각 칼럼 내 logit 합으로 나눠서, 특정 칼럼이 크면 패널티를 주고 작으면 어드밴티지를 주는 구조다. Sinkhorn-Knopp은 3회 반복한다.
+- **기존(DINO)** — softmax로 확률을 출력한 뒤 정답의 이동평균을 저장함. centering으로 특정 칼럼이 정답으로 많이 나왔으면 점수를 깎고, sharpening으로 temperature를 조절함.
+- **DINOv2** — MLP를 통과시켜 logit을 뽑고, 배치 내 전체 이미지가 정답 칸에 골고루 들어가도록 **SwAV의 Sinkhorn-Knopp 정규화**를 씀. 모든 칼럼을 각 칼럼 내 logit 합으로 나눠서, 특정 칼럼이 크면 패널티를 주고 작으면 어드밴티지를 주는 구조임. Sinkhorn-Knopp은 3회 반복함.
 
 **4. KoLeo regularizer 추가**
 
@@ -96,10 +98,10 @@ teacher가 feature를 뽑고 projection head로 점수를 매기는 데까지는
 
 distillation의 세부 조건은 이렇다. 목적함수 자체가 이미 teacher에서 student로의 distillation 형태이므로 **같은 학습 루프를 쓰되 몇 가지만 바꾼다.**
 
-- 더 큰 모델을 **frozen teacher**로 쓴다.
-- student의 EMA를 따로 유지해서 **그것을 최종 모델로 삼는다.**
-- masking과 stochastic depth를 **제거**한다.
-- iBOT loss는 **두 개의 global crop에만** 적용한다.
+- 더 큰 모델을 **frozen teacher**로 씀.
+- student의 EMA를 따로 유지해서 **그것을 최종 모델로 삼음.**
+- masking과 stochastic depth를 **제거**함.
+- iBOT loss는 **두 개의 global crop에만** 적용함.
 
 ablation에서 이 방식이 처음부터 학습시키는 것보다 낫다는 것이 확인됐고, **ViT-L 크기에서도 그랬다.**
 
@@ -107,10 +109,10 @@ ablation에서 이 방식이 처음부터 학습시키는 것보다 낫다는 �
 
 대규모로 밀어붙일 수 있었던 이유가 여기 있다. A100 GPU에서 PyTorch 2.0으로 학습한다.
 
-- **FlashAttention 자체 구현** — 메모리 효율적인 attention을 직접 구현했다.
-- **Sequence packing** — DINO 알고리즘은 224 해상도의 large crop과 그보다 작은 local crop을 함께 forward해야 한다. 길이가 다른 시퀀스를 따로 돌리면 낭비가 크므로, NLP에서 온 sequence packing으로 **여러 시퀀스를 이어붙여 한 번에 처리**한다.
-- **Efficient stochastic depth** — 건너뛸 층의 연산을 실제로 생략하도록 개선했다.
-- **FSDP (Fully-Sharded Data Parallel)** — AdamW의 옵티마이저 상태를 여러 GPU에 분산한다. 그래서 **모델 크기가 한 GPU 메모리에 묶이지 않는다.** GPU 간 통신 비용도 줄어든다.
+- **FlashAttention 자체 구현** — 메모리 효율적인 attention을 직접 구현했음.
+- **Sequence packing** — DINO 알고리즘은 224 해상도의 large crop과 그보다 작은 local crop을 함께 forward해야 함. 길이가 다른 시퀀스를 따로 돌리면 낭비가 크므로, NLP에서 온 sequence packing으로 **여러 시퀀스를 이어붙여 한 번에 처리**함.
+- **Efficient stochastic depth** — 건너뛸 층의 연산을 실제로 생략하도록 개선했음.
+- **FSDP (Fully-Sharded Data Parallel)** — AdamW의 옵티마이저 상태를 여러 GPU에 분산함. 그래서 **모델 크기가 한 GPU 메모리에 묶이지 않음.** GPU 간 통신 비용도 줄어듦.
 
 #### 정리
 

@@ -14,6 +14,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: CLIP
@@ -28,8 +30,8 @@ draft: false
 ---
 
 #### 주요 전략
-1. 캡션 생성 대신 이미지와 텍스트의 짝을 맞히는 contrastive 목적함수로 학습 효율 확보.
-2. 자연어를 클래스 인터페이스로 사용해 학습 없이 분류 대상 변경.
+1. 캡션 생성 대신 이미지와 텍스트의 짝을 맞히는 contrastive 목적함수로 학습 효율 확보함.
+2. 자연어를 클래스 인터페이스로 사용해 학습 없이 분류 대상 변경함.
 
 #### 요지
 
@@ -37,8 +39,8 @@ draft: false
 
 **핵심**
 
-- 이미지에 대한 보편적 개념을 학습한다.
-- 데이터 강건성이 뛰어나다. 환경이 바뀌면 성능이 급격히 떨어지는 기존 지도학습 모델과 달리, 성능 감소량이 매우 적다. Vision-Language 모델의 기본 특성이다.
+- 이미지에 대한 보편적 개념을 학습함.
+- 데이터 강건성이 뛰어남. 환경이 바뀌면 성능이 급격히 떨어지는 기존 지도학습 모델과 달리, 성능 감소량이 매우 적음. Vision-Language 모델의 기본 특성임.
 
 #### 배경 지식 — Natural Language Supervision
 
@@ -52,15 +54,15 @@ draft: false
 
 **자연어 지도의 강점**
 
-- 자연어 지도를 확장하는 것이 image classification용 crowd-sourced labeling보다 쉽다.
-- 인터넷에 있는 방대한 텍스트로부터 **수동적으로** 학습할 수 있다.
-- 단순히 표현을 학습하는 것이 아니라 **그 표현을 언어와 연결**한다. 그래서 유연한 zero-shot 전이가 가능해진다.
+- 자연어 지도를 확장하는 것이 image classification용 crowd-sourced labeling보다 쉬움.
+- 인터넷에 있는 방대한 텍스트로부터 **수동적으로** 학습할 수 있음.
+- 단순히 표현을 학습하는 것이 아니라 **그 표현을 언어와 연결**함. 그래서 유연한 zero-shot 전이가 가능해짐.
 
 #### 데이터셋 구축
 
-- 인터넷의 다양한 공개 소스에서 수집한 **4억 개의 (이미지, 텍스트) 쌍**으로 새 데이터셋을 만든다.
-- 광범위한 시각적 개념을 다루기 위해, **50만 개의 쿼리 집합** 중 하나를 포함하는 텍스트를 가진 쌍을 검색한다.
-- 쿼리당 최대 2만 개의 쌍을 넣어 **클래스 균형**을 맞춘다.
+- 인터넷의 다양한 공개 소스에서 수집한 **4억 개의 (이미지, 텍스트) 쌍**으로 새 데이터셋을 만듦.
+- 광범위한 시각적 개념을 다루기 위해, **50만 개의 쿼리 집합** 중 하나를 포함하는 텍스트를 가진 쌍을 검색함.
+- 쿼리당 최대 2만 개의 쌍을 넣어 **클래스 균형**을 맞춤.
 
 #### contrastive를 쓰는 이유
 
@@ -68,18 +70,18 @@ draft: false
 
 **학습 목표의 세 단계 비교**
 
-1. **이미지의 정확한 캡션 단어를 예측하기** — 가장 직관적인 목표다. 그런데 같은 이미지를 설명하는 방법은 무수히 많다. 이 목표는 **bag-of-words 인코딩 기준선보다 3배 느리게** 학습한다.
-2. **bag-of-words 예측** — 어순을 버리고 어떤 단어들이 등장하는지만 맞힌다.
-3. **contrastive 목표** — 같은 bag-of-words 기준선에서 예측 목표를 대조 목표로 바꾸면 **다시 4배의 효율 개선**이 나온다.
+1. **이미지의 정확한 캡션 단어를 예측하기** — 가장 직관적인 목표임. 그런데 같은 이미지를 설명하는 방법은 무수히 많음. 이 목표는 **bag-of-words 인코딩 기준선보다 3배 느리게** 학습함.
+2. **bag-of-words 예측** — 어순을 버리고 어떤 단어들이 등장하는지만 맞힘.
+3. **contrastive 목표** — 같은 bag-of-words 기준선에서 예측 목표를 대조 목표로 바꾸면 **다시 4배의 효율 개선**이 나옴.
 
 즉 **"정확한 단어가 무엇인가"를 버리고 "전체로서 어떤 텍스트가 어떤 이미지와 짝인가"만 남기는 것**이 핵심이다. 어려운 문제를 푸는 대신 쉬운 문제를 대규모로 푼다.
 
 **학습 방법**
 
-- 이미지 인코더와 텍스트 인코더를 **공동으로 훈련**한다.
-- 각 인코더의 표현을 **multi-modal embedding space**로 매핑하기 위해 linear projection을 쓴다.
-- N개의 (이미지, 텍스트) 쌍 배치가 주어지면, N×N 조합 중 실제 쌍의 cosine similarity를 최대화하고 나머지는 최소화한다.
-- similarity score에 대해 **symmetric cross entropy loss**를 최적화한다.
+- 이미지 인코더와 텍스트 인코더를 **공동으로 훈련**함.
+- 각 인코더의 표현을 **multi-modal embedding space**로 매핑하기 위해 linear projection을 씀.
+- N개의 (이미지, 텍스트) 쌍 배치가 주어지면, N×N 조합 중 실제 쌍의 cosine similarity를 최대화하고 나머지는 최소화함.
+- similarity score에 대해 **symmetric cross entropy loss**를 최적화함.
 
 ```text
 symmetric CE loss = (loss_i + loss_t) / 2
@@ -89,18 +91,18 @@ symmetric CE loss = (loss_i + loss_t) / 2
 
 **기타 설정**
 
-- 사전 훈련 데이터셋의 대부분이 단일 문장이므로 단일 문장 샘플링 함수를 제거한다.
-- augmentation을 최소화한다. random resize crop 정도만 쓴다.
-- softmax의 logit 범위를 제어하는 temperature 파라미터 τ를 수동 설정에서 **학습 가능하게** 바꾼다.
+- 사전 훈련 데이터셋의 대부분이 단일 문장이므로 단일 문장 샘플링 함수를 제거함.
+- augmentation을 최소화함. random resize crop 정도만 씀.
+- softmax의 logit 범위를 제어하는 temperature 파라미터 τ를 수동 설정에서 **학습 가능하게** 바꿈.
 
 #### 모델 선택과 스케일링
 
 **Image encoder — ResNet-50 계열 개조**
 
-1. **antialiased rect-2 blur pooling** 적용. 7×7 conv의 기존 max pooling을 blur pooling으로 바꾼다. 부드럽게 만든 뒤 max pooling한다.
-2. **ResNet-D의 일부 구조**를 가져온다. stride=2인 conv를 avg pooling으로 바꿔 성능을 올리는 방식이다.
-3. 마지막 층의 **Global Average Pooling을 attention pooling으로 교체**한다. 단순히 평균으로 눌러 flatten하던 구조에서, 특정 부분에 attention하고 학습 가능한 파라미터로 값을 최적화하는 구조로 바뀐다.
-4. EfficientNet의 아이디어를 가져와 채널 수, 레이어 수, resolution을 **최적 비율로 함께** 키운다.
+1. **antialiased rect-2 blur pooling** 적용. 7×7 conv의 기존 max pooling을 blur pooling으로 바꿈. 부드럽게 만든 뒤 max pooling함.
+2. **ResNet-D의 일부 구조**를 가져옴. stride=2인 conv를 avg pooling으로 바꿔 성능을 올리는 방식임.
+3. 마지막 층의 **Global Average Pooling을 attention pooling으로 교체**함. 단순히 평균으로 눌러 flatten하던 구조에서, 특정 부분에 attention하고 학습 가능한 파라미터로 값을 최적화하는 구조로 바뀜.
+4. EfficientNet의 아이디어를 가져와 채널 수, 레이어 수, resolution을 **최적 비율로 함께** 키움.
 
 ```python
 # 기존
@@ -122,8 +124,8 @@ x = projection_to_embed(x)   # [batch, embed_dim]
 
 **Image encoder — ViT**
 
-- 기본 ViT 논문의 내용을 그대로 쓴다. patch embedding과 position embedding 앞에 layer normalization을 추가하고 초기화 방식을 가볍게 바꾼 정도다.
-- 여기도 EfficientNet의 아이디어로 채널 수, 레이어 수, resolution을 최적 비율로 키운다.
+- 기본 ViT 논문의 내용을 그대로 씀. patch embedding과 position embedding 앞에 layer normalization을 추가하고 초기화 방식을 가볍게 바꾼 정도임.
+- 여기도 EfficientNet의 아이디어로 채널 수, 레이어 수, resolution을 최적 비율로 키움.
 
 **Text encoder**
 

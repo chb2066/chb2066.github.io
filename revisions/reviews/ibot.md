@@ -16,6 +16,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: iBOT
@@ -30,8 +32,8 @@ draft: false
 ---
 
 #### 주요 전략
-1. EMA teacher가 online tokenizer 역할을 겸해서 토크나이저 사전학습 단계 제거.
-2. blockwise masking으로 의미 단위를 가려 저수준 보간만으로 풀 수 없게 구성.
+1. EMA teacher가 online tokenizer 역할을 겸해서 토크나이저 사전학습 단계 제거함.
+2. blockwise masking으로 의미 단위를 가려 저수준 보간만으로 풀 수 없게 구성함.
 
 #### 요약
 
@@ -55,8 +57,8 @@ BERT류의 성공은 언어를 **의미 있는 단위로 토큰화**할 수 있�
 
 그래서 기존 MIM 연구들은 두 갈래로 갈렸다.
 
-- **항등 사상을 토크나이저로 쓰기** — 픽셀을 그대로 목표로 삼는다. 의미 추상화에 약하고, 고주파 디테일을 모델링하는 데 용량을 낭비한다.
-- **미리 학습한 토크나이저 쓰기** — pretrained VAE(DALL-E VAE 등)를 토크나이저로 쓴다. 저수준 의미만 포착되고, 다른 도메인으로 옮기기 어렵다.
+- **항등 사상을 토크나이저로 쓰기** — 픽셀을 그대로 목표로 삼음. 의미 추상화에 약하고, 고주파 디테일을 모델링하는 데 용량을 낭비함.
+- **미리 학습한 토크나이저 쓰기** — pretrained VAE(DALL-E VAE 등)를 토크나이저로 씀. 저수준 의미만 포착되고, 다른 도메인으로 옮기기 어려움.
 
 두 번째 방식은 **다단계 파이프라인**을 강요한다는 게 더 근본적인 문제다. 목표 모델을 학습하기 전에 의미가 풍부한 토크나이저를 먼저 학습시켜야 한다. 그런데 시각적 의미를 획득하는 것은 어차피 두 단계의 공통 목표다. **그렇다면 따로 할 이유가 있나.**
 
@@ -66,22 +68,22 @@ BERT류의 성공은 언어를 **의미 있는 단위로 토큰화**할 수 있�
 
 MIM을 **토크나이저로부터의 지식 증류**로 정식화한다. 토크나이저 역할을 하는 twin teacher의 도움을 받아 distillation한다.
 
-- **입력** — 타겟 네트워크(student)는 마스킹된 이미지를, 온라인 토크나이저(teacher)는 원본 이미지를 받는다.
-- **목표** — 타겟 네트워크가 마스킹된 각 패치 토큰을, 그 위치에 해당하는 토크나이저 출력으로 복원하게 한다.
+- **입력** — 타겟 네트워크(student)는 마스킹된 이미지를, 온라인 토크나이저(teacher)는 원본 이미지를 받음.
+- **목표** — 타겟 네트워크가 마스킹된 각 패치 토큰을, 그 위치에 해당하는 토크나이저 출력으로 복원하게 함.
 
 **이 방식으로 풀리는 문제**
 
-- 클래스 토큰에 대해 여러 각도의 이미지를 학습시켜 **고수준 시각적 의미**를 포착한다.
-- teacher가 momentum update로 MIM과 **공동 최적화**되므로, 전처리 단계에서 별도 학습이 필요 없다.
+- 클래스 토큰에 대해 여러 각도의 이미지를 학습시켜 **고수준 시각적 의미**를 포착함.
+- teacher가 momentum update로 MIM과 **공동 최적화**되므로, 전처리 단계에서 별도 학습이 필요 없음.
 
 #### 세부 구조
 
 **전체 흐름**
 
-1. 원본 이미지 `x`에서 augmentation으로 두 개의 view `u`, `v`를 만든다. DINO처럼 global view 2개가 기준이고, 여기에 local view도 추가로 생성해서 CLS loss 쪽에 쓴다.
-2. `u`, `v` 각각에 **blockwise masking**을 적용해 masked view `û`, `v̂`를 만든다.
-3. **Student network** — masked view `û`, `v̂`를 받아 patch token들의 예측 분포를 출력한다.
-4. **Teacher network**(online tokenizer, EMA로 업데이트) — **마스킹 안 된 원본 view** `u`, `v`를 받아 patch token들의 target 분포를 출력한다.
+1. 원본 이미지 `x`에서 augmentation으로 두 개의 view `u`, `v`를 만듦. DINO처럼 global view 2개가 기준이고, 여기에 local view도 추가로 생성해서 CLS loss 쪽에 씀.
+2. `u`, `v` 각각에 **blockwise masking**을 적용해 masked view `û`, `v̂`를 만듦.
+3. **Student network** — masked view `û`, `v̂`를 받아 patch token들의 예측 분포를 출력함.
+4. **Teacher network**(online tokenizer, EMA로 업데이트) — **마스킹 안 된 원본 view** `u`, `v`를 받아 patch token들의 target 분포를 출력함.
 
 **blockwise masking의 비율**
 
@@ -98,9 +100,9 @@ student가 본 masked view `û`의 각 마스킹 패치 예측이, teacher가 �
 
 **CLS Loss (DINO 방식 그대로)**
 
-- student의 CLS 토큰(masked view에서 나온 것)과 teacher의 CLS 토큰(다른 view에서 나온, 마스킹되지 않은 것)을 cross-view로 비교한다.
-- DINO의 self-distillation cross-entropy loss를 그대로 쓴다.
-- **global view와 local view 전체 조합**에 대해 계산한다. MIM과 달리 local view도 포함된다.
+- student의 CLS 토큰(masked view에서 나온 것)과 teacher의 CLS 토큰(다른 view에서 나온, 마스킹되지 않은 것)을 cross-view로 비교함.
+- DINO의 self-distillation cross-entropy loss를 그대로 씀.
+- **global view와 local view 전체 조합**에 대해 계산함. MIM과 달리 local view도 포함됨.
 
 **최종 Loss**
 
@@ -124,7 +126,7 @@ ViT-S/16, ViT-B/16, ViT-L/16, Swin-T 등 여러 backbone으로 실험한다. **o
 #### 실험에서 확인된 것
 
 - **ImageNet linear probing 82.3%** — ViT-L/16 기준.
-- **local semantic pattern이 창발한다.** 논문이 강조하는 부수 관찰인데, 이렇게 학습된 특징이 **강건성**과 dense prediction 태스크(객체 검출, instance segmentation, semantic segmentation)에서의 성능으로 이어진다.
+- **local semantic pattern이 창발함.** 논문이 강조하는 부수 관찰인데, 이렇게 학습된 특징이 **강건성**과 dense prediction 태스크(객체 검출, instance segmentation, semantic segmentation)에서의 성능으로 이어짐.
 
 #### 정리
 
@@ -132,4 +134,4 @@ ViT-S/16, ViT-B/16, ViT-L/16, Swin-T 등 여러 backbone으로 실험한다. **o
 
 목표 모델도 토크나이저도 결국 시각적 의미를 얻으려는 것이라면, 둘을 분리할 이유가 없다. EMA teacher가 이미 그 역할을 할 수 있고, 그러면 다단계 파이프라인이 한 단계로 접힌다.
 
-여기서 옮겨갈 만한 발상은 **"전처리 단계의 모델을 학습 루프 안으로 흡수하기"**다. 별도로 준비해야 했던 부품이 사실은 학습 중인 모델 자신으로 대체될 수 있는지 물어보는 것이다.
+여기서 옮겨갈 만한 발상은 "**전처리 단계의 모델을 학습 루프 안으로 흡수하기**"다다. 별도로 준비해야 했던 부품이 사실은 학습 중인 모델 자신으로 대체될 수 있는지 물어보는 것이다.

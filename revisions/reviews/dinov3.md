@@ -19,6 +19,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: DINOv3
@@ -33,8 +35,8 @@ draft: true
 ---
 
 #### 주요 전략
-1. 패치 자체가 아니라 패치 간 Gram 행렬을 과거 체크포인트에 정박시켜 dense feature 퇴화 방지.
-2. 고해상도 적응 단계를 추가해 얼린 백본으로 segmentation, depth estimation 수행.
+1. 패치 자체가 아니라 패치 간 Gram 행렬을 과거 체크포인트에 정박시켜 dense feature 퇴화 방지함.
+2. 고해상도 적응 단계를 추가해 얼린 백본으로 segmentation, depth estimation 수행함.
 
 #### 배경 지식
 
@@ -42,17 +44,17 @@ draft: true
 
 DINOv2는 성능이 좋다. 그런데 비정규화 데이터가 많거나 규모를 다루는 데서 문제가 있다.
 
-- 라벨링되지 않은 데이터에서 **쓸모 있는 데이터를 얼마나 모았는지 불분명하다.**
-- 보통 학습에 cosine schedule을 쓰는데, **큰 이미지를 학습할 때는 이게 좋지 않다.**
-- 학습이 진행되면서 **다루는 특징의 다양성이 점차 줄어든다.** 초기 학습 이후에는 비슷한 데이터만 처리하게 된다.
+- 라벨링되지 않은 데이터에서 **쓸모 있는 데이터를 얼마나 모았는지 불분명함.**
+- 보통 학습에 cosine schedule을 쓰는데, **큰 이미지를 학습할 때는 이게 좋지 않음.**
+- 학습이 진행되면서 **다루는 특징의 다양성이 점차 줄어듦.** 초기 학습 이후에는 비슷한 데이터만 처리하게 됨.
 
 이런 문제는 **ViT-Large보다 큰 모델을 더 오래 학습할 때** 나타나고, DINOv2도 예외가 아니다.
 
 **연구 목표**
 
-1. 다재다능한 기본 모델을 학습시킨다.
-2. **dense feature에서 SSL 모델의 약점을 개선한다.**
-3. 모델을 얼린 채로 써도 높은 성능이 나오게 한다.
+1. 다재다능한 기본 모델을 학습시킴.
+2. **dense feature에서 SSL 모델의 약점을 개선함.**
+3. 모델을 얼린 채로 써도 높은 성능이 나오게 함.
 
 목표는 결국 하나다. **단일 frozen SSL backbone을 범용 visual encoder로** 쓸 수 있게 만드는 것이다.
 
@@ -62,8 +64,8 @@ DINOv2는 성능이 좋다. 그런데 비정규화 데이터가 많거나 규모
 
 논문은 이를 **알려져 있지만 해결되지 않았던 문제**로 명시한다. 원인은 두 목표가 서로 상충한다는 데 있다.
 
-- 고수준 이해(전체 이미지가 무엇인가)를 잘하려면 세부를 버리고 추상화해야 한다.
-- dense feature 품질(각 패치가 무엇인가)을 지키려면 세부를 유지해야 한다.
+- 고수준 이해(전체 이미지가 무엇인가)를 잘하려면 세부를 버리고 추상화해야 함.
+- dense feature 품질(각 패치가 무엇인가)을 지키려면 세부를 유지해야 함.
 
 큰 모델일수록 오래 학습하면 전자로 기울고, **collapse에 취약**해진다.
 
@@ -81,11 +83,11 @@ DINOv2는 성능이 좋다. 그런데 비정규화 데이터가 많거나 규모
 
 **작동 구조**
 
-- **과거의 자기 자신을 teacher로 사용한다.** dense 성능이 낮아지기 전의 초기 모델을 가져와, dense한 특징을 잘 잡아내도록 규제한다.
-- teacher 모델과 student 모델에서 각각 패치 간 Gram matrix를 구한다.
-  - feature 행렬 `X`와 그 전치 `Xᵀ`를 곱하는 연산이다.
-  - 이 연산으로 패치들 사이의 관계를 나타내는 행렬이 만들어진다. attention과 비슷하지만, `X·Xᵀ` 형태라 값이 일정하게, 형태가 비슷하게 유지되는 성질을 활용한다.
-- 다음 식으로 teacher의 분포를 student가 닮아가게 한다.
+- **과거의 자기 자신을 teacher로 사용함.** dense 성능이 낮아지기 전의 초기 모델을 가져와, dense한 특징을 잘 잡아내도록 규제함.
+- teacher 모델과 student 모델에서 각각 패치 간 Gram matrix를 구함.
+  - feature 행렬 `X`와 그 전치 `Xᵀ`를 곱하는 연산임.
+  - 이 연산으로 패치들 사이의 관계를 나타내는 행렬이 만들어짐. attention과 비슷하지만, `X·Xᵀ` 형태라 값이 일정하게, 형태가 비슷하게 유지되는 성질을 활용함.
+- 다음 식으로 teacher의 분포를 student가 닮아가게 함.
 
 ```text
 L_Gram = || Gram_student − Gram_teacher ||²
@@ -98,22 +100,22 @@ L_Gram = || Gram_student − Gram_teacher ||²
 #### 모델 스케일과 Distillation
 
 - teacher 모델은 **7B 파라미터 ViT**다.
-- DINOv2와 마찬가지로 이 거대한 teacher 하나로 여러 크기의 student(ViT-S, B, L, 그리고 커스텀 S+, H+)를 **동시에 distillation**한다.
-- **Distillation 단계에서는 Gram anchoring을 쓰지 않는다.** 기존 objective만 쓴다. 작은 student는 애초에 dense feature 붕괴 문제가 덜하기 때문이다.
+- DINOv2와 마찬가지로 이 거대한 teacher 하나로 여러 크기의 student(ViT-S, B, L, 그리고 커스텀 S+, H+)를 **동시에 distillation**함.
+- **Distillation 단계에서는 Gram anchoring을 쓰지 않음.** 기존 objective만 씀. 작은 student는 애초에 dense feature 붕괴 문제가 덜하기 때문임.
 
 #### 고해상도 앵커링
 
 기본 학습 해상도는 효율성을 위해 **256**으로 작게 유지한다. 하지만 segmentation처럼 고해상도가 필요한 dense task를 위해 학습 후반부에 고해상도 적응 단계를 추가한다.
 
-- **Gram teacher가 student보다 높은 해상도로 이미지를 받아** 더 세밀한 patch-level feature를 뽑는다.
-- 이렇게 뽑은 teacher의 feature map을 student의 patch grid 크기에 맞춰 **다운샘플링**한 뒤 Gram matrix를 비교한다.
-- 고해상도 적응 단계에서는 global crop을 최대 768px까지 섞어서 10k iteration 정도 추가 학습한다.
+- **Gram teacher가 student보다 높은 해상도로 이미지를 받아** 더 세밀한 patch-level feature를 뽑음.
+- 이렇게 뽑은 teacher의 feature map을 student의 patch grid 크기에 맞춰 **다운샘플링**한 뒤 Gram matrix를 비교함.
+- 고해상도 적응 단계에서는 global crop을 최대 768px까지 섞어서 10k iteration 정도 추가 학습함.
 
 이 방식으로 **4k 해상도 입력에서도 안정적인 local feature가 유지**된다.
 
 #### 정리
 
-DINOv3가 푼 문제는 **"오래 학습할수록 dense feature가 무너진다"**이고, 해법은 **잃어가는 축만 골라 과거의 자기 자신에 정박시키는 것**이다.
+DINOv3가 푼 문제는 "**오래 학습할수록 dense feature가 무너진다**"이이고, 해법은 **잃어가는 축만 골라 과거의 자기 자신에 정박시키는 것**이다.
 
 여기서 옮겨갈 만한 재료가 두 개 들어 있다.
 

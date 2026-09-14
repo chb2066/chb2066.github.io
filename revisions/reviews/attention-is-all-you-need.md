@@ -21,6 +21,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: Attention Is All You Need
@@ -35,14 +37,14 @@ draft: true
 ---
 
 #### 주요 전략
-1. 순환 구조를 제거하고 self-attention만으로 시퀀스를 처리해 학습 병렬화.
-2. positional encoding으로 순서 정보를 별도 주입하고, multi-head로 서로 다른 관계를 동시에 포착.
+1. 순환 구조를 제거하고 self-attention만으로 시퀀스를 처리해 학습 병렬화함.
+2. positional encoding으로 순서 정보를 별도 주입하고, multi-head로 서로 다른 관계를 동시에 포착함.
 
 #### 사전 개념 — attention
 
 ![그림 1](/img/attention-is-all-you-need/01.png)
 
-**"어떤 정보를 찾아야 하는가"(query)**와 encoder에서 입력받은 문장의 모든 단어(key)를 비교해 단어 간 관련성에 따라 attention score를 출력한다. 여기에 단어들의 정보(value)를 곱해서 이를 반영한 새로운 벡터를 만든다.
+"**어떤 정보를 찾아야 하는가**"(query)와 encoder에서 입력받은 문장의 모든 단어(key)를 비교해 단어 간 관련성에 따라 attention score를 출력한다. 여기에 단어들의 정보(value)를 곱해서 이를 반영한 새로운 벡터를 만든다.
 
 이렇게 만들어진, **높은 attention score에 정보가 곱해진 벡터**로 다양한 태스크를 수행한다.
 
@@ -68,9 +70,9 @@ draft: true
 
 #### 입력 처리
 
-1. 문장을 토큰화한다. `the cat is playing on the mat` → `the`, `cat`, `is`, `playing`, …
-2. vocab을 사용해 토큰에 대응하는 ID로 변환한다.
-3. 임베딩 레이어에 넣어 고차원 벡터로 바꾼다.
+1. 문장을 토큰화함. `the cat is playing on the mat` → `the`, `cat`, `is`, `playing`, …
+2. vocab을 사용해 토큰에 대응하는 ID로 변환함.
+3. 임베딩 레이어에 넣어 고차원 벡터로 바꿈.
 
 **Positional Encoding**
 
@@ -154,20 +156,20 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 
 **1. Masked Self-Attention**
 
-- 정답값을 query, key, value에 넣는다. 현재 상태는 `q: [start]`, `k: [start]`, `v: [start]`이고 나머지는 mask된다.
-- **디코더가 예측한 단어들만 mask가 풀린다.** 지금은 `start`만 unmasked이고 이후 순차적으로 풀린다.
-  - 특이점: 틀려도 정답값이 mask된다.
-  - `start`로 시작점을, `EOS`로 멈출 시점을 정의한다.
-- unmasked된 단어들로 self-attention해서 관계를 학습한 벡터를 만든다.
-- 이 벡터를 cross-attention으로 보낸다.
+- 정답값을 query, key, value에 넣음. 현재 상태는 `q: [start]`, `k: [start]`, `v: [start]`이고 나머지는 mask됨.
+- **디코더가 예측한 단어들만 mask가 풀림.** 지금은 `start`만 unmasked이고 이후 순차적으로 풀림.
+  - 특이점: 틀려도 정답값이 mask됨.
+  - `start`로 시작점을, `EOS`로 멈출 시점을 정의함.
+- unmasked된 단어들로 self-attention해서 관계를 학습한 벡터를 만듦.
+- 이 벡터를 cross-attention으로 보냄.
 
 → **디코더가 지금까지 생성한 단어들의 context를 학습한다.**
 
 **2. Cross-Attention**
 
-- 앞 단계에서 받은 벡터를 query에 넣는다. 현재 상태는 `q: [start]`, `k`와 `v`: encoder의 context vector다.
-  - 특이점: query는 mask된 self-attention에서 학습된 값을 받는다.
-- attention으로 벡터를 만든다. encoder의 원본 정보가 반영된다.
+- 앞 단계에서 받은 벡터를 query에 넣음. 현재 상태는 `q: [start]`, `k`와 `v`: encoder의 context vector다.
+  - 특이점: query는 mask된 self-attention에서 학습된 값을 받음.
+- attention으로 벡터를 만듦. encoder의 원본 정보가 반영됨.
 
 → **디코더의 context와 원본 정보가 함께 반영된 벡터가 나온다.**
 
@@ -209,11 +211,11 @@ def forward(self, x):
     q = self.q_linear(x).view(x.size(0), x.size(1), self.h, self.d_k).transpose(1, 2)
 ```
 
-- 입력 `x.shape == [batch_size, seq_len, d_model]`이다.
-- `linear()`를 통과하면 `[batch_size, seq_len, d_k * num_head]`가 된다. `Linear(a, b)`는 마지막 차원이 `a`인 벡터를 받아 `b`로 변환한다.
-- `batch_size × seq_len`은 직사각형을 여러 개 붙여놓은 형태이고, 여기에 `d_k * num_head`를 곱해 직육면체로 만든다. 즉 기존 `x`를 query, key의 차원에 맞게 변환한 뒤 head 수만큼 차원을 키우는 것이다.
-- `view`로 `[batch, seq_len, num_heads * head_dim]`을 `[batch, seq_len, num_heads, head_dim]`으로 바꾼다. 키운 차원을 head 수로 나눠 forward한다.
-- `transpose(1, 2)`로 1번과 2번 위치를 교환한다.
+- 입력 `x.shape == [batch_size, seq_len, d_model]`임.
+- `linear()`를 통과하면 `[batch_size, seq_len, d_k * num_head]`가 됨. `Linear(a, b)`는 마지막 차원이 `a`인 벡터를 받아 `b`로 변환함.
+- `batch_size × seq_len`은 직사각형을 여러 개 붙여놓은 형태이고, 여기에 `d_k * num_head`를 곱해 직육면체로 만듦. 즉 기존 `x`를 query, key의 차원에 맞게 변환한 뒤 head 수만큼 차원을 키우는 것임.
+- `view`로 `[batch, seq_len, num_heads * head_dim]`을 `[batch, seq_len, num_heads, head_dim]`으로 바꿈. 키운 차원을 head 수로 나눠 forward함.
+- `transpose(1, 2)`로 1번과 2번 위치를 교환함.
 
 출력 벡터의 차원마다 하나의 편향이 필요하므로, `num_heads × head_dim`으로 각 출력값마다 하나씩 편향을 더한다.
 

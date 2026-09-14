@@ -15,6 +15,8 @@
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 - 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
   굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
+- 4차 개정: 닫는 ** 앞이 따옴표/괄호면 볼드가 적용되지 않던 문제 수정
+  (구두점을 볼드 밖으로). 목록 항목의 종결을 음슴체로 통일
 -->
 ---
 title: DiT
@@ -29,15 +31,15 @@ draft: false
 ---
 
 #### 주요 전략
-1. diffusion 백본을 U-Net에서 Transformer로 교체해 예측 가능한 스케일링 확보.
-2. 조건 주입 방식 네 가지를 비교해 adaLN-Zero 선택.
+1. diffusion 백본을 U-Net에서 Transformer로 교체해 예측 가능한 스케일링 확보함.
+2. 조건 주입 방식 네 가지를 비교해 adaLN-Zero 선택함.
 
 #### 배경 지식
 
 **기존 생성 방식**
 
-- **DDPM** — 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성한다.
-- **VAE** — latent space로 압축했다가 복원하며 이미지를 생성한다. 평균과 표준편차를 다룬다.
+- **DDPM** — 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성함.
+- **VAE** — latent space로 압축했다가 복원하며 이미지를 생성함. 평균과 표준편차를 다룸.
 
 **이 논문의 질문**
 
@@ -45,10 +47,10 @@ diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transfor
 
 #### 전체 흐름
 
-1. 원본 이미지를 입력한다.
-2. 사전 학습된 **VAE Encoder**를 통과시킨다. 기존에는 fc를 거쳤다면 여기서는 fc 없이 출력한다.
-3. **latent `z`**를 뽑는다.
-4. `z`를 **DiT**에 입력한다.
+1. 원본 이미지를 입력함.
+2. 사전 학습된 **VAE Encoder**를 통과시킴. 기존에는 fc를 거쳤다면 여기서는 fc 없이 출력함.
+3. **latent `z`**를 뽑음.
+4. `z`를 **DiT**에 입력함.
 
 즉 DiT는 픽셀이 아니라 latent 공간에서 동작한다. 이 부분은 Latent Diffusion과 같다.
 
@@ -57,8 +59,8 @@ diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transfor
 **Patchify**
 
 - 입력은 latent image다.
-- 패치화해서 일렬로 나열한다.
-- positional embedding으로 위치 정보를 더한다.
+- 패치화해서 일렬로 나열함.
+- positional embedding으로 위치 정보를 더함.
 
 여기서 **patch size `p`가 설계 다이얼**이다. `p`가 작을수록 토큰 시퀀스가 길어지고 Gflops가 늘어난다. 논문은 `p ∈ {2, 4, 8}`을 비교하는데, **작은 패치가 일관되게 더 낮은 FID를 낸다.**
 
@@ -67,11 +69,11 @@ diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transfor
 adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)를 쓴다.
 
 *기존 방식*
-- Layer norm은 γ, β로 한 이미지 내의 채널을 정규화한다.
-- 시간 `t`와 클래스 label `c`는 단순히 더하는 방식으로 값의 분포를 바꿨다.
+- Layer norm은 γ, β로 한 이미지 내의 채널을 정규화함.
+- 시간 `t`와 클래스 label `c`는 단순히 더하는 방식으로 값의 분포를 바꿨음.
 
 *adaLN-Zero 방식*
-- **γ, β가 `t`, `c`에 의해 바뀌도록** 하는 layer norm을 쓴다. 단순 값 변환이 아니라 feature map의 강도와 분포를 결정하게 만드는 것이다.
+- **γ, β가 `t`, `c`에 의해 바뀌도록** 하는 layer norm을 씀. 단순 값 변환이 아니라 feature map의 강도와 분포를 결정하게 만드는 것임.
 - 메커니즘:
   - `z = Emb(t) + Emb(c)`
   - `MLP(z) = γ, β`
@@ -80,15 +82,15 @@ adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)�
 ![그림 1](/img/dit/01.png)
 
 *블록 구조*
-- adaLN-Zero를 통과하며 시간과 클래스 정보가 주입된다.
-- **Self-Attention**으로 전역 정보를 얻고 noise 부분을 강조해 학습한다.
-- **Pointwise MLP**(각 패치에 대한 MLP)로 정보를 가공하고 업데이트한다.
+- adaLN-Zero를 통과하며 시간과 클래스 정보가 주입됨.
+- **Self-Attention**으로 전역 정보를 얻고 noise 부분을 강조해 학습함.
+- **Pointwise MLP**(각 패치에 대한 MLP)로 정보를 가공하고 업데이트함.
 
 **Final Layer**
 
-- Standard Layer Norm과 Linear로 데이터를 정리하고 차원을 맞춘다.
-- unpatchify로 재배치한다.
-- conv로 최종 출력을 낸다. VAE latent `z`의 예상 noise다.
+- Standard Layer Norm과 Linear로 데이터를 정리하고 차원을 맞춤.
+- unpatchify로 재배치함.
+- conv로 최종 출력을 냄. VAE latent `z`의 예상 noise다.
 
 #### 조건 주입 방식 비교
 
@@ -132,8 +134,8 @@ patch size와 조합하면 **0.3에서 118.6 Gflops까지** 커버한다.
 
 #### 학습과 생성
 
-- **학습** — 실제 노이즈와 DiT의 예측 noise 차이로 학습한다.
-- **생성** — DiT가 낸 noise를 latent `z`에서 빼고 VAE decoder에 넣어 이미지를 출력한다.
+- **학습** — 실제 노이즈와 DiT의 예측 noise 차이로 학습함.
+- **생성** — DiT가 낸 noise를 latent `z`에서 빼고 VAE decoder에 넣어 이미지를 출력함.
 
 **Classifier-Free Guidance**
 
@@ -141,6 +143,6 @@ DiT 실험에서 생성 품질을 크게 끌어올리는 요소로 CFG를 쓴다
 
 #### 정리
 
-이 논문이 남긴 것은 **"diffusion 백본에 Transformer의 스케일링 법칙이 그대로 적용된다"**는 확인이다. U-Net의 귀납 편향이 없어도 되고, 오히려 없는 편이 크게 키울 때 유리하다.
+이 논문이 남긴 것은 "**diffusion 백본에 Transformer의 스케일링 법칙이 그대로 적용된다**"는는 확인이다. U-Net의 귀납 편향이 없어도 되고, 오히려 없는 편이 크게 키울 때 유리하다.
 
 설계 측면에서 가져갈 것은 **adaLN-Zero**다. 전역 조건을 아주 싸게 주입하면서, zero-init으로 학습 초기를 안정화한다. 이 조합은 diffusion 밖에서도 동결 백본에 조건을 붙일 때 반복해서 등장한다.
