@@ -13,6 +13,8 @@
 - 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
   핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
+- 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
+  굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
 -->
 ---
 title: Mask R-CNN
@@ -32,7 +34,8 @@ draft: false
 
 #### 배경 지식
 
-**Mask R-CNN이 무엇을 확장했나**
+**Mask R-CNN이 확장한 것**
+
 Faster R-CNN을 확장한 모델이다. 기존의 classification과 bounding box regression에 더해, **객체의 픽셀 단위 존재 여부를 예측하는 branch를 병렬로 추가**한다. Faster R-CNN 자체는 anchor box 기반의 two-stage 검출 모델이다.
 
 ![그림 1](/img/mask-rcnn/01.png)
@@ -57,20 +60,25 @@ RoI Pooling은 FC Layer를 쓰기 위해 크기를 고정하는 과정이다.
 #### Mask R-CNN method
 
 **Faster R-CNN 복습**
+
 RPN으로 bounding box 후보를 만들고, RoIPool로 각 region proposal의 feature를 추출한 뒤, 객체 분류와 bounding box regression을 수행한다. 백본을 거쳐 생성된 feature map을 RPN과 RoI Head가 **함께 사용**해서 연산을 최적화한다.
 
 **Mask R-CNN의 추가**
+
 먼저 RPN을 수행한다. 이후 두 개의 출력(classification, bounding box offset)과 **병렬로** 각 RoI에 대한 객체 존재 여부를 출력한다.
 
 **Mask Prediction Head**
+
 mask branch는 각 RoI에 대해 `K × m²` 차원의 출력을 만든다. K개 클래스마다 하나씩, `m × m` 크기의 binary mask를 포함한다.
 
-**클래스 간 경쟁이 없다**
+**클래스 간 경쟁의 부재**
+
 mask branch는 K개 클래스 각각에 대해 **독립적으로 sigmoid를 적용해** binary mask를 예측한다. 그리고 classification branch에서 정해진 클래스에 해당하는 마스크만 최종적으로 선택한다.
 
 논문은 이 분리가 **필수적(essential)**이라고 명시한다. 클래스별로 경쟁시키면(softmax를 쓰면) 성능이 떨어진다. mask 예측과 class 분류를 분리한 것이 성능의 상당 부분을 만든다.
 
 **Lmask**
+
 RoI에서 최종 선택된 클래스에 대한 마스크만 픽셀 단위 sigmoid를 적용하고 loss 계산에 쓴다. **binary cross-entropy loss**로 정의한다.
 
 **전체 손실 함수**
@@ -80,6 +88,7 @@ RoI에서 최종 선택된 클래스에 대한 마스크만 픽셀 단위 sigmoi
 classification, box regression, mask 세 항의 합이다.
 
 **FCN을 쓰는 이유**
+
 각 RoI에서 `m × m` 마스크를 예측하기 위해 FCN을 쓴다. FC Layer의 flatten 과정이 없으므로 **공간 구조가 유지**된다.
 
 ![그림 4](/img/mask-rcnn/04.png)
@@ -88,7 +97,8 @@ FCN 방식이 FC 방식보다 **더 적은 파라미터로 더 높은 정확도*
 
 #### RoIAlign
 
-**왜 필요한가**
+**필요한 이유**
+
 pixel-to-pixel 방식의 마스크 예측에서는 공간 정렬이 정확하게 유지돼야 한다. 그런데 RoIPool은 정수형 변환을 거치므로 픽셀 단위 예측에서 손실이 크다.
 
 **핵심 아이디어**
@@ -108,11 +118,13 @@ f(xs, ys) = w11·V(x1,y1) + w21·V(x2,y1) + w12·V(x1,y2) + w22·V(x2,y2)
 ![그림 5](/img/mask-rcnn/05.png)
 
 **효과**
+
 RoIAlign은 **마스크 정확도를 상대적으로 10~50% 개선**한다. 그리고 **localization 기준이 엄격할수록(AP75 같은 지표) 향상 폭이 커진다.** 정렬 문제를 고친 것이 맞다는 증거다.
 
 #### 네트워크 구조
 
 **백본**
+
 ResNet 같은 백본에 **FPN(Feature Pyramid Network)**을 추가한다.
 
 이유는 명확하다. 기존 CNN은 깊은 층의 feature만 쓰므로 해상도가 낮아 **작은 객체를 놓친다.**
@@ -120,6 +132,7 @@ ResNet 같은 백본에 **FPN(Feature Pyramid Network)**을 추가한다.
 ![그림 6](/img/mask-rcnn/06.png)
 
 **FPN의 핵심 아이디어**
+
 - **top-down path** — 상위 계층을 upsampling해 해상도를 높인다. 작은 객체 탐지에 도움이 된다.
 - **lateral connection** — upsampling된 특징과 하위 계층을 결합해 위치 정보를 살린다.
 

@@ -13,6 +13,8 @@
 - 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
   핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
+- 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
+  굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
 -->
 ---
 title: DiT
@@ -33,10 +35,12 @@ draft: false
 #### 배경 지식
 
 **기존 생성 방식**
+
 - **DDPM** — 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성한다.
 - **VAE** — latent space로 압축했다가 복원하며 이미지를 생성한다. 평균과 표준편차를 다룬다.
 
 **이 논문의 질문**
+
 diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transformer는 다른 분야에서 **뛰어난 스케일링 특성**을 보여줬다. 그래서 묻는다 — diffusion에서 U-Net을 Transformer로 바꾸면 어떻게 되는가. 그리고 그 스케일링 특성이 따라오는가.
 
 #### 전체 흐름
@@ -51,6 +55,7 @@ diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transfor
 #### DiT method
 
 **Patchify**
+
 - 입력은 latent image다.
 - 패치화해서 일렬로 나열한다.
 - positional embedding으로 위치 정보를 더한다.
@@ -80,6 +85,7 @@ adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)�
 - **Pointwise MLP**(각 패치에 대한 MLP)로 정보를 가공하고 업데이트한다.
 
 **Final Layer**
+
 - Standard Layer Norm과 Linear로 데이터를 정리하고 차원을 맞춘다.
 - unpatchify로 재배치한다.
 - conv로 최종 출력을 낸다. VAE latent `z`의 예상 noise다.
@@ -97,7 +103,8 @@ adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)�
 
 **adaLN-Zero가 학습의 모든 단계에서 나머지 셋을 앞선다.** cross-attention은 가장 비싼데 성능은 더 낮다.
 
-**adaLN-Zero의 zero-init이 왜 좋은가**
+**adaLN-Zero의 zero-init이 좋은 이유**
+
 ResNet 계열에서 각 residual block을 항등함수로 초기화하는 게 이롭다는 것이 알려져 있었다. 각 블록의 마지막 batch norm scale을 0으로 초기화하면 대규모 학습이 빨라진다는 관찰이 있고, diffusion U-Net도 residual 연결 직전의 마지막 conv를 zero-init한다.
 
 DiT는 같은 것을 한다. **MLP가 모든 스케일 파라미터에 대해 zero-vector를 출력하도록 초기화해서, DiT 블록 전체가 처음에 항등함수가 되게** 만든다.
@@ -129,6 +136,7 @@ patch size와 조합하면 **0.3에서 118.6 Gflops까지** 커버한다.
 - **생성** — DiT가 낸 noise를 latent `z`에서 빼고 VAE decoder에 넣어 이미지를 출력한다.
 
 **Classifier-Free Guidance**
+
 DiT 실험에서 생성 품질을 크게 끌어올리는 요소로 CFG를 쓴다. 조건(class label `c`)이 있는 예측과 없는 예측을 각각 구해서, 그 차이를 증폭하는 방향으로 노이즈 예측을 보정한다. 조건에 더 충실하면서도 품질 높은 샘플이 나온다.
 
 #### 정리

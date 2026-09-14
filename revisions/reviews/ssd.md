@@ -12,6 +12,8 @@
 - 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
   핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
+- 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
+  굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
 -->
 ---
 title: SSD
@@ -47,6 +49,7 @@ draft: false
 - **YOLO** — single-shot으로 속도를 높였지만 정확도가 부족하다.
 
 **SSD의 차별점**
+
 - Faster R-CNN과 달리 **proposal도 feature resampling도 없이** 바로 검출한다.
 - YOLO처럼 single-shot이면서 **높은 정확도**를 낸다.
 
@@ -62,6 +65,7 @@ SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 �
 2. **각 feature map에서 default box를 쓴다.**
 
 **Default box란**
+
 - 객체 탐지를 위해 한 픽셀 기준으로 미리 생성하는, 서로 다른 크기와 비율의 박스들이다.
 - feature map을 통과할 때 **모든 픽셀마다 동일한 기준의 박스들**이 생성된다.
 - 이 default box를 기준으로 classification과 bounding box regression을 수행한다.
@@ -95,17 +99,21 @@ SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 �
 #### 모델의 주요 구성 요소
 
 **다중 스케일 feature map**
+
 추가 conv layer를 붙여 점진적으로 축소되는 feature map을 만들고, 이를 통해 여러 크기의 객체를 검출한다. **feature map이 클수록 작은 객체를 탐지**한다.
 
 **convolution 기반 예측**
+
 각 feature map에 작은 **3×3 conv filter**를 적용해 객체의 category score와 bounding box offset을 예측한다. 별도의 FC Layer가 없으므로 빠르다.
 
 **Default box와 종횡비**
+
 여러 크기의 각 feature map 셀마다 여러 개의 default box를 설정해 다양한 크기와 종횡비의 객체를 탐지한다.
 
 #### 학습
 
 **1. Matching Strategy**
+
 - 학습 시 각 default box를 실제 객체의 bounding box와 매칭해야 한다.
 - IoU를 계산해 **가장 높은 IoU를 가지는 default box**를 실제 객체와 매칭한다.
 - IoU가 **0.5 이상인 경우 추가로 매칭**해 학습을 좀 더 유연하게 만든다.
@@ -120,11 +128,13 @@ SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 �
 `N`은 매칭된 default box의 개수다.
 
 **3. Hard Negative Mining**
+
 - IoU ≥ 0.5면 positive(객체 존재, 학습 대상), IoU < 0.5면 negative(배경)로 판단한다.
 - positive로 분류된 박스에 대해서만 localization loss와 confidence loss를 적용한다. negative 박스는 classification loss만 쓴다.
 - 훈련 데이터에서 positive와 negative의 비율이 크게 불균형하므로, **negative 중 손실이 큰 상위 3배수만** 학습에 쓴다.
 
 **4. Data Augmentation**
+
 다양한 크기의 객체를 잘 탐지하도록 random crop과 여러 비율의 사전 변형을 적용한다. 실험 결과 데이터 증강을 추가하면 **mAP가 8.8% 향상**된다.
 
 #### 실험에서 확인된 것
@@ -142,7 +152,8 @@ Nvidia Titan X 기준이다. **SSD300이 Faster R-CNN보다 정확하면서 8배
 
 더 큰 데이터셋으로 학습하면 SSD300이 77.2%, SSD512가 79.8%까지 오른다.
 
-**속도 향상이 어디서 오는가**
+**속도 향상의 출처**
+
 근본적인 개선은 **proposal 생성과 픽셀, feature resampling 단계를 없앤 것**이다. 그 자리를 작은 conv filter로 대체했다. 그리고 그 필터를 **여러 스케일의 feature map에 적용하고 종횡비별로 예측을 분리**한 것이 정확도를 지켜준다.
 
 #### 정리

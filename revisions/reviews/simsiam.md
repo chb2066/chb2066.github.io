@@ -17,6 +17,8 @@
 - 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
   핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
+- 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
+  굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
 -->
 ---
 title: SimSiam
@@ -48,9 +50,11 @@ draft: true
 | BYOL | **모멘텀 인코더(EMA)** + predictor + stop-gradient |
 
 **기존 방법의 흐름**
+
 기존 contrastive learning에서는 teacher를 두고 EMA 같은 기법으로 갱신 속도를 조절했다. BYOL에서는 두 branch 중 하나에만 predictor를 두고 stop-gradient를 썼다.
 
 **SimSiam의 질문**
+
 그렇다면 **정말로 필요한 것은 무엇인가.** 하나씩 제거해보면 무엇이 남는가.
 
 #### SimSiam method
@@ -79,7 +83,7 @@ z: predictor 없이 나온 target 브랜치 출력 (stop-gradient 적용)
 L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 ```
 
-#### stop-gradient가 없으면 어떻게 되는가
+#### stop-gradient를 제거했을 때
 
 논문의 핵심 실험이다. **stop-gradient를 제거하면 즉시 붕괴한다.**
 
@@ -90,7 +94,7 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 
 **predictor도 필요하다.** predictor를 제거하면 역시 붕괴한다. 두 branch가 완전히 대칭이 되면 자명한 해로 수렴하기 때문이다.
 
-#### 왜 되는가 — EM 해석
+#### 동작 원리 — EM 해석
 
 논문이 제시하는 가설은 이 구조를 **두 변수를 번갈아 최적화하는 문제**로 보는 것이다.
 

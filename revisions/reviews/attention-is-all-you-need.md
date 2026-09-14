@@ -19,6 +19,8 @@
 - 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
   핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
   가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
+- 3차 개정: 학습 설정(하이퍼파라미터 나열) 블록 제거, 구어체 소제목을 명사구로,
+  굵은 소제목 뒤에 빈 줄을 넣어 본문과 같은 줄로 붙던 렌더링 문제 수정
 -->
 ---
 title: Attention Is All You Need
@@ -101,6 +103,7 @@ query와 key를 내적해 각 단어별 중요도를 확률로 변환한다.
 encoder는 **동일한 층 6개를 쌓은 구조**다. 그리고 각 층은 **두 개의 sub-layer**로 이루어진다.
 
 **sub-layer 1 — Multi-Head Self-Attention**
+
 위에서 설명한 self-attention이다.
 
 **sub-layer 2 — Position-wise Feed-Forward Network**
@@ -150,6 +153,7 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 예시: `[start] i am a student [EOS]` — `[start]` 기준으로 따라가 본다.
 
 **1. Masked Self-Attention**
+
 - 정답값을 query, key, value에 넣는다. 현재 상태는 `q: [start]`, `k: [start]`, `v: [start]`이고 나머지는 mask된다.
 - **디코더가 예측한 단어들만 mask가 풀린다.** 지금은 `start`만 unmasked이고 이후 순차적으로 풀린다.
   - 특이점: 틀려도 정답값이 mask된다.
@@ -160,6 +164,7 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 → **디코더가 지금까지 생성한 단어들의 context를 학습한다.**
 
 **2. Cross-Attention**
+
 - 앞 단계에서 받은 벡터를 query에 넣는다. 현재 상태는 `q: [start]`, `k`와 `v`: encoder의 context vector다.
   - 특이점: query는 mask된 self-attention에서 학습된 값을 받는다.
 - attention으로 벡터를 만든다. encoder의 원본 정보가 반영된다.
@@ -167,6 +172,7 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 → **디코더의 context와 원본 정보가 함께 반영된 벡터가 나온다.**
 
 **3. FFN**
+
 앞 단계의 벡터를 FFN에 넣는다.
 
 ![그림 8](/img/attention-is-all-you-need/08.png)
@@ -174,6 +180,7 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 차원 확장 → ReLU로 필요 없는 정보 제거 → 차원 축소 구조로 중요 정보를 강조한다.
 
 **4. 단어 예측**
+
 FFN을 거친 벡터를 선형 함수에 넣어 단어에 맞는 점수(logits)로 변환한다.
 
 ![그림 9](/img/attention-is-all-you-need/09.png)
@@ -183,6 +190,7 @@ FFN을 거친 벡터를 선형 함수에 넣어 단어에 맞는 점수(logits)�
 ![그림 10](/img/attention-is-all-you-need/10.png)
 
 **5. 반복**
+
 가장 확률이 높은 단어를 다음 단어로 쓰고, self-attention 과정에 그 단어를 추가해 위 과정을 반복한다.
 
 ![그림 11](/img/attention-is-all-you-need/11.png)
