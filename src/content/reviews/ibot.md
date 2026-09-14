@@ -10,60 +10,107 @@ date: 2025-05-14
 draft: false
 ---
 
-정리
-iBOT은 크게 두 가지 아이디어 사용
-1. DINO의 loss
-  1. teacher와 student가 각각 다른 뷰를 보게 하고 student가 teacher의 확률 분포를 따라가게 만드는 구조 + EMA를 통해 teacher 업데이트량을 조절하는 구조
-  1. teacher는 큰 뷰, student는 작은 뷰를 보고 학습을 하게 하여 loss를 통해 seg처럼 학습하게 함.
-1. Ibot의 MIM
-  1. teacher는 원본 이미지(masking x global o)를 보고 student 는 masking image(global + local global보다 local이 더 많은 2:8 or 2:10 정도, global 넣는 이유는 global없으면 학습 안됨, 부분 전체 관계 못봄 )를 본다.
-  1. 기존 dino는 cls 토큰만 썼다면 얘는 patch loss를 사용해서 masking 된 패치를 맞추는 loss를 추가됨.
-    1. MIM은 dino의 cls loss의 경우 다른 뷰를 통한 loss를 구하지만, 얘는 masking된 패치를 다루어야 하기 때문에  “MIM 목적함수(Loss)는 오직 두 개의 글로벌 뷰에만 적용” 한다.
+#### 주요 전략
+1. EMA teacher가 online tokenizer 역할을 겸해서 토크나이저 사전학습 단계 제거함.
+2. blockwise masking으로 의미 단위를 가려 저수준 보간만으로 풀 수 없게 구성함.
 
-### 서론
+#### 요약
 
-#### 기존 연구
+iBOT은 크게 두 가지 아이디어를 쓴다.
 
-**목표**
-- MIM을 위해서는 시각적 의미 학습을 위해 온라인 표현 학습을 통해 학습이 이루어져야 한다.
-- 토크나이저, 타겟 모델 둘 다 시각적 의미를 획득하는 것
-  - pretrained VAE가 토크나이저로 제안, 저수준 의미 포착만 가능, 타 도메인 사용 불가능 등의 단점 존재
+**1. DINO의 loss**
 
-#### **iBOT 등장**
+teacher와 student가 각각 다른 뷰를 보게 하고, student가 teacher의 확률 분포를 따라가게 만든다. EMA로 teacher의 업데이트량을 조절한다. teacher는 큰 뷰를, student는 작은 뷰를 보게 해서 부분에서 전체를 맞히도록 학습시킨다.
 
-MIM을 토크나이저로부터 지식 증류해서 토크나이저로서 트윈 티처 도움 받아 distillation하는 것을 제안
-**입력**
-타겟 네트워크: masking 이미지
-온라인 토크나이저: 원본 이미지
-**목표**
-타겟 네트워크가 마스킹된 각 패치 토큰을 그에 해당하는 토크나이저 출력으로 복원하게 하는 것
-**해결 할 수 있는 것**
-- 클래스 토큰에 대해 여러 각도의 이미지를 학습하게 하여 고수준 시각적 의미 포착
-- momentum update를 통해 MIM과 공동으로 최적화되서 전처리 설정에서 별도 학습 필요 없음
+**2. iBOT의 MIM**
 
-### 방법론
+teacher는 마스킹하지 않은 원본 이미지(global view만)를 보고, student는 마스킹된 이미지를 본다. student가 보는 뷰는 global과 local을 섞는데 local이 훨씬 많다. 대략 2:8에서 2:10 정도다. **global을 넣는 이유는 그게 없으면 학습이 안 되기 때문이다.** 부분과 전체의 관계를 볼 수 없다.
+
+기존 DINO가 cls 토큰만 썼다면, iBOT은 **patch loss를 추가**해서 마스킹된 패치를 맞히게 한다. 다만 DINO의 cls loss는 다른 뷰끼리 비교하는 반면, MIM은 마스킹된 패치를 다뤄야 하므로 **오직 두 개의 global view에만 적용**한다.
+
+#### 배경 지식
+
+**시각 토크나이저가 어려운 이유**
+
+BERT류의 성공은 언어를 **의미 있는 단위로 토큰화**할 수 있다는 데 기대고 있다. WordPiece 같은 것이다. 그런데 언어의 의미 단위는 단어 빈도 통계에서 자연스럽게 나오는 반면, **이미지는 연속적이라 시각적 의미를 그렇게 쉽게 뽑을 수 없다.**
+
+그래서 기존 MIM 연구들은 두 갈래로 갈렸다.
+
+- **항등 사상을 토크나이저로 쓰기** — 픽셀을 그대로 목표로 삼음. 의미 추상화에 약하고, 고주파 디테일을 모델링하는 데 용량을 낭비함.
+- **미리 학습한 토크나이저 쓰기** — pretrained VAE(DALL-E VAE 등)를 토크나이저로 씀. 저수준 의미만 포착되고, 다른 도메인으로 옮기기 어려움.
+
+두 번째 방식은 **다단계 파이프라인**을 강요한다는 게 더 근본적인 문제다. 목표 모델을 학습하기 전에 의미가 풍부한 토크나이저를 먼저 학습시켜야 한다. 그런데 시각적 의미를 획득하는 것은 어차피 두 단계의 공통 목표다. **그렇다면 따로 할 이유가 있나.**
+
+#### iBOT method
+
+**핵심 제안**
+
+MIM을 **토크나이저로부터의 knowledge distillation**으로 정식화한다. 토크나이저 역할을 하는 twin teacher의 도움을 받아 distillation한다.
+
+- **입력** — 타겟 네트워크(student)는 마스킹된 이미지를, 온라인 토크나이저(teacher)는 원본 이미지를 받음.
+- **목표** — 타겟 네트워크가 마스킹된 각 패치 토큰을, 그 위치에 해당하는 토크나이저 출력으로 복원하게 함.
+
+**이 방식으로 풀리는 문제**
+
+- 클래스 토큰에 대해 여러 각도의 이미지를 학습시켜 **고수준 시각적 의미**를 포착함.
+- teacher가 momentum update로 MIM과 **공동 최적화**되므로, 전처리 단계에서 별도 학습이 필요 없음.
+
+#### 세부 구조
 
 **전체 흐름**
-1. 원본 이미지 x에서 augmentation을 통해 두 개의 view(u, v) 생성(DINO처럼 global view 2개 기준, 여기에 local view도 추가로 생성해서 CLS loss 쪽에는 활용)
-1. u, v 각각에 **blockwise masking** 적용 → masked view (û, v̂) 생성
-1. Student network: masked view(û, v̂)를 입력받아 patch token들의 예측 분포 출력
-1. Teacher network(online tokenizer, EMA로 업데이트): **마스킹 안 된 원본 view**(u, v)를 입력받아 patch token들의 target 분포 출력
-**MIM Loss (Patch-level)**
 
-```javascript
-L_MIM = -Σᵢ P_teacher(uᵢ) · log P_student(ûᵢ) # (마스킹된 패치 위치 i에 대해서만 합산)
+1. 원본 이미지 `x`에서 augmentation으로 두 개의 view `u`, `v`를 만듦. DINO처럼 global view 2개가 기준이고, 여기에 local view도 추가로 생성해서 CLS loss 쪽에 씀.
+2. `u`, `v` 각각에 **blockwise masking**을 적용해 masked view `û`, `v̂`를 만듦.
+3. **Student network** — masked view `û`, `v̂`를 받아 patch token들의 예측 분포를 출력함.
+4. **Teacher network**(online tokenizer, EMA로 업데이트) — **마스킹 안 된 원본 view** `u`, `v`를 받아 patch token들의 target 분포를 출력함.
+
+**blockwise masking의 비율**
+
+prediction ratio `r`은 마스킹할 토큰의 비율이다. 논문의 기본 설정은 **`r = 0.3`**이고, 학습 중에는 **확률 0.5로 `r = 0`(마스킹 없음)을 섞고 나머지는 균등 분포에서 뽑는다.** 항상 마스킹하지 않는다는 점이 특징이다.
+
+**MIM Loss (patch 수준)**
+
+```text
+L_MIM = -Σᵢ P_teacher(uᵢ) · log P_student(ûᵢ)
+        (마스킹된 패치 위치 i 에 대해서만 합산)
 ```
 
-- Student가 본 masked view(û)의 각 마스킹 패치 예측이, teacher가 본 원본 view(u)의 같은 위치 패치 출력을 따라가도록 학습
-- u→û, v→v̂ 양쪽에 대해 동일하게 계산 후 평균이 loss는 두 개의 global view에만 적용(local view는 MIM 대상 아님)
-**CLS Loss (DINO 방식 그대로 차용)**
-- Student의 CLS 토큰(masked view에서 나온)과, teacher의 CLS 토큰(다른 view에서 나온, unmasked)을 cross-view로 비교
-- DINO의 self-distillation cross-entropy loss(L_CLS)를 그대로 사용
-- Global view + local view 전체 조합에 대해 계산 (MIM과 달리 local view도 포함됨)
+student가 본 masked view `û`의 각 마스킹 패치 예측이, teacher가 본 원본 view `u`의 같은 위치 패치 출력을 따라가도록 학습한다. `u→û`와 `v→v̂` 양쪽에 대해 동일하게 계산한 뒤 평균낸다. **이 loss는 두 개의 global view에만 적용된다.** local view는 MIM 대상이 아니다.
+
+**CLS Loss (DINO 방식 그대로)**
+
+- student의 CLS 토큰(masked view에서 나온 것)과 teacher의 CLS 토큰(다른 view에서 나온, 마스킹되지 않은 것)을 cross-view로 비교함.
+- DINO의 self-distillation cross-entropy loss를 그대로 씀.
+- **global view와 local view 전체 조합**에 대해 계산함. MIM과 달리 local view도 포함됨.
+
 **최종 Loss**
-L = L_MIM + L_CLS   (별도의 가중치(weighting) 없이 단순 합산)
-** Projection Head 공유**
-CLS 토큰과 patch 토큰에 대한 projection head를 공유해서 사용함(파라미터 따로 안 둠).
-→ DINOv2에서는 이 부분을 CLS/patch용으로 분리했는데, 그게 DINOv2가 iBOT loss를 가져오면서 명시한 차이점 중 하나였음(DINOv2 노트에 있는 "MLP head 2개 생성" 부분과 대응됨).
+
+```text
+L = L_MIM + L_CLS
+```
+
+별도의 가중치 없이 단순 합산한다.
+
+**Projection Head 공유**
+
+CLS 토큰과 patch 토큰의 projection head를 **공유**한다. 파라미터를 따로 두지 않는다.
+
+> DINOv2는 이 부분을 CLS용과 patch용으로 **분리**했다. iBOT loss를 가져오면서 명시한 차이점 중 하나이고, DINOv2 노트의 "MLP head 2개 생성" 부분과 대응된다.
+> 흥미로운 건 방향이 규모에 따라 뒤집힌다는 점이다. 작은 규모에서는 공유가 낫고, 크게 키우면 분리가 낫다.
+
 **Architecture**
-ViT-S/16, ViT-B/16, ViT-L/16, Swin-T 등 다양한 backbone으로 실험. Online tokenizer는 별도 pretrain 없이 MIM objective와 동시에 학습되는 게 핵심 특징 (기존 BEiT류가 미리 학습된 고정 tokenizer, 예: DALL-E VAE를 쓰던 것과 대비됨).
+
+ViT-S/16, ViT-B/16, ViT-L/16, Swin-T 등 여러 backbone으로 실험한다. **online tokenizer가 별도 pretrain 없이 MIM objective와 동시에 학습된다**는 게 핵심이다. 기존 BEiT류가 미리 학습된 고정 tokenizer(DALL-E VAE 등)를 쓰던 것과 대비된다.
+
+#### 실험에서 확인된 것
+
+- **ImageNet linear probing 82.3%** — ViT-L/16 기준.
+- **local semantic pattern이 창발함.** 논문이 강조하는 부수 관찰인데, 이렇게 학습된 특징이 **강건성**과 dense prediction 태스크(객체 검출, instance segmentation, semantic segmentation)에서의 성능으로 이어짐.
+
+#### 정리
+
+이 논문의 핵심은 **"토크나이저를 미리 학습시켜야 한다"는 전제를 없앤 것**이다.
+
+목표 모델도 토크나이저도 결국 시각적 의미를 얻으려는 것이라면, 둘을 분리할 이유가 없다. EMA teacher가 이미 그 역할을 할 수 있고, 그러면 다단계 파이프라인이 한 단계로 접힌다.
+
+여기서 옮겨갈 만한 발상은 "**전처리 단계의 모델을 학습 루프 안으로 흡수하기**"다. 별도로 준비해야 했던 부품이 사실은 학습 중인 모델 자신으로 대체될 수 있는지 물어보는 것이다.

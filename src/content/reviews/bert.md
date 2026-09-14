@@ -10,21 +10,33 @@ date: 2025-03-28
 draft: true
 ---
 
-#### **전이 학습 **
+#### 주요 전략
+1. 일부 토큰을 가리고 맞히는 Masked Language Model로 단방향 제약 없이 양쪽 문맥 사용함.
+2. 80/10/10 마스킹 배분으로 사전학습과 배포 사이의 분포 불일치 완화함.
 
-사전 학습된 모델이 대용량의 레이블링 되지 않는 데이터를 이용하여
-이용하여 언어 모델을 학습하고 이를 토대로 특정 작업을 위한
-신경망을 추가하는 방식
+#### 배경 지식
 
-#### **사전 학습 모델**
+**전이 학습**
 
-BERT는 기본적으로 대량의 단어 임베딩에 대해 사전 학습이 된 모델을 제공함 따라서 상대적으로 적은 자원만으로도 충분히 자연어 처리의 여러 일 수행 가능
+사전학습된 모델이 대용량의 라벨링되지 않은 데이터로 언어 모델을 학습하고, 이를 토대로 특정 작업을 위한 신경망을 추가하는 방식이다.
 
-#### **구조**
+**사전학습 모델**
+
+BERT는 기본적으로 대량의 단어 임베딩에 대해 사전학습된 모델을 제공한다. 따라서 상대적으로 적은 자원만으로도 자연어 처리의 여러 작업을 수행할 수 있다.
+
+**양방향이 어려운 이유**
+
+표준 언어 모델은 **단방향**일 수밖에 없다. 다음 단어를 예측하는 과제이므로 미래를 보면 안 되기 때문이다. 그런데 양쪽 문맥을 모두 보는 편이 이해 태스크에는 유리하다.
+
+문제는 **양방향 Transformer를 그냥 쌓으면 각 토큰이 여러 층을 거치며 간접적으로 자기 자신을 볼 수 있다**는 점이다. 그러면 예측이 무의미해진다.
+
+BERT는 이를 **Masked Language Model**로 우회한다. 일부 토큰을 가리고 그것만 맞히게 하면, 나머지 전체 문맥을 양방향으로 써도 된다.
+
+#### 구조
+
+세 가지 임베딩의 합으로 입력이 구성된다. 셋 모두 **학습 가능한** 임베딩이다. `nn.Embedding(num_embeddings, embedding_dim)`을 쓰고 내부에 파라미터가 있다.
 
 ![그림 1](/img/bert/01.png)
-
-세 임베딩 합으로 구성. 세 임베딩 모두 학습 가능한  embedding 을 사용한다.(nn.Embedding 사용, nn.Embedding(num_embeddings, embedding_dim)을 의미하고 내부에 파라미터가 존재)
 
 ```python
 import torch
@@ -43,12 +55,11 @@ class BERTEmbeddings(nn.Module):
     def forward(self, input_ids, token_type_ids=None):
         seq_length = input_ids.size(1)
         position_ids = torch.arange(seq_length, dtype=torch.long, device=input_ids.device)
-        position_ids = position_ids.unsqueeze(0).expand_as(input_ids)  # (batch_size, seq_length)
+        position_ids = position_ids.unsqueeze(0).expand_as(input_ids)
 
         if token_type_ids is None:
             token_type_ids = torch.zeros_like(input_ids)
 
-        # 각 임베딩 가져오기
         word_embeddings = self.token_embeddings(input_ids)
         pos_embeddings = self.position_embeddings(position_ids)
         seg_embeddings = self.segment_embeddings(token_type_ids)
@@ -57,58 +68,104 @@ class BERTEmbeddings(nn.Module):
         embeddings = self.layer_norm(embeddings)
         embeddings = self.dropout(embeddings)
         return embeddings
-
 ```
 
 **Token Embeddings**
-텍스트의 토큰 id를 임베딩 벡터로 변환
+
+텍스트의 토큰 ID를 임베딩 벡터로 변환한다.
 
 ```python
 self.token_embeddings = nn.Embedding(vocab_size, hidden_size)
 
-#vocab_size= tokenizer에 존재하는 전체 어휘 사전의 크기
-#ex) [cls], apple, ##ing, [sep]
-#hidden_size=각 토큰들을 임베딩할 떄 사용되는 차원 수,
-#BERT 구조에 따라 고정
-#(bert-base-uncased, bert-large-uncased 등등)
+# vocab_size  = tokenizer 에 존재하는 전체 어휘 사전의 크기
+#               예: [CLS], apple, ##ing, [SEP]
+# hidden_size = 각 토큰을 임베딩할 때 사용하는 차원 수.
+#               BERT 구조에 따라 고정된다 (bert-base-uncased, bert-large-uncased 등)
 ```
 
 ![그림 2](/img/bert/02.png)
 
-Segment Embedding
+**Segment Embedding**
 
 ```python
 self.segment_embeddings = nn.Embedding(type_vocab_size, hidden_size)
-##0, 1로 구분됨
+# 0, 1 로 구분된다
 ```
 
-pretrain 시 sep 토큰으로 문장 분리, 문장 구분을 위해 0, 1로 문장을 구분한다. 이를 통해 다음 문장이 맞는 문장인지를 예측하는 NSP를 수행함.
-두 개의 문장까지만 사용이 가능하기 때문에 두 문장 씩 잘라서 학습함
-Position Embedding
+사전학습 시 `[SEP]` 토큰으로 문장을 분리하고, 문장 구분을 위해 0과 1로 표시한다. 이를 통해 다음 문장이 맞는 문장인지 예측하는 NSP를 수행한다.
+
+**두 개의 문장까지만 사용할 수 있으므로 두 문장씩 잘라서 학습한다.**
+
+**Position Embedding**
 
 ```python
 self.position_embeddings = nn.Embedding(max_position_embeddings, hidden_size)
-#max_position_embedding은 한 번에 처리 가능 최대 토큰 수
+# max_position_embeddings 는 한 번에 처리 가능한 최대 토큰 수
 ```
 
-각 위치에 해당하는 고유한 위치 벡터
+각 위치에 해당하는 고유한 위치 벡터다.
 
 ![그림 3](/img/bert/03.png)
 
-**Pre-training**
-NSP
-2문장씩 끊어서 학습
-두 문장의 관계 이해를 위해 두 번째 문장이 첫 문장의 바로 다음에 오는 문장인지 예측.
-50%는 실제 문장, 50%는 전체 말뭉치에서 나오는 임의의 문장
-이를 통해 두 번째 문장이 임의의 문장인지 여부를 예측한다.
-CLS 토큰의 출력은 2*1 벡터로 변환
-IsNext_label은 softmax로 할당
+#### 사전학습
 
-MLM
-15%정도 Masking함(이 중 80%는 토큰을 mask로 10%는 토큰을 무작위 단어로 바꿈. 10%는 그대로 유).
-mask만을 예측함→문맥에 대한 이해도를 높이기 위함.
-Mask 토큰 복원 softmax
-독립 테스크 동시 작동하고 각자 계산 뒤 합
-전체 loss=Loss_MLM+Loss_NSP
-**Fine Tuning **
-max_token수만큼 끊어서 학습
+**NSP (Next Sentence Prediction)**
+
+두 문장씩 끊어서 학습한다. 두 문장의 관계를 이해하기 위해, **두 번째 문장이 첫 문장의 바로 다음에 오는 문장인지** 예측한다.
+
+- 50%는 실제로 이어지는 문장을 씀.
+- 50%는 전체 말뭉치에서 나온 임의의 문장을 씀.
+
+`[CLS]` 토큰의 출력을 2차원 벡터로 변환하고, `IsNext` 라벨을 softmax로 할당한다.
+
+**MLM (Masked Language Model)**
+
+전체 토큰의 **15% 정도를 마스킹**한다. 그리고 그 15% 안에서 다시 나눈다.
+
+| 비율 | 처리 |
+|---|---|
+| 80% | 토큰을 `[MASK]`로 바꾼다 |
+| 10% | 토큰을 무작위 단어로 바꾼다 |
+| 10% | **그대로 유지한다** |
+
+마스킹된 위치만 예측하게 하므로 문맥에 대한 이해도가 올라간다. 마스크 토큰 복원은 softmax로 한다.
+
+**80/10/10으로 나누는 이유**
+
+`[MASK]` 토큰은 **사전학습에만 등장하고 파인튜닝 시점에는 나타나지 않는다.** 100%를 `[MASK]`로 바꾸면 모델이 "마스크 자리만 신경 쓰면 된다"고 학습해버려서, 실제 문장을 다룰 때 표현이 약해진다.
+
+- **무작위 단어 10%** — 모델이 어떤 토큰이든 문맥으로 검증하게 만듦.
+- **원본 유지 10%** — 마스크 표시가 없어도 그 위치의 표현을 제대로 만들도록 강제함.
+
+사전학습과 파인튜닝 사이의 불일치를 줄이는 장치다.
+
+**전체 손실**
+
+MLM과 NSP는 **독립적인 태스크로 동시에 수행되며, 각각 계산한 뒤 합산한다.**
+
+```text
+Loss_total = Loss_MLM + Loss_NSP
+```
+
+#### Fine-tuning
+
+최대 토큰 수만큼 끊어서 학습한다. 사전학습된 파라미터 위에 태스크별 출력 층 하나만 얹으면 되므로, **구조를 크게 바꾸지 않고 다양한 태스크로 전이**된다.
+
+#### 실험에서 확인된 것
+
+| 벤치마크 | 성능 |
+|---|---|
+| GLUE | **80.5%** (기존 대비 +7.7%p) |
+| SQuAD v1.1 | F1 **93.2** |
+| SQuAD v2.0 | F1 **83.1** |
+| MultiNLI | **86.7%** |
+
+11개 자연어 처리 태스크에서 당시 최고 성능을 기록했다. **구조를 태스크마다 새로 설계하지 않고 같은 사전학습 모델에 출력 층만 바꿔 얹었다**는 점이 함께 강조된다.
+
+#### 정리
+
+BERT가 한 일은 **"양방향으로 보면 안 된다"는 제약을 과제 설계로 우회한 것**이다.
+
+다음 단어를 맞히는 과제는 본질적으로 단방향을 요구한다. 그런데 **일부를 가리고 그것만 맞히는 과제**로 바꾸면 나머지 전체를 양방향으로 볼 수 있다. 제약은 과제에서 나온 것이지 모델에서 나온 게 아니었다는 뜻이다.
+
+그리고 80/10/10 배분은 **사전학습과 배포 사이의 분포 불일치**를 다루는 사례다. 학습 시점에만 존재하는 인공물(`[MASK]`)에 모델이 의존하지 않게 만드는 것이고, 같은 문제는 다른 곳에서도 반복된다.

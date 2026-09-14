@@ -10,63 +10,124 @@ date: 2025-04-28
 draft: true
 ---
 
+#### 주요 전략
+1. "무엇을 자를지"를 프롬프트로 받는 promptable segmentation으로 과제 재정의함.
+2. 무거운 이미지 인코딩을 1회만 수행하고 경량 디코더만 재사용해 실시간 상호작용 확보함.
+
 #### 목적
 
-이미지를 한 번 인코딩해두고, 다양한 형태의 프롬프트로 원하는 부분만 골라 세그하게 하는 범용 세그멘테이션 파운데이션 모델
+이미지를 한 번 인코딩해두고, **다양한 형태의 프롬프트로 원하는 부분만 골라 분할**하게 하는 범용 segmentation 파운데이션 모델이다.
 
-#### 주요 용어
+#### 배경 지식
 
-foundation model와 downstream task:
-- foundation model은 방대한 양의 데이터로 사전 학습(pre-trained)된, 범용적인 능력을 갖춘 거대 AI 모델(ex: SAM)
-- downstream task는 위 모델을 통해서 해결하려는 구체적인 task를 의미한다.(ex: 의료 영상 분석, 자율 주행, 사진 편집 등)
+**foundation model과 downstream task**
 
-#### Abstract
+- **foundation model**은 방대한 데이터로 사전학습된, 범용적인 능력을 갖춘 거대 모델임.
+- **downstream task**는 그 모델로 해결하려는 구체적인 작업임. 의료 영상 분석, 자율 주행, 사진 편집 같은 것들임.
 
-모델을 위해 마스크 10억 개 및 1100만 개의 이미지로 구성된 데이터셋을 구축했다.
-프롬프트로 훈련될 수 있게 설계되어 새 이미지 분포, task에 대한 zero-shot transfer가 가능하다.
+**NLP에서 배운 것**
 
-#### Instruction
+웹 규모 데이터로 사전학습된 LLM은 제로샷 일반화 성능을 가진다. 핵심 메커니즘은 **prompt engineering**이다. 태스크를 손으로 만든 텍스트 프롬프트로 표현해주면, 모델이 파인튜닝 없이도 다양한 downstream task에서 일반화된 결과를 낸다. 이 능력은 데이터셋 크기, 모델 크기, 학습 비용이 커질수록 좋아진다.
 
-웹 수준의 데이터셋에서 pretrain 된 LLM은 제로샷 일반화 성능을 가진다.
-핵심 메커니즘은 prompt engineering task를 손으로 만든 텍스트 프롬프트로 표현해주면, 모델이 파인튜닝 없이도 다양한 downstream task에 더욱이 일반화된 결과를 낸다.
-이러한 능력은 데이터셋 크기, 모델 크기, 학습 비용이 커질수록 더 좋아진다.
-비전 분야에서도 foundation model 시도가 있었으나 대부분 image, text 쌍을 align 하는 방식을 사용한다.
-SAM은 segmentation에서도 비슷한 수준의 범용 pretraining task를 정의하는 걸 목표함.
+**비전에서의 시도**
 
-#### Task
+비전 분야에서도 foundation model 시도가 있었지만 대부분 **image-text 쌍을 정렬하는 방식**이었다. SAM은 segmentation에서도 비슷한 수준의 범용 사전학습 과제를 정의하는 것을 목표로 한다.
 
-모델은 NLP에서 영감을 받았다. 다음 토큰을 예측하는 task가 LLM의 foundation model 역할을 했던 것처럼, segmentation에서도 비슷한 수준의 범용 pretraining task를 정의하는 것을 목표로 한다.
-prompt는 전경/배경 점의 집합, 대략적인 box, mask, 자유 형식 텍스트 등 이미지에서 무엇을 segment할지 나타내는 모든 정보를 의미할 수 있다.
-promptable segmentation task는 **어떤 프롬프트가 주어져도 유효한 분할 마스크를 반환하는 것**이다. 프롬프트가 모호해서 여러 객체를 지칭할 수 있는 경우에도, 그 중 적어도 하나에 대해서는 합당한 마스크를 출력해야 한다.
-NLP 개념을 가져온 이유:
-1. 자연스러운 사전학습 알고리즘
-1. prompting을 통한 downstream segmentation task로 zero-shot transfer가 가능한 방법
+**데이터셋**
 
-#### **Pre-training**
+마스크 **10억 개**와 이미지 **1100만 장**으로 구성된 데이터셋을 구축했다. 프롬프트로 훈련될 수 있게 설계돼서 새 이미지 분포와 새 태스크에 대한 zero-shot transfer가 가능하다.
 
-각 학습 샘플에 대해 순차적인 프롬프트를 시뮬레이션하고, GT와 모델의 mask prediction을 비교한다.
-interactive segmentation에서 차용했지만 차이가 있다. 기존 interactive segmentation은 충분한 유저 입력 이후에 유효한 마스크를 점진적으로 예측하는 반면, SAM은 **프롬프트가 애매모호한 시점에도 곧바로 유효 마스크를 예측**하는 것이 목표다.
-이렇게 학습해야 data engine이 요구하는 automatic annotation처럼, 모호함을 포함한 사용 사례에서도 모델이 잘 작동한다. 이 task 자체가 난이도가 높아서, 특별히 설계된 모델링과 손실함수가 필요하다.
+#### Promptable Segmentation Task
 
-#### **Zero-shot transfer**
+모델은 NLP에서 영감을 받았다. **다음 토큰을 예측하는 과제가 LLM의 foundation model 역할을 했던 것처럼, segmentation에서도 비슷한 수준의 범용 사전학습 과제를 정의**하는 것이 목표다.
 
-pretraining task를 잘 학습하면, inference 시점에 어떤 프롬프트가 들어와도 적절히 반응할 수 있는 능력이 생긴다. 즉 downstream task는 적절한 prompt engineering만으로 해결 가능해진다.
-예를 들어 고양이 bounding box detector가 있다면, 그 탐지 box를 SAM에 프롬프트로 넣어주는 것만으로 고양이 instance segmentation을 풀 수 있다. 이런 식으로 넓은 범위의 실용적인 segmentation task가 prompting으로 변환될 수 있다.
-논문에서는 자동 데이터셋 라벨링 외에도 5가지 샘플 task를 통해 이 zero-shot transfer 능력을 보여준다.
+**프롬프트란**
 
-#### **Related tasks**
+전경/배경 점의 집합, 대략적인 박스, 마스크, 자유 형식 텍스트 등 **이미지에서 무엇을 segment할지 나타내는 모든 정보**가 될 수 있다.
 
-목표는 prompt engineering을 통해 기존 및 새로운 다양한 task에서 두루 쓸 수 있는 모델을 만드는 것이다.
-기존 multi-task system과의 차이가 중요하다. multi-task system은 고정된 여러 task를 수행하지만 학습 때 본 task와 테스트 때의 task가 동일하다. 반면 promptable segmentation으로 학습된 SAM은 **학습 시 보지 못한 새로운 task도 inference 시점에 수행**할 수 있다.
-이런 특성 덕분에 SAM은 더 큰 시스템의 구성요소로도 쓰일 수 있다. 예를 들어 instance segmentation을 하려면, promptable segmentation 모델을 기존 object detector와 결합하면 된다.
+**과제의 정의**
 
-#### SAM model 구성
+어떤 프롬프트가 주어져도 **유효한 분할 마스크를 반환**하는 것이다. 프롬프트가 모호해서 여러 객체를 지칭할 수 있는 경우에도, 그중 적어도 하나에 대해서는 합당한 마스크를 출력해야 한다.
 
-- Image encoder
-  - 고해상도 inputs를 처리하기 위해 최소한으로 적응된 pretrain model된 MAE를 사용한다.
-  - 이미지 인코더는 이미지 당 한 번 실행되며 모델에 프롬프트를 주기 전에 적용될 수 있다.
-- Prompt encoder
-  - 두 종류의 프롬프트를 고려한다: 희소한, 밀집된 성분 포착을 위한 prompts, positional encoding을 사용해서 sparse한 걸 표현하고, 각 프롬프트 타입을 위해 학습된 임베딩과 text encoder인 CLIP에서 나온 자유형 텍스트와 함께.
-  - image embedding에 넓은 요쇼를 더하고 conv를 사용하여 Dense prompt는 임베딩 된다.
-- Mask decoder
-  - mask decode는 이미지 임베딩, prompt embeddings, mask에 대한 출력 token을 효과적으로 매핑한다.
+NLP의 개념을 가져온 이유는 두 가지다.
+
+1. 자연스러운 사전학습 알고리즘이 됨.
+2. prompting을 통해 downstream segmentation task로 zero-shot transfer가 가능해짐.
+
+#### Pre-training
+
+각 학습 샘플에 대해 **순차적인 프롬프트를 시뮬레이션**하고, 정답과 모델의 마스크 예측을 비교한다.
+
+interactive segmentation에서 가져왔지만 차이가 있다. 기존 interactive segmentation은 **충분한 사용자 입력 이후에** 유효한 마스크를 점진적으로 예측하는 반면, SAM은 **프롬프트가 아직 모호한 시점에도 곧바로 유효한 마스크를 예측**하는 것이 목표다.
+
+이렇게 학습해야 data engine이 요구하는 자동 주석처럼, **모호함을 포함한 사용 사례에서도 모델이 잘 작동한다.** 이 과제 자체의 난이도가 높아서 특별히 설계된 모델링과 손실함수가 필요하다.
+
+#### Zero-shot transfer
+
+사전학습 과제를 잘 학습하면, 추론 시점에 **어떤 프롬프트가 들어와도 적절히 반응하는 능력**이 생긴다. 즉 downstream task를 적절한 prompt engineering만으로 해결할 수 있게 된다.
+
+예를 들어 고양이 bounding box detector가 있다면, 그 탐지 박스를 SAM에 프롬프트로 넣는 것만으로 고양이 instance segmentation을 풀 수 있다. 이런 식으로 **넓은 범위의 실용적인 segmentation task가 prompting으로 변환**된다.
+
+논문에서는 자동 데이터셋 라벨링 외에도 다섯 가지 샘플 태스크로 이 zero-shot transfer 능력을 보여준다.
+
+#### 기존 multi-task system과의 차이
+
+이 구분이 중요하다.
+
+- **multi-task system** — 고정된 여러 태스크를 수행하는데, **학습 때 본 태스크와 테스트 때의 태스크가 동일**함.
+- **promptable segmentation으로 학습된 SAM** — **학습 시 보지 못한 새로운 태스크도 추론 시점에 수행**할 수 있음.
+
+이 특성 덕분에 SAM은 **더 큰 시스템의 구성요소**로 쓰일 수 있다. instance segmentation을 하려면 기존 객체 검출기와 결합하기만 하면 된다.
+
+#### 모델 구조
+
+**Image encoder**
+
+- 확장성과 강력한 사전학습 방법을 고려해 **MAE로 사전학습된 ViT**를 씀. 고해상도 입력을 처리하도록 최소한만 수정했음.
+- **이미지당 한 번만 실행되고, 모델에 프롬프트를 주기 전에 미리 적용할 수 있음.** 이게 실시간 상호작용을 가능하게 하는 설계임. 무거운 인코딩은 한 번, 이후 프롬프트마다의 처리는 가벼움.
+
+**Prompt encoder**
+
+두 종류의 프롬프트를 다룬다.
+
+| 종류 | 무엇 | 어떻게 인코딩하나 |
+|---|---|---|
+| **sparse** | 점, 박스 | **positional encoding**에 프롬프트 타입별 **학습된 임베딩**을 더한다 |
+| **sparse** | 자유 형식 텍스트 | **CLIP의 텍스트 인코더**를 그대로 쓴다 |
+| **dense** | 마스크 | **convolution으로 임베딩**한 뒤 이미지 임베딩과 **원소별로 더한다** |
+
+**Mask decoder**
+
+이미지 임베딩, 프롬프트 임베딩, 출력 토큰을 마스크로 매핑한다.
+
+- Transformer decoder 블록을 변형한 것에 **동적 마스크 예측 head**를 붙인 구조임.
+- 변형된 디코더 블록은 **prompt self-attention**과 **양방향 cross-attention**(프롬프트→이미지 임베딩, 이미지 임베딩→프롬프트)을 써서 모든 임베딩을 갱신함.
+- 블록을 두 번 실행한 뒤 이미지 임베딩을 업샘플링하고, MLP가 출력 토큰을 매핑함.
+
+양방향으로 attention한다는 게 중요하다. 프롬프트가 이미지를 읽을 뿐 아니라 **이미지 임베딩도 프롬프트에 맞춰 갱신**된다.
+
+#### 모호성 처리
+
+**문제**
+
+출력이 하나면, 모호한 프롬프트가 주어졌을 때 모델은 **여러 유효한 마스크를 평균내버린다.** 셔츠의 한 점을 찍었을 때 그것이 셔츠인지, 사람인지, 셔츠의 무늬인지 알 수 없다.
+
+**해결**
+
+한 프롬프트에 대해 **여러 개의 마스크를 출력**하도록 모델을 수정한다.
+
+- **3개면 대부분의 경우를 커버함.** 중첩된 마스크는 대개 깊어야 세 단계이기 때문이다 — 전체(whole), 부분(part), 부분의 부분(subpart).
+- 학습할 때는 **마스크들 중 손실이 가장 작은 것만 역전파**함. 어느 것이 정답인지 모르므로, 가장 잘 맞은 것만 학습에 반영하는 것임.
+- 마스크의 순위를 매기기 위해 모델이 각 마스크에 대해 **신뢰도 점수**(추정 IoU)를 함께 예측함.
+
+#### 정리
+
+SAM에서 가져갈 것은 "**과제를 프롬프트 가능하게 정의하면 학습하지 않은 태스크로 확장된다**"는 발상이다.
+
+고정된 클래스 집합을 분할하도록 학습하면 그 집합 밖으로 못 나간다. 하지만 "**무엇을 자를지 지정받아 자른다**"로 과제를 정의하면, 지정하는 방법을 바꾸는 것만으로 새 태스크가 된다.
+
+설계 측면에서 두 가지가 중요하다.
+
+**무거운 인코딩을 한 번만 하고 재사용하는 구조.** 프롬프트마다 전체를 다시 계산하지 않으므로 상호작용이 실시간이 된다. 불변 부분과 가변 부분을 분리한 것이다.
+
+**모호성을 없애려 하지 않고 드러내는 선택.** 평균내는 대신 여러 답을 내고 신뢰도를 붙인다. 애매한 것을 애매하다고 말하게 만드는 설계다.

@@ -10,65 +10,116 @@ date: 2025-03-17
 draft: true
 ---
 
-## Introduction
+#### 주요 전략
+1. 인코더의 고해상도 특징을 skip connection으로 디코더에 직접 전달해 다운샘플링에서 잃은 공간 정보 복원함.
+2. Overlap-Tile과 경계 강조 weight map으로 적은 학습 데이터에서 큰 이미지 분할함.
 
-- 의료 영상에서는 데이터가 부족한 경우가 많아 이를 위한 segmentation을 위한 FCN 기반 모델 제안.
-- Encoder-Decoder 구조로 전역 정보와 세부 정보 활용
-- Date augmentation을 적극 사용해 적은 데이터로 효과적 학습 가능.
-- Skip connection 사용
+#### 배경 지식
 
-## Network Architecture
+**의료 영상이었던 이유**
 
-#### 구조 및 특징:
+의료 영상에는 두 가지 제약이 있고, 그게 설계를 규정한다.
 
-1. 대칭 U자형 구조
-1. FC Layer없이 conv 연산만을 사용.(공간 정보 소실 막음)
-1. 다운샘플링 경로에서 추출된 고해상도 특징을 업샘플링 경로와 결합하여 세밀한 정보를 복원(작은 이미지 정보)
+1. **데이터가 적음.** 전문가가 라벨링해야 하므로 수천 장을 모으기 어려움.
+2. **같은 클래스의 인접 객체를 분리해야 함.** 세포처럼 서로 맞닿아 있는 것들을 개별적으로 구분해야 함.
+
+이 논문은 FCN 기반 모델을 제안하면서 두 제약에 각각 대응한다.
+
+- 데이터 부족 → **data augmentation을 적극 사용**함.
+- 경계 분리 → **weight map으로 경계를 강조**함.
+
+**구조적 선택**
+
+- Encoder-Decoder 구조로 전역 정보와 세부 정보를 함께 활용함.
+- Skip connection을 씀.
+
+#### 네트워크 구조
+
+**세 가지 특징**
+
+1. **대칭 U자형 구조**
+2. **FC Layer 없이 conv 연산만 사용함.** flatten이 없으므로 공간 정보가 소실되지 않음.
+3. 다운샘플링 경로에서 추출한 고해상도 특징을 업샘플링 경로와 결합해 세밀한 정보를 복원함.
 
 ![그림 1](/img/unet/01.png)
 
-Encoder에서 CNN과정을 통해 이미지에 대한 전역적인 문맥을 학습하고 Decoder 과정에서 해상도를 복원하고 경계를 복원할 수 있다.
-**Encoder(축소) Contraction Path(Down 과정):**
-1. Conv 3*3+ReLU 2번
-1. max pool 2*2
-**Decoder(복원) Expanding Path(UP 과정):**
-1. feature map을 2*2 up-conv로 upsampling한다.
-1. skip connection, down 과정에서 나온 feature map을 upsampling 된 feature map에 concat한다.
-  1. 이때 두 이미지 간 크기가 다르기 때문에 upsampling된 이미지에 패딩을 더하여 진행한다.
-1. Conv 3*3+ReLU 2번(첫 conv에서는 채널 수를 맞춰 세부정보를 복원한다. )
-1. 1×1 Convolution을 사용하여 최종 클래스 개수만큼 채널 수 조정
-**Output:**
-softmax를 적용해 픽셀 단위의 확률 값을 출력해 segmentation을 진행한다.
+Encoder에서 CNN 과정을 통해 이미지에 대한 전역적 문맥을 학습하고, Decoder 과정에서 해상도와 경계를 복원한다.
 
----
+**Encoder — Contraction Path (다운샘플링)**
 
-**Unet의 skip connection:**
-인코더의 고해상도 특징을 디코더에서 업샘플된 출력과 결합하고 이후 conv layer가 이를 조합하는 것
-**Encoder, Decoder 과정의 문제점:**
-- Downsampling을 반복함에 따라 feature map이 축소되어 세밀한 정보나 픽셀의 위치 정보가 손실된다.
-- conv 과정 중 경계 정보 손실 발생한다.
-→업샘플링 시 경계 정보, 위치 정보, 세밀한 정보 등이 부족하여 흐릿한 결과가 생성된다.
-**Skip connection을 통한 해결:**
-skip connection을 하게 되면 upsampling 된 feature map에 인코더의 feature map을 더하여 위에서 발생하는 다양한 정보의 손실 등을 완화할 수 있다.
+1. Conv 3×3 + ReLU를 2번
+2. Max pool 2×2
 
-## Training
+**Decoder — Expanding Path (업샘플링)**
 
-**학습 설정:**
-SGD 사용 , GPU memory한계 때문에 Overlap-Tile Strategy을 통해 large input tiles 사용(더 많은 문맥 정보 습득 가능)하고 batch_size를 1, Momentum 0.99 사용(배치크기가 작아서 이전 학습 샘플 영향 크게 받음.)
+1. feature map을 2×2 up-conv로 업샘플링함.
+2. **skip connection** — 다운샘플링 과정에서 나온 feature map을 업샘플링된 feature map에 concat함.
+   - 이때 두 이미지의 크기가 다르므로 업샘플링된 이미지에 패딩을 더해 맞춤.
+3. Conv 3×3 + ReLU를 2번. 첫 conv에서 채널 수를 맞춰 세부 정보를 복원함.
+4. 1×1 Convolution으로 최종 클래스 개수만큼 채널 수를 조정함.
+
+**Output**
+
+softmax를 적용해 픽셀 단위 확률값을 출력하고 segmentation을 수행한다.
+
+#### Skip connection이 필요한 이유
+
+**Encoder-Decoder 구조의 문제**
+
+- Downsampling을 반복하면서 feature map이 축소되어 **세밀한 정보와 픽셀 위치 정보가 손실**됨.
+- conv 과정에서 **경계 정보 손실**이 발생함.
+
+그 결과 업샘플링할 때 경계 정보, 위치 정보, 세밀한 정보가 부족해서 **흐릿한 결과**가 나온다.
+
+**해결**
+
+skip connection을 쓰면 업샘플링된 feature map에 인코더의 feature map을 결합할 수 있다. 이렇게 하면 위 손실들이 완화된다.
+
+정확히는 **인코더의 고해상도 특징을 디코더에서 업샘플된 출력과 결합하고, 이후 conv layer가 이를 조합**하는 것이다. 단순히 더하는 게 아니라 조합할 기회를 주는 것이 요점이다.
+
+이 구조가 주는 것은 **디코더가 "무엇을"과 "어디에"를 나눠 풀 수 있게 된다**는 점이다. 무엇인지는 깊은 층의 저해상도 특징이 알고, 어디인지는 얕은 층의 고해상도 특징이 안다.
+
+#### 학습
+
+**Overlap-Tile 전략**
+
+GPU 메모리 한계 때문에 이미지 전체를 한 번에 처리할 수 없다. 그래서 **큰 입력 타일**로 나눠 처리한다.
+
+여기서 문제가 하나 생긴다. 타일 경계 부근을 예측하려면 그 바깥의 문맥이 필요한데, 이미지 밖이라 없다. U-Net은 이를 **경계를 거울처럼 반사(mirroring)해서 외삽**하는 것으로 해결한다.
+
+큰 타일을 쓰면 더 많은 문맥 정보를 얻을 수 있다.
 
 ![그림 2](/img/unet/02.png)
 
-**손실 함수:**
-- 픽셀 단위 Softmax+ Cross Entropy loss 사용
-- Weight Map을 추가하여 경계를 강조 (Boundary Loss 적용)
+**손실 함수**
+
+- 픽셀 단위 Softmax + Cross Entropy loss를 씀.
+- **Weight Map을 추가해 경계를 강조**함.
 
 ![그림 3](/img/unet/03.png)
 
-- 같은 클래스 내 인접한 객체들이 붙어 있는 경우, 경계를 학습하도록 추가 가중치 부여
+weight map의 목적은 명확하다. **같은 클래스에 속하는 인접한 객체들이 붙어 있는 경우, 그 사이의 경계를 학습하도록 추가 가중치를 부여**한다. 세포 두 개가 맞닿아 있으면 그 접촉선의 픽셀들이 가장 중요한 픽셀이 된다.
 
 ![그림 4](/img/unet/04.png)
 
-**가중치 초기화:**
-네트워크의 Feature Map이 단위 분산을 유지하도록 초기 가중치 조정.
-He Initialization 사용:
-표준편차 루트2/N을 사용하여 초기 가중치 샘플** **
+**가중치 초기화**
+
+네트워크의 feature map이 단위 분산을 유지하도록 초기 가중치를 조정한다. **He Initialization**을 쓰고, 표준편차 `√(2/N)`로 초기 가중치를 샘플링한다.
+
+#### 실험에서 확인된 것
+
+- **ISBI 세포 추적 챌린지 2015에서 우승**했음. 두 개 범주 모두에서 큰 격차로 이겼음.
+- 전자현미경 스택의 신경 구조 분할에서 당시 최고 성능을 기록했음.
+- **NVidia Titan GPU에서 512×512 이미지 분할에 1초가 채 걸리지 않음.**
+
+데이터가 적은 상황에서 augmentation만으로 이 성능이 나왔다는 점이 함께 강조된다.
+
+#### 정리
+
+U-Net에서 가져갈 것은 "**다운샘플링에서 잃는 것을 옆길로 넘겨준다**"는 구조다.
+
+깊이가 깊어질수록 의미는 풍부해지지만 위치는 사라진다. 이 상충을 해결하는 방법은 두 정보를 **다른 경로로 전달해서 나중에 합치는 것**이다. 하나의 경로로 모두 전달하려 하면 어느 쪽이든 손해를 본다.
+
+이 구조는 의료 영상을 훨씬 넘어서 퍼졌다. 그리고 diffusion 모델의 백본으로도 오래 쓰였다 — DiT가 그걸 Transformer로 교체하기 전까지.
+
+다만 옮길 때 주의할 점이 있다. **인코더 특징이 디코더에 유용한 형태여야 한다.** 도메인이 다르면 skip이 오히려 잡음을 넘겨주는 통로가 된다.
