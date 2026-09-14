@@ -10,11 +10,11 @@ date: 2025-06-18
 draft: true
 ---
 
-#### 주요 전략
+## 주요 전략
 1. online network에만 predictor를 두는 비대칭과 stop-gradient로 negative pair 없이 collapse 방지함.
 2. target network를 EMA로 천천히 갱신해 안정적인 예측 목표 확보함.
 
-#### 배경 지식
+## 배경 지식
 
 기존 contrastive learning — MoCo, SimCLR 등 — 은 **negative pair와 positive pair를 모두 사용**해서 학습했다. 같은 것은 가깝게, 다른 것은 멀게 만드는 방식이다.
 
@@ -24,16 +24,16 @@ draft: true
 
 이게 왜 중요한가. **negative sample을 정의하기 어려운 도메인**이 많기 때문이다. 의료 영상에서 두 환자의 스캔이 정말 "다른 것"인지, 로봇 궤적에서 두 시점이 정말 무관한지는 자명하지 않다. negative sample에 의존하지 않는 방법은 그런 곳에서 결정적인 이점을 갖는다.
 
-#### BYOL method
+## BYOL method
 
-**두 네트워크**
+### 두 네트워크
 
 - **online network** — 학습 대상임. encoder → projection head → **predictor**로 이어짐.
 - **target network** — encoder → projection head까지만 있고 **predictor가 없음.**
 
 동일한 이미지를 다르게 augmentation한 두 view에 대해 학습한다.
 
-**흐름**
+### 흐름
 
 1. 같은 이미지에서 두 개의 view를 만듦.
 2. view 1은 online network를, view 2는 target network를 통과함.
@@ -43,13 +43,13 @@ draft: true
 
 **비대칭이 핵심이다.** online 쪽에만 predictor가 있고, target 쪽에는 없다. 양쪽이 대칭이면 두 출력이 같아지는 자명한 해로 무너진다.
 
-#### Loss와 갱신
+## Loss와 갱신
 
-**Loss**
+### Loss
 
 MSE를 쓴다. 정확히는 정규화된 두 벡터의 평균제곱오차이고, 이는 cosine similarity와 동등하다.
 
-**갱신 방식**
+### 갱신 방식
 
 - **online network** — loss로 역전파해서 학습함. target의 분포와 최대한 가까워지는 방향으로 움직임.
 - **target network** — 역전파하지 않음. **online network의 파라미터를 EMA로 따라감.**
@@ -62,23 +62,23 @@ MSE를 쓴다. 정확히는 정규화된 두 벡터의 평균제곱오차이고,
 τ: 모멘텀 계수 (1에 가까움)
 ```
 
-#### 붕괴하지 않는 이유
+## 붕괴하지 않는 이유
 
 negative sample 없이 "두 출력을 가깝게 만들라"고만 하면 모든 것을 같은 값으로 내는 해가 존재한다. BYOL이 그리로 가지 않는 이유는 두 가지가 함께 작용하기 때문이다.
 
-**1. target의 느린 변화**
+### 1. target의 느린 변화
 
 target은 EMA로 갱신되므로 큰 영향을 주지 않고 조금씩만 변한다. online이 target을 쫓아가는 동안 target은 거의 고정된 목표로 남는다. 그래서 **다양한 정보를 계속 사용할 수 있다.**
 
-**2. predictor와 stop-gradient의 비대칭**
+### 2. predictor와 stop-gradient의 비대칭
 
 online에만 predictor가 있고 target으로는 기울기가 흐르지 않는다. 이 비대칭 때문에 **두 네트워크가 같은 자명한 해로 동시에 수렴하지 못한다.**
 
-**부트스트랩이라는 이름의 의미**
+### 부트스트랩이라는 이름의 의미
 
 target network는 online network의 과거 버전이다. 즉 **자기 자신의 이전 상태를 목표로 삼아 스스로를 끌어올린다.** 외부 정답이 없는데도 학습이 진행되는 이유가 여기 있고, "Bootstrap Your Own Latent"라는 제목이 그것을 가리킨다.
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 - **ImageNet linear evaluation 74.3%** (ResNet-50). negative sample을 쓰는 당시 최고 방법들을 앞섰음.
 - **배치 크기에 덜 민감함.** SimCLR은 배치가 작아지면 성능이 크게 떨어지는데, BYOL은 negative sample에 의존하지 않으므로 그 영향이 작음.
@@ -86,7 +86,7 @@ target network는 online network의 과거 버전이다. 즉 **자기 자신의 
 
 두 번째와 세 번째가 실용적으로 중요하다. 큰 배치를 감당할 수 없거나, 도메인에 맞는 augmentation을 잘 모를 때 선택지가 된다.
 
-#### 정리
+## 정리
 
 BYOL이 보여준 것은 **negative sample이 붕괴 방지의 유일한 방법은 아니라는 것**이다.
 

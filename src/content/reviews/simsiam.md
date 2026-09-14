@@ -10,11 +10,11 @@ date: 2025-06-20
 draft: true
 ---
 
-#### 주요 전략
+## 주요 전략
 1. negative pair, 메모리 뱅크, 클러스터링, 모멘텀 인코더를 전부 제거하고 무엇이 남아야 하는지 확인함.
 2. stop-gradient와 predictor만으로 collapse 방지가 성립함을 확인함.
 
-#### 배경 지식
+## 배경 지식
 
 자기지도 학습에서 **붕괴**(collapse)는 근본적인 문제다. 두 뷰의 표현을 가깝게 만들라고만 하면, 모든 입력에 대해 같은 값을 출력하는 것이 완벽한 해가 된다.
 
@@ -27,15 +27,15 @@ draft: true
 | SwAV | **클러스터링 제약** (Sinkhorn 균등 배분) |
 | BYOL | **모멘텀 인코더(EMA)** + predictor + stop-gradient |
 
-**기존 방법의 흐름**
+### 기존 방법의 흐름
 
 기존 contrastive learning에서는 teacher를 두고 EMA 같은 기법으로 갱신 속도를 조절했다. BYOL에서는 두 branch 중 하나에만 predictor를 두고 stop-gradient를 썼다.
 
-**SimSiam의 질문**
+### SimSiam의 질문
 
 그렇다면 **정말로 필요한 것은 무엇인가.** 하나씩 제거해보면 무엇이 남는가.
 
-#### SimSiam method
+## SimSiam method
 
 SimSiam은 BYOL과 비슷하게 stop-gradient를 쓰는 구조지만, **target과 online의 파라미터가 동일하다.** 사실상 **EMA만 제거한 것**이다.
 
@@ -46,7 +46,7 @@ SimSiam은 BYOL과 비슷하게 stop-gradient를 쓰는 구조지만, **target�
 
 negative sample도, 메모리 뱅크도, 클러스터링도, 모멘텀 인코더도 없다.
 
-**Loss — negative cosine similarity**
+### Loss — negative cosine similarity
 
 ```text
 D(p, z) = -(p/||p||₂) · (z/||z||₂)
@@ -61,7 +61,7 @@ z: predictor 없이 나온 target 브랜치 출력 (stop-gradient 적용)
 L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 ```
 
-#### stop-gradient를 제거했을 때
+## stop-gradient를 제거했을 때
 
 논문의 핵심 실험이다. **stop-gradient를 제거하면 즉시 붕괴한다.**
 
@@ -72,7 +72,7 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 
 **predictor도 필요하다.** predictor를 제거하면 역시 붕괴한다. 두 branch가 완전히 대칭이 되면 자명한 해로 수렴하기 때문이다.
 
-#### 동작 원리 — EM 해석
+## 동작 원리 — EM 해석
 
 논문이 제시하는 가설은 이 구조를 **두 변수를 번갈아 최적화하는 문제**로 보는 것이다.
 
@@ -83,7 +83,7 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 
 가설이고 완전한 증명은 아니지만, 실험 결과와 일관된 설명을 준다.
 
-#### 생각해볼 만한 것
+## 생각해볼 만한 것
 
 > 기존 contrastive 방법들은 target을 거의 업데이트하지 않으면서, 붕괴 방지를 위해 EMA로 조금씩 업데이트한다. 하지만 위처럼 gradient를 그대로 사용하면 학습 업데이트가 너무 빨라지지 않나?
 >
@@ -91,13 +91,13 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 
 이 의문은 논문이 실제로 다루는 지점과 맞닿아 있다. 논문의 답은 **EMA가 성능을 조금 올려주기는 하지만 붕괴 방지에는 필요하지 않다**는 것이다. BYOL에서 EMA가 필수처럼 보였던 것은, 실제로는 stop-gradient가 하던 일을 EMA 덕분으로 오해한 면이 있다.
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 - **ImageNet linear evaluation에서 경쟁력 있는 성능**을 냄. 특히 **100 epoch 같은 짧은 학습에서는 다른 방법들을 앞섬.**
 - **배치 크기 의존이 낮음.** SimCLR처럼 큰 배치가 필요하지 않음. negative sample을 쓰지 않기 때문임.
 - 구조가 가장 단순한데 성능이 크게 뒤지지 않는다는 것이 요지임.
 
-#### 정리
+## 정리
 
 SimSiam의 값어치는 새 방법을 제안한 게 아니라 **무엇이 불필요했는지 밝힌 것**에 있다.
 

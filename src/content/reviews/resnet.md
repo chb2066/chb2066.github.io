@@ -10,13 +10,13 @@ date: 2025-03-01
 draft: true
 ---
 
-#### 주요 전략
+## 주요 전략
 1. 층이 전체 사상 대신 입력과의 차이를 학습하게 해서 항등 사상을 기본값으로 사용함.
 2. bottleneck 구조로 깊이를 늘리면서 연산량 억제함.
 
-#### 배경 지식
+## 배경 지식
 
-**degradation 문제**
+### degradation 문제
 
 깊은 신경망이 성능 향상에 중요하다는 것은 알려져 있었다. 그런데 **너무 깊은 층은 학습이 잘 되지 않고 성능이 오히려 감소한다.**
 
@@ -28,27 +28,27 @@ draft: true
 
 그래서 residual learning 개념을 도입한다.
 
-#### 선행 연구
+## 선행 연구
 
-**Residual Representations**
+### Residual Representations
 
 기존 이미지 인식 방법은 특징을 직접 학습하는 방식이 다수였다. ResNet의 잔차 기반 표현은 기존 방법보다 성능 향상에 도움이 됐다.
 
-**Shortcut Connections**
+### Shortcut Connections
 
 네트워크 내부에서 일부 레이어를 건너뛰는 shortcut connection이 모델 학습을 돕는 데 사용됐다.
 
 ![그림 2](/img/resnet/02.png)
 
-#### Deep Residual Learning
+## Deep Residual Learning
 
-**핵심 아이디어**
+### 핵심 아이디어
 
 - `H(x) = F(x) + x` 에서 `H(x)`를 다음 블록으로 보내고, `H(x)`로 손실 함수를 계산함.
 - 네트워크는 **잔차 함수 `F(x) = H(x) - x`를 학습**함.
 - shortcut connection으로 원본 입력에 잔차를 더하는 방식으로 네트워크를 구성함.
 
-**장점**
+### 장점
 
 1. `H(x)`를 통한 역전파에서 **기울기가 소실되지 않고 네트워크 전체로 전달됨.**
 
@@ -63,13 +63,13 @@ draft: true
 
 세 번째가 degradation 문제에 대한 직접적인 답이다. **항등 사상이 필요하면 `F(x)`를 0으로 만들면 되고, 그건 쉽다.**
 
-**Network Architectures**
+### Network Architectures
 
 ![그림 3](/img/resnet/03.png)
 
-#### 실험
+## 실험
 
-**ImageNet Classification**
+### ImageNet Classification
 
 ![그림 4](/img/resnet/04.png)
 
@@ -79,7 +79,7 @@ shortcut connection이 적용된 ResNet에서 기존 신경망보다 성능이 �
 
 ![그림 5](/img/resnet/05.png)
 
-**Bottleneck 구조**
+### Bottleneck 구조
 
 ResNet-50/101/152에서는 **bottleneck 구조**(1×1 → 3×3 → 1×1)를 사용해 연산량을 줄인다. 채널 축소 → 특징 학습 → 채널 확장의 순서다.
 
@@ -103,7 +103,7 @@ Feature Map 크기 = (n - f + 2p) / s + 1
 
 **Bottleneck을 쓰면 FLOPs가 40% 감소하면서 성능은 유지된다.** 그래서 ResNet-50/101/152 같은 깊은 모델의 학습이 가능해진다.
 
-**CIFAR-10과 분석**
+### CIFAR-10과 분석
 
 ![그림 7](/img/resnet/07.png)
 
@@ -113,17 +113,17 @@ CIFAR-10에서도 매우 깊은 네트워크에서 성능이 유지된다.
 
 여기서 degradation과 과적합이 분리된다. 잔차 연결이 degradation은 해결했지만, **깊이를 무한정 늘리면 이번엔 진짜 과적합이 나타난다.** 두 문제는 다른 것이다.
 
-**Object Detection**
+### Object Detection
 
 ResNet이 이미지 분류 외에 객체 탐지 같은 다른 비전 작업에서도 효과적이다.
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 - **ImageNet test set top-5 오류율 3.57%** — ILSVRC 2015 분류 부문 1위.
 - **152층 ResNet이 VGG-19보다 8배 깊으면서도 복잡도는 더 낮음.**
 - COCO 객체 검출에서 상대적으로 **28% 개선**. ILSVRC와 COCO 2015의 검출, localization, segmentation 부문에서도 1위를 차지했음.
 
-#### 정리
+## 정리
 
 ResNet이 남긴 것은 특정 아키텍처가 아니라 **`y = x + F(x)` 라는 형태 자체**다.
 

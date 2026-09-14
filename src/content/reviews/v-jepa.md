@@ -10,17 +10,17 @@ date: 2025-07-16
 draft: true
 ---
 
-#### 주요 전략
+## 주요 전략
 1. 픽셀 복원 대신 EMA target encoder가 만든 잠재 표현을 예측 목표로 사용함.
 2. 시간축 전체에 같은 공간 마스크를 적용하는 multi-block masking으로 시간적 지름길 차단함.
 
-#### 출발 질문
+## 출발 질문
 
 **시각 세계를 인식하는 능력을 어떻게 학습시킬 수 있는가.** 이 논문은 정적 이미지가 아니라 **비디오로부터 시각적 잠재 표현을 학습**하는 방법을 제안한다.
 
-#### 배경 지식
+## 배경 지식
 
-**갈래 1 — 텍스트 캡션을 쓰는 방법**
+### 갈래 1 — 텍스트 캡션을 쓰는 방법
 
 CLIP이 대표적이다. 웹에서 긁은 대규모 이미지-텍스트 쌍으로 학습하고, 비디오와 이미지 단위 downstream 태스크에서 강한 성능을 보였다. **백본을 얼린 채 가벼운 태스크 특화 head만 붙여도** 되므로 end-to-end 학습이 필요 없다는 게 장점이다.
 
@@ -28,7 +28,7 @@ CLIP이 대표적이다. 웹에서 긁은 대규모 이미지-텍스트 쌍으�
 
 정리하면 **이미지, 비디오 캡션으로 잠재 공간이나 마스크 영역을 예측하게 하는 방식이 많았고, 여기에 self-supervised한 오디오-비디오 loss를 더해 높은 성능을 냈다.**
 
-**갈래 2 — 라벨 없이 학습하는 SSL**
+### 갈래 2 — 라벨 없이 학습하는 SSL
 
 SSL은 사람이 라벨링하지 않고도 잠재 표현을 학습한다. 그런데 접근이 다시 둘로 나뉜다.
 
@@ -43,7 +43,7 @@ DINOv2는 불변성 기반 loss와 masked image modeling loss를 결합해 SSL�
 > 하지만 대부분 정적인 데 머물고, 동적인 경우의 정보 수집 능력은 상대적으로 떨어진다.
 > **V-JEPA는 그 지점을 다룬다.**
 
-**갈래 3 — 비디오에서의 SSL**
+### 갈래 3 — 비디오에서의 SSL
 
 비디오 쪽에서도 여러 시도가 있었다.
 
@@ -59,9 +59,9 @@ DINOv2는 불변성 기반 loss와 masked image modeling loss를 결합해 SSL�
 > 결국 SSL은 두 갈래다. 하나는 **이미지 변형에 무관하게 특징을 뽑는 불변성 학습**이고,
 > 다른 하나는 **가려진 부분을 맞히는 재구성 기반 학습**이다.
 
-#### V-JEPA method
+## V-JEPA method
 
-**JEPA의 기본 아이디어**
+### JEPA의 기본 아이디어
 
 한 곳을 보고 다른 곳을 예측하는 방식이다. 네트워크 세 개를 쓴다.
 
@@ -73,7 +73,7 @@ DINOv2는 불변성 기반 loss와 masked image modeling loss를 결합해 SSL�
 
 V-JEPA는 여기에 마스킹을 쓴다. context encoder와 predictor가 마스킹된 비디오를 처리해서 마스킹 영역의 내용을 예측하고, 그 예측을 **마스킹되지 않은 비디오를 본 target encoder의 출력과 비교**한다. loss는 L1이다.
 
-**세 네트워크의 역할**
+### 세 네트워크의 역할
 
 | | context encoder | target encoder | predictor |
 |---|---|---|---|
@@ -84,13 +84,13 @@ V-JEPA는 여기에 마스킹을 쓴다. context encoder와 predictor가 마스�
 
 ![그림 1](/img/v-jepa/01.png)
 
-#### 입력 처리
+## 입력 처리
 
 - 비디오에서 랜덤 시작점으로 **연속 64프레임 클립**을 뽑고, temporal stride 4로 **16프레임을 균등 샘플링**함.
 - 16프레임 클립에 **3D conv**(2×16×16 필터 d개)를 적용해 `8×14×14×d` 텐서를 만듦.
 - **3D positional embedding**을 더하고 flatten해서 `1568×d` 토큰 시퀀스로 만듦.
 
-**Multi-block masking**
+### Multi-block masking
 
 - **Short-range** — 8개 블록의 합집합이 프레임 면적의 약 15%를 덮음.
 - **Long-range** — 2개 블록의 합집합이 약 70%를 덮음.
@@ -100,9 +100,9 @@ V-JEPA는 여기에 마스킹을 쓴다. context encoder와 predictor가 마스�
 
 시간축 전체에 같은 공간 마스크를 적용한다는 게 중요하다. 그렇게 하지 않으면 다른 프레임에서 그대로 답을 볼 수 있어서 과제가 너무 쉬워진다.
 
-#### 학습
+## 학습
 
-**Patch 수준 loss**
+### Patch 수준 loss
 
 1. 비디오 클립을 마스킹해 context encoder에 넣고 context representation을 만듦. 마스킹된 클립을 넣는다는 것은 **남아 있는 패치의 잠재 표현이 타겟 영역을 예측하도록** 만드는 것임.
 2. predictor는 context encoder가 만든 토큰을 받아 비디오 클립에서 사라진 영역을 예측함. **학습 가능한 mask token**을 함께 넣는데, mask token은 **공유된 학습 가능 벡터와 3D sin-cos positional embedding의 합**으로 파라미터화됨.
@@ -110,15 +110,15 @@ V-JEPA는 여기에 마스킹을 쓴다. context encoder와 predictor가 마스�
 
 정리하면 **predictor가 가려진 부분을 예측하고, target encoder가 전체 영상을 정답지로 만들며, L1 loss로 둘의 차이를 줄인다. EMA가 정답지 기준을 안정화한다.**
 
-**Multi-Mask Prediction**
+### Multi-Mask Prediction
 
 같은 비디오에 대해 **0.15짜리 마스크를 8번, 0.7짜리 마스크를 2번** 각각 독립적으로 예측한다. 각 결과를 정답과 비교하고 오차들의 평균으로 loss를 구성한다.
 
-**붕괴 방지**
+### 붕괴 방지
 
 **stop-gradient**를 쓴다. target encoder로는 gradient가 흐르지 않고 EMA로만 갱신된다. 이 비대칭이 표현이 한 점으로 무너지는 것을 막는다.
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 가장 큰 모델인 **ViT-H/16을 비디오만으로 학습**한 결과다. 전부 **파라미터를 전혀 조정하지 않은 frozen backbone** 기준이다.
 
@@ -132,7 +132,7 @@ V-JEPA는 여기에 마스킹을 쓴다. context encoder와 predictor가 마스�
 
 그리고 **frozen 평가(attentive probing) 프로토콜에서 픽셀 예측 방식들을 앞선다.** 앞서 배경에서 짚은 "MAE의 표현은 얼린 상태로는 약하다"는 문제를 실제로 넘어선 것이다.
 
-#### 정리
+## 정리
 
 이 논문의 핵심은 "**무엇을 예측 목표로 삼을 것인가**"다.
 

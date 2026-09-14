@@ -31,23 +31,23 @@ date: 2025-04-02
 draft: false
 ---
 
-#### 주요 전략
+## 주요 전략
 1. depth, width, resolution을 고정된 비율로 함께 키우는 compound scaling을 적용함.
 2. 그 비율을 작은 baseline 모델에서 한 번만 grid search로 찾고 큰 모델에 재사용함.
 
-#### 배경 지식
+## 배경 지식
 
 CNN은 고정된 자원 예산에서 개발되고, 자원을 더 쓸 수 있으면 성능이 좋아졌다. 그런데 **너무 늘리면 오히려 나빠진다.** ResNet에서 depth를 과하게 늘렸을 때 성능이 감소했고, 이를 skip connection 등으로 해결한 사례가 그렇다.
 
 그래서 기존에는 **depth, width, resolution 중 하나만** 늘렸다.
 
-**이 논문의 질문**
+### 이 논문의 질문
 
 네트워크를 더 넓게, 더 깊게 하는 것과 자원의 밸런스(depth, width, resolution)가 **어떤 조합일 때 최고 성능을 내는가.**
 
-#### Compound Scaling method
+## Compound Scaling method
 
-**세 개의 계수**
+### 세 개의 계수
 
 grid search로 depth, width, resolution을 파라미터로 두고 실험한다.
 
@@ -59,7 +59,7 @@ grid search로 depth, width, resolution을 파라미터로 두고 실험한다.
 
 ![그림 1](/img/efficientnet/01.png)
 
-**제약 조건: α · β² · γ² ≈ 2**
+### 제약 조건: α · β² · γ² ≈ 2
 
 지수가 왜 이렇게 붙는지가 이 논문의 기술적 핵심이다.
 
@@ -68,13 +68,13 @@ grid search로 depth, width, resolution을 파라미터로 두고 실험한다.
 
 conv 연산이 CNN의 계산 비용을 지배하므로, 이 스케일링의 총 FLOPs는 대략 `(α · β² · γ²)^φ` 로 늘어난다. 여기서 **α · β² · γ² ≈ 2**로 제약하면, 어떤 φ를 잡아도 **총 FLOPs가 대략 2^φ 배**가 된다. 즉 φ가 곧 "연산량을 몇 배로 쓸 것인가"의 다이얼이 된다.
 
-**STEP 1 — 최적 비율 찾기**
+### STEP 1 — 최적 비율 찾기
 
 - φ = 1로 고정함. FLOPs 2배에 해당하고, 기본값 φ = 0이 1배임.
 - `α · β² · γ² ≈ 2` 제약 아래에서 grid search로 여러 조합을 시도함.
 - 조합들의 accuracy를 비교한 결과 **α = 1.2, β = 1.1, γ = 1.15**가 최적임.
 
-**STEP 2 — 비율을 고정하고 크기 키우기**
+### STEP 2 — 비율을 고정하고 크기 키우기
 
 찾은 비율을 고정한 채 φ만 조절한다.
 
@@ -96,11 +96,11 @@ r = γ^φ = 1.15^φ
 
 이 지적은 실제로 후속 연구에서 다뤄지는 지점이기도 하다. 논문은 비율을 **작은 모델에서 한 번만** 찾고 그대로 밀어붙이는데, 큰 모델에서 다시 탐색하면 비용이 감당이 안 되기 때문이다. 정확도보다 **탐색 비용을 규모에서 분리한 것**이 실질적 기여에 가깝다.
 
-#### EfficientNet 아키텍처
+## EfficientNet 아키텍처
 
 model scaling은 층의 연산자 자체를 바꾸지 않으므로, **좋은 baseline이 있어야** 스케일링의 효과가 산다. 그래서 새 baseline을 직접 만든다.
 
-**EfficientNet-B0**
+### EfficientNet-B0
 
 주 구성 블록은 **mobile inverted bottleneck** (MBConv)이고, 여기에 **squeeze-and-excitation**을 추가한다. FLOPs 목표는 400M이다.
 
@@ -127,7 +127,7 @@ model scaling은 층의 연산자 자체를 바꾸지 않으므로, **좋은 bas
 
 MobileNetV2를 기반으로 변환한 것이 EfficientNet-B0이고, FLOPs 목표가 더 커서 원본보다 약간 크다.
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 ![그림 4](/img/efficientnet/04.png)
 
@@ -138,7 +138,7 @@ MobileNetV2를 기반으로 변환한 것이 EfficientNet-B0이고, FLOPs 목표
 
 동일 성능 대비 훨씬 적은 파라미터를 쓴다는 것이 그래프 전체에서 일관되게 나타난다.
 
-#### 정리
+## 정리
 
 이 논문이 남긴 것은 "**세 축을 따로 보지 말고 비율로 묶어라**"는 규칙이다.
 

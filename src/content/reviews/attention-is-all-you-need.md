@@ -10,11 +10,11 @@ date: 2025-03-24
 draft: true
 ---
 
-#### 주요 전략
+## 주요 전략
 1. 순환 구조를 제거하고 self-attention만으로 시퀀스를 처리해 학습 병렬화함.
 2. positional encoding으로 순서 정보를 별도 주입하고, multi-head로 서로 다른 관계를 동시에 포착함.
 
-#### 사전 개념 — attention
+## 사전 개념 — attention
 
 ![그림 1](/img/attention-is-all-you-need/01.png)
 
@@ -22,7 +22,7 @@ draft: true
 
 이렇게 만들어진, **높은 attention score에 정보가 곱해진 벡터**로 다양한 태스크를 수행한다.
 
-**예시 1 — 긍정/부정 분류기**
+### 예시 1 — 긍정/부정 분류기
 
 ```text
 "I really love this movie. It was amazing!"
@@ -30,7 +30,7 @@ draft: true
 
 **"love", "amazing" 같은 단어**에 높은 가중치를 주고 "긍정적"으로 분류한다.
 
-**예시 2 — 질의응답**
+### 예시 2 — 질의응답
 
 ```text
 질문: "Where was Albert Einstein born?"
@@ -42,13 +42,13 @@ draft: true
 > **핵심은 질문과 답 사이의 관련성을 구한 벡터로 결과를 출력한다는 것이다.**
 > 단순한 a→b 매칭이 아니라 각 단어들끼리의 관계성이 함께 영향을 준다.
 
-#### 입력 처리
+## 입력 처리
 
 1. 문장을 토큰화함. `the cat is playing on the mat` → `the`, `cat`, `is`, `playing`, …
 2. vocab을 사용해 토큰에 대응하는 ID로 변환함.
 3. 임베딩 레이어에 넣어 고차원 벡터로 바꿈.
 
-**Positional Encoding**
+### Positional Encoding
 
 *필요한 이유* — Transformer는 단어를 한 번에 병렬 처리하므로 **단어 간 순서 정보가 사라진다.**
 
@@ -60,7 +60,7 @@ draft: true
 
 벡터의 차원 수가 매우 크기 때문에, 이 식으로 만든 값을 더하면 각 위치가 특정될 수 있다.
 
-#### Self-attention
+## Self-attention
 
 자기 자신을 query, key, value에 모두 넣는다. 입력 문장의 모든 단어를 서로 비교해서 각 단어가 다른 단어와 얼마나 관련이 있는지 학습하는 과정이다.
 
@@ -74,15 +74,15 @@ query와 key를 내적해 각 단어별 중요도를 확률로 변환한다.
 
 이 벡터가 다음 self-attention 층에서 다시 쓰인다.
 
-#### Encoder 블록의 구조
+## Encoder 블록의 구조
 
 encoder는 **동일한 층 6개를 쌓은 구조**다. 그리고 각 층은 **두 개의 sub-layer**로 이루어진다.
 
-**sub-layer 1 — Multi-Head Self-Attention**
+### sub-layer 1 — Multi-Head Self-Attention
 
 위에서 설명한 self-attention이다.
 
-**sub-layer 2 — Position-wise Feed-Forward Network**
+### sub-layer 2 — Position-wise Feed-Forward Network
 
 attention sub-layer에 더해, 각 층은 완전연결 feed-forward 네트워크를 갖는다. 이 네트워크는 **각 위치에 대해 개별적으로, 그리고 동일하게** 적용된다. 단어들을 각각 독립적인 벡터로 변형하는 것이다.
 
@@ -101,7 +101,7 @@ FFN(x) = max(0, x·W₁ + b₁)·W₂ + b₂
 
 **차원을 4배로 확장했다가 ReLU로 불필요한 정보를 날리고 다시 축소**하는 구조다. 중요한 정보를 강조하는 효과가 있다.
 
-**두 sub-layer를 감싸는 것 — residual + LayerNorm**
+### 두 sub-layer를 감싸는 것 — residual + LayerNorm
 
 각 sub-layer의 출력은 그대로 다음으로 가지 않는다. **입력을 더하고 정규화한다.**
 
@@ -122,13 +122,13 @@ skip connection으로 원본 신호를 우회시켜 더하는 것이고, 이렇�
 
 residual 연결을 쓰기 위해 **모델의 모든 sub-layer와 임베딩 층이 동일한 차원 `d_model = 512`로 출력**한다. 차원이 같아야 더할 수 있기 때문이다.
 
-#### Decoder
+## Decoder
 
 Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder도 6층이고, encoder의 두 sub-layer에 **encoder 출력에 대한 attention을 수행하는 세 번째 sub-layer**가 추가된다.
 
 예시: `[start] i am a student [EOS]` — `[start]` 기준으로 따라가 본다.
 
-**1. Masked Self-Attention**
+### 1. Masked Self-Attention
 
 - 정답값을 query, key, value에 넣음. 현재 상태는 `q: [start]`, `k: [start]`, `v: [start]`이고 나머지는 mask됨.
 - **디코더가 예측한 단어들만 mask가 풀림.** 지금은 `start`만 unmasked이고 이후 순차적으로 풀림.
@@ -139,7 +139,7 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 
 → **디코더가 지금까지 생성한 단어들의 context를 학습한다.**
 
-**2. Cross-Attention**
+### 2. Cross-Attention
 
 - 앞 단계에서 받은 벡터를 query에 넣음. 현재 상태는 `q: [start]`, `k`와 `v`: encoder의 context vector다.
   - 특이점: query는 mask된 self-attention에서 학습된 값을 받음.
@@ -147,7 +147,7 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 
 → **디코더의 context와 원본 정보가 함께 반영된 벡터가 나온다.**
 
-**3. FFN**
+### 3. FFN
 
 앞 단계의 벡터를 FFN에 넣는다.
 
@@ -155,7 +155,7 @@ Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder�
 
 차원 확장 → ReLU로 필요 없는 정보 제거 → 차원 축소 구조로 중요 정보를 강조한다.
 
-**4. 단어 예측**
+### 4. 단어 예측
 
 FFN을 거친 벡터를 선형 함수에 넣어 단어에 맞는 점수(logits)로 변환한다.
 
@@ -165,13 +165,13 @@ FFN을 거친 벡터를 선형 함수에 넣어 단어에 맞는 점수(logits)�
 
 ![그림 10](/img/attention-is-all-you-need/10.png)
 
-**5. 반복**
+### 5. 반복
 
 가장 확률이 높은 단어를 다음 단어로 쓰고, self-attention 과정에 그 단어를 추가해 위 과정을 반복한다.
 
 ![그림 11](/img/attention-is-all-you-need/11.png)
 
-#### Multi-Head Attention
+## Multi-Head Attention
 
 임베딩 크기를 head 수로 나눠서 쓰는 것이다. `d_k × num_heads`로 projection한 뒤 `view()`로 head 단위로 분리한다.
 
@@ -201,7 +201,7 @@ def forward(self, x):
 
 ![그림 15](/img/attention-is-all-you-need/15.png)
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 WMT 2014 기계 번역 태스크 기준이다.
 
@@ -214,7 +214,7 @@ English→French 모델은 **GPU 8장으로 3.5일** 학습했다. 당시 최고
 
 **속도가 이 논문의 핵심 주장 중 하나**다. 순환 구조가 없으므로 시퀀스 전체를 병렬로 처리할 수 있고, 그래서 같은 성능을 훨씬 적은 학습 시간에 도달한다.
 
-#### 정리
+## 정리
 
 이 논문이 없앤 것은 **순환**이다. 그리고 순환이 하던 두 가지 일을 각각 다른 것으로 대체했다.
 

@@ -269,8 +269,11 @@ a.badge:hover{background:var(--muted);color:var(--foreground)}
 ------------------------------------------------------------------ */
 .prose{max-width:var(--readw);font-size:16px;line-height:1.78;color:var(--foreground)}
 .prose>*+*{margin-top:17px}
-.prose h2{font-size:20px;font-weight:600;margin-top:48px;padding-bottom:9px;border-bottom:1px solid var(--border)}
-.prose h3{font-size:16.5px;font-weight:600;margin-top:32px}
+.prose h2{font-size:22px;font-weight:650;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.prose h3{font-size:18px;font-weight:600;margin-top:34px;color:var(--foreground)}
+.prose h4{font-size:16px;font-weight:600;margin-top:26px;color:var(--muted-foreground)}
+/* 제목 바로 뒤 본문은 간격을 좁혀 한 덩어리로 읽히게 */
+.prose h2+*,.prose h3+*,.prose h4+*{margin-top:11px}
 .prose p{color:color-mix(in srgb,var(--foreground) 84%,var(--muted-foreground))}
 .prose strong{font-weight:600;color:var(--foreground)}
 .prose a{color:var(--brand);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:color-mix(in srgb,var(--brand) 35%,transparent);transition:text-decoration-color .15s}
@@ -292,7 +295,7 @@ a.badge:hover{background:var(--muted);color:var(--foreground)}
 .prose hr{border:none;border-top:1px solid var(--border);margin:36px 0}
 
 /* toc */
-.toc{position:sticky;top:calc(var(--topbar) + 36px);padding-bottom:60px;font-size:12.5px}
+.toc{position:sticky;top:calc(var(--topbar) + 36px);padding-bottom:60px;font-size:12.5px;max-height:calc(100vh - var(--topbar) - 60px);overflow-y:auto;scrollbar-width:thin}
 .toc .lbl{font-size:12.5px;font-weight:600;color:var(--foreground);margin-bottom:9px}
 .toc a{display:block;color:var(--muted-foreground);padding:4px 0 4px 11px;border-left:1px solid var(--border);line-height:1.5;transition:.15s}
 .toc a:hover{color:var(--foreground)}

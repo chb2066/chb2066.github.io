@@ -10,13 +10,13 @@ date: 2025-03-17
 draft: true
 ---
 
-#### 주요 전략
+## 주요 전략
 1. 인코더의 고해상도 특징을 skip connection으로 디코더에 직접 전달해 다운샘플링에서 잃은 공간 정보 복원함.
 2. Overlap-Tile과 경계 강조 weight map으로 적은 학습 데이터에서 큰 이미지 분할함.
 
-#### 배경 지식
+## 배경 지식
 
-**의료 영상이었던 이유**
+### 의료 영상이었던 이유
 
 의료 영상에는 두 가지 제약이 있고, 그게 설계를 규정한다.
 
@@ -28,14 +28,14 @@ draft: true
 - 데이터 부족 → **data augmentation을 적극 사용**함.
 - 경계 분리 → **weight map으로 경계를 강조**함.
 
-**구조적 선택**
+### 구조적 선택
 
 - Encoder-Decoder 구조로 전역 정보와 세부 정보를 함께 활용함.
 - Skip connection을 씀.
 
-#### 네트워크 구조
+## 네트워크 구조
 
-**세 가지 특징**
+### 세 가지 특징
 
 1. **대칭 U자형 구조**
 2. **FC Layer 없이 conv 연산만 사용함.** flatten이 없으므로 공간 정보가 소실되지 않음.
@@ -45,12 +45,12 @@ draft: true
 
 Encoder에서 CNN 과정을 통해 이미지에 대한 전역적 문맥을 학습하고, Decoder 과정에서 해상도와 경계를 복원한다.
 
-**Encoder — Contraction Path (다운샘플링)**
+### Encoder — Contraction Path (다운샘플링)
 
 1. Conv 3×3 + ReLU를 2번
 2. Max pool 2×2
 
-**Decoder — Expanding Path (업샘플링)**
+### Decoder — Expanding Path (업샘플링)
 
 1. feature map을 2×2 up-conv로 업샘플링함.
 2. **skip connection** — 다운샘플링 과정에서 나온 feature map을 업샘플링된 feature map에 concat함.
@@ -58,20 +58,20 @@ Encoder에서 CNN 과정을 통해 이미지에 대한 전역적 문맥을 학�
 3. Conv 3×3 + ReLU를 2번. 첫 conv에서 채널 수를 맞춰 세부 정보를 복원함.
 4. 1×1 Convolution으로 최종 클래스 개수만큼 채널 수를 조정함.
 
-**Output**
+### Output
 
 softmax를 적용해 픽셀 단위 확률값을 출력하고 segmentation을 수행한다.
 
-#### Skip connection이 필요한 이유
+## Skip connection이 필요한 이유
 
-**Encoder-Decoder 구조의 문제**
+### Encoder-Decoder 구조의 문제
 
 - Downsampling을 반복하면서 feature map이 축소되어 **세밀한 정보와 픽셀 위치 정보가 손실**됨.
 - conv 과정에서 **경계 정보 손실**이 발생함.
 
 그 결과 업샘플링할 때 경계 정보, 위치 정보, 세밀한 정보가 부족해서 **흐릿한 결과**가 나온다.
 
-**해결**
+### 해결
 
 skip connection을 쓰면 업샘플링된 feature map에 인코더의 feature map을 결합할 수 있다. 이렇게 하면 위 손실들이 완화된다.
 
@@ -79,9 +79,9 @@ skip connection을 쓰면 업샘플링된 feature map에 인코더의 feature ma
 
 이 구조가 주는 것은 **디코더가 "무엇을"과 "어디에"를 나눠 풀 수 있게 된다**는 점이다. 무엇인지는 깊은 층의 저해상도 특징이 알고, 어디인지는 얕은 층의 고해상도 특징이 안다.
 
-#### 학습
+## 학습
 
-**Overlap-Tile 전략**
+### Overlap-Tile 전략
 
 GPU 메모리 한계 때문에 이미지 전체를 한 번에 처리할 수 없다. 그래서 **큰 입력 타일**로 나눠 처리한다.
 
@@ -91,7 +91,7 @@ GPU 메모리 한계 때문에 이미지 전체를 한 번에 처리할 수 없�
 
 ![그림 2](/img/unet/02.png)
 
-**손실 함수**
+### 손실 함수
 
 - 픽셀 단위 Softmax + Cross Entropy loss를 씀.
 - **Weight Map을 추가해 경계를 강조**함.
@@ -102,11 +102,11 @@ weight map의 목적은 명확하다. **같은 클래스에 속하는 인접한 
 
 ![그림 4](/img/unet/04.png)
 
-**가중치 초기화**
+### 가중치 초기화
 
 네트워크의 feature map이 단위 분산을 유지하도록 초기 가중치를 조정한다. **He Initialization**을 쓰고, 표준편차 `√(2/N)`로 초기 가중치를 샘플링한다.
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 - **ISBI 세포 추적 챌린지 2015에서 우승**했음. 두 개 범주 모두에서 큰 격차로 이겼음.
 - 전자현미경 스택의 신경 구조 분할에서 당시 최고 성능을 기록했음.
@@ -114,7 +114,7 @@ weight map의 목적은 명확하다. **같은 클래스에 속하는 인접한 
 
 데이터가 적은 상황에서 augmentation만으로 이 성능이 나왔다는 점이 함께 강조된다.
 
-#### 정리
+## 정리
 
 U-Net에서 가져갈 것은 "**다운샘플링에서 잃는 것을 옆길로 넘겨준다**"는 구조다.
 

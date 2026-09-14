@@ -30,26 +30,26 @@ date: 2025-03-12
 draft: false
 ---
 
-#### 주요 전략
+## 주요 전략
 1. Faster R-CNN에 마스크 예측 branch를 병렬로 추가함.
 2. RoIPool의 정수 양자화를 RoIAlign의 bilinear interpolation으로 교체해 픽셀 정렬 보존함.
 
-#### 배경 지식
+## 배경 지식
 
-**Mask R-CNN이 확장한 것**
+### Mask R-CNN이 확장한 것
 
 Faster R-CNN을 확장한 모델이다. 기존의 classification과 bounding box regression에 더해, **객체의 픽셀 단위 존재 여부를 예측하는 branch를 병렬로 추가**한다. Faster R-CNN 자체는 anchor box 기반의 two-stage 검출 모델이다.
 
 ![그림 1](/img/mask-rcnn/01.png)
 
-**기존 semantic segmentation 접근법과의 차이**
+### 기존 semantic segmentation 접근법과의 차이
 
 - **기존** — segmentation을 먼저 하고 classification을 함. 객체 존재 여부를 먼저 예측하고 클래스를 구분하므로 **같은 클래스의 개별 객체를 구분할 수 없음.**
 - **Mask R-CNN** — 어떤 클래스인지와 bounding box를 먼저 예측하고, 그 박스 안에서 각 픽셀의 객체 존재 여부를 예측함. 객체를 먼저(염소 1, 염소 2처럼) 구분하므로 **instance segmentation**이 됨.
 
 ![그림 2](/img/mask-rcnn/02.png)
 
-**RoI Pooling과 그 문제**
+### RoI Pooling과 그 문제
 
 RoI Pooling은 FC Layer를 쓰기 위해 크기를 고정하는 과정이다.
 
@@ -59,37 +59,37 @@ RoI Pooling은 FC Layer를 쓰기 위해 크기를 고정하는 과정이다.
 
 문제는 **두 번의 내림 과정에서 공간 정보가 어긋난다**는 것이다. 검출에서는 몇 픽셀의 오차가 크게 문제되지 않지만, **픽셀 단위 마스크 예측에서는 치명적**이다.
 
-#### Mask R-CNN method
+## Mask R-CNN method
 
-**Faster R-CNN 복습**
+### Faster R-CNN 복습
 
 RPN으로 bounding box 후보를 만들고, RoIPool로 각 region proposal의 feature를 추출한 뒤, 객체 분류와 bounding box regression을 수행한다. 백본을 거쳐 생성된 feature map을 RPN과 RoI Head가 **함께 사용**해서 연산을 최적화한다.
 
-**Mask R-CNN의 추가**
+### Mask R-CNN의 추가
 
 먼저 RPN을 수행한다. 이후 두 개의 출력(classification, bounding box offset)과 **병렬로** 각 RoI에 대한 객체 존재 여부를 출력한다.
 
-**Mask Prediction Head**
+### Mask Prediction Head
 
 mask branch는 각 RoI에 대해 `K × m²` 차원의 출력을 만든다. K개 클래스마다 하나씩, `m × m` 크기의 binary mask를 포함한다.
 
-**클래스 간 경쟁의 부재**
+### 클래스 간 경쟁의 부재
 
 mask branch는 K개 클래스 각각에 대해 **독립적으로 sigmoid를 적용해** binary mask를 예측한다. 그리고 classification branch에서 정해진 클래스에 해당하는 마스크만 최종적으로 선택한다.
 
 논문은 이 분리가 **필수적**(essential)이라고 명시한다. 클래스별로 경쟁시키면(softmax를 쓰면) 성능이 떨어진다. mask 예측과 class 분류를 분리한 것이 성능의 상당 부분을 만든다.
 
-**Lmask**
+### Lmask
 
 RoI에서 최종 선택된 클래스에 대한 마스크만 픽셀 단위 sigmoid를 적용하고 loss 계산에 쓴다. **binary cross-entropy loss**로 정의한다.
 
-**전체 손실 함수**
+### 전체 손실 함수
 
 ![그림 3](/img/mask-rcnn/03.png)
 
 classification, box regression, mask 세 항의 합이다.
 
-**FCN을 쓰는 이유**
+### FCN을 쓰는 이유
 
 각 RoI에서 `m × m` 마스크를 예측하기 위해 FCN을 쓴다. FC Layer의 flatten 과정이 없으므로 **공간 구조가 유지**된다.
 
@@ -97,13 +97,13 @@ classification, box regression, mask 세 항의 합이다.
 
 FCN 방식이 FC 방식보다 **더 적은 파라미터로 더 높은 정확도**를 낸다. 마스크 예측 기준이다.
 
-#### RoIAlign
+## RoIAlign
 
-**필요한 이유**
+### 필요한 이유
 
 pixel-to-pixel 방식의 마스크 예측에서는 공간 정렬이 정확하게 유지돼야 한다. 그런데 RoIPool은 정수형 변환을 거치므로 픽셀 단위 예측에서 손실이 크다.
 
-**핵심 아이디어**
+### 핵심 아이디어
 
 1. **RoI 경계와 bin에 대한 양자화를 제거함.** 좌표 `[x/16]` 대신 `x/16`을 그대로 씀.
 2. 각 RoI bin에서 **네 개의 정규화된 샘플링 위치**의 값을 계산함. 1/4과 3/4 지점에서 샘플링해 더 정밀하게 만듦.
@@ -119,13 +119,13 @@ f(xs, ys) = w11·V(x1,y1) + w21·V(x2,y1) + w12·V(x1,y2) + w22·V(x2,y2)
 
 ![그림 5](/img/mask-rcnn/05.png)
 
-**효과**
+### 효과
 
 RoIAlign은 **마스크 정확도를 상대적으로 10~50% 개선**한다. 그리고 **localization 기준이 엄격할수록(AP75 같은 지표) 향상 폭이 커진다.** 정렬 문제를 고친 것이 맞다는 증거다.
 
-#### 네트워크 구조
+## 네트워크 구조
 
-**백본**
+### 백본
 
 ResNet 같은 백본에 **FPN**(Feature Pyramid Network)을 추가한다.
 
@@ -133,7 +133,7 @@ ResNet 같은 백본에 **FPN**(Feature Pyramid Network)을 추가한다.
 
 ![그림 6](/img/mask-rcnn/06.png)
 
-**FPN의 핵심 아이디어**
+### FPN의 핵심 아이디어
 
 - **top-down path** — 상위 계층을 upsampling해 해상도를 높임. 작은 객체 탐지에 도움이 됨.
 - **lateral connection** — upsampling된 특징과 하위 계층을 결합해 위치 정보를 살림.
@@ -151,7 +151,7 @@ ResNet 같은 백본에 **FPN**(Feature Pyramid Network)을 추가한다.
 
 다양한 크기의 객체를 각기 적합한 층에서 처리할 수 있게 된다.
 
-**Network Head**
+### Network Head
 
 ![그림 8](/img/mask-rcnn/08.png)
 
@@ -161,7 +161,7 @@ ResNet 같은 백본에 **FPN**(Feature Pyramid Network)을 추가한다.
 
 ![그림 9](/img/mask-rcnn/09.png)
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 COCO test-dev 기준 instance segmentation 결과다.
 
@@ -172,7 +172,7 @@ COCO test-dev 기준 instance segmentation 결과다.
 
 **Faster R-CNN에 아주 작은 오버헤드만 더하고 5 fps로 동작한다.** 마스크 branch를 병렬로 붙였을 뿐이라 비용이 거의 늘지 않는다는 점이 설계의 강점이다.
 
-#### 정리
+## 정리
 
 이 논문에서 가져갈 것은 두 가지다.
 

@@ -10,22 +10,22 @@ date: 2025-05-28
 draft: false
 ---
 
-#### 주요 전략
+## 주요 전략
 1. diffusion 백본을 U-Net에서 Transformer로 교체해 예측 가능한 스케일링 확보함.
 2. 조건 주입 방식 네 가지를 비교해 adaLN-Zero 선택함.
 
-#### 배경 지식
+## 배경 지식
 
-**기존 생성 방식**
+### 기존 생성 방식
 
 - **DDPM** — 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성함.
 - **VAE** — latent space로 압축했다가 복원하며 이미지를 생성함. 평균과 표준편차를 다룸.
 
-**이 논문의 질문**
+### 이 논문의 질문
 
 diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transformer는 다른 분야에서 **뛰어난 스케일링 특성**을 보여줬다. 그래서 묻는다 — diffusion에서 U-Net을 Transformer로 바꾸면 어떻게 되는가. 그리고 그 스케일링 특성이 따라오는가.
 
-#### 전체 흐름
+## 전체 흐름
 
 1. 원본 이미지를 입력함.
 2. 사전학습된 **VAE Encoder**를 통과시킴. 기존에는 fc를 거쳤다면 여기서는 fc 없이 출력함.
@@ -34,9 +34,9 @@ diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transfor
 
 즉 DiT는 픽셀이 아니라 latent 공간에서 동작한다. 이 부분은 Latent Diffusion과 같다.
 
-#### DiT method
+## DiT method
 
-**Patchify**
+### Patchify
 
 - 입력은 latent image다.
 - 패치화해서 일렬로 나열함.
@@ -44,7 +44,7 @@ diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transfor
 
 여기서 **patch size `p`가 설계 다이얼**이다. `p`가 작을수록 토큰 시퀀스가 길어지고 Gflops가 늘어난다. 논문은 `p ∈ {2, 4, 8}`을 비교하는데, **작은 패치가 일관되게 더 낮은 FID를 낸다.**
 
-**DiT Block**
+### DiT Block
 
 adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)를 쓴다.
 
@@ -66,13 +66,13 @@ adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)�
 - **Self-Attention**으로 전역 정보를 얻고 noise 부분을 강조해 학습함.
 - **Pointwise MLP**(각 패치에 대한 MLP)로 정보를 가공하고 업데이트함.
 
-**Final Layer**
+### Final Layer
 
 - Standard Layer Norm과 Linear로 데이터를 정리하고 차원을 맞춤.
 - unpatchify로 재배치함.
 - conv로 최종 출력을 냄. VAE latent `z`의 예상 noise다.
 
-#### 조건 주입 방식 비교
+## 조건 주입 방식 비교
 
 논문이 실제로 비교한 것은 **네 가지**다. adaLN-Zero가 왜 선택됐는지는 이 비교를 봐야 안다.
 
@@ -85,7 +85,7 @@ adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)�
 
 **adaLN-Zero가 학습의 모든 단계에서 나머지 셋을 앞선다.** cross-attention은 가장 비싼데 성능은 더 낮다.
 
-**adaLN-Zero의 zero-init이 좋은 이유**
+### adaLN-Zero의 zero-init이 좋은 이유
 
 ResNet 계열에서 각 residual block을 항등함수로 초기화하는 게 이롭다는 것이 알려져 있었다. 각 블록의 마지막 batch norm scale을 0으로 초기화하면 대규모 학습이 빨라진다는 관찰이 있고, diffusion U-Net도 residual 연결 직전의 마지막 conv를 zero-init한다.
 
@@ -93,7 +93,7 @@ DiT는 같은 것을 한다. **MLP가 모든 스케일 파라미터에 대해 ze
 
 **adaLN 계열의 제약 하나** — 세 가지 블록 설계 중 adaLN만이 **모든 토큰에 같은 함수를 적용하도록 제한**된다. 조건이 공간적으로 균일하게 작용한다는 뜻이다. 클래스 label처럼 전역적인 조건에는 맞지만, 위치마다 다른 조건을 줘야 한다면 이 방식은 부적합하다.
 
-#### 스케일링
+## 스케일링
 
 이 논문의 제목이 *Scalable*인 이유가 여기 있다.
 
@@ -112,16 +112,16 @@ patch size와 조합하면 **0.3에서 118.6 Gflops까지** 커버한다.
 
 **결과** — 가장 큰 DiT-XL/2는 기존 U-Net 기반 diffusion 모델(ADM, LDM)을 전부 앞서면서 연산 효율도 좋다. ImageNet 256×256 클래스 조건부 생성에서 **FID 2.27**로 당시 최고 성능이다.
 
-#### 학습과 생성
+## 학습과 생성
 
 - **학습** — 실제 노이즈와 DiT의 예측 noise 차이로 학습함.
 - **생성** — DiT가 낸 noise를 latent `z`에서 빼고 VAE decoder에 넣어 이미지를 출력함.
 
-**Classifier-Free Guidance**
+### Classifier-Free Guidance
 
 DiT 실험에서 생성 품질을 크게 끌어올리는 요소로 CFG를 쓴다. 조건(class label `c`)이 있는 예측과 없는 예측을 각각 구해서, 그 차이를 증폭하는 방향으로 노이즈 예측을 보정한다. 조건에 더 충실하면서도 품질 높은 샘플이 나온다.
 
-#### 정리
+## 정리
 
 이 논문이 남긴 것은 "**diffusion 백본에 Transformer의 스케일링 법칙이 그대로 적용된다**"는 확인이다. U-Net의 귀납 편향이 없어도 되고, 오히려 없는 편이 크게 키울 때 유리하다.
 

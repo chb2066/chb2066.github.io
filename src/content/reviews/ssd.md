@@ -10,13 +10,13 @@ date: 2025-03-05
 draft: false
 ---
 
-#### 주요 전략
+## 주요 전략
 1. proposal 단계를 제거하고 여러 해상도의 feature map 각 위치에 default box를 미리 배치해 한 번에 예측함.
 2. hard negative mining으로 배경 박스가 학습을 지배하지 않게 조정함.
 
-#### 배경 지식
+## 배경 지식
 
-**기존 검출 모델의 구조와 한계**
+### 기존 검출 모델의 구조와 한계
 
 기존 방식은 세 단계를 거친다.
 
@@ -31,29 +31,29 @@ draft: false
 - **Faster R-CNN** — (1)과 (2) 과정 때문에 느림.
 - **YOLO** — single-shot으로 속도를 높였지만 정확도가 부족함.
 
-**SSD의 차별점**
+### SSD의 차별점
 
 - Faster R-CNN과 달리 **proposal도 feature resampling도 없이** 바로 검출함.
 - YOLO처럼 single-shot이면서 **높은 정확도**를 냄.
 
 속도와 정확도를 동시에 얻는 방법이 이 논문의 내용이다.
 
-#### SSD method
+## SSD method
 
 SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 바운딩 박스를 조정하고, 각 박스에서 객체가 존재할 확률을 예측한다.
 
-**두 가지 특징**
+### 두 가지 특징
 
 1. **여러 크기의 feature map을 활용함.**
 2. **각 feature map에서 default box를 씀.**
 
-**Default box란**
+### Default box란
 
 - 객체 탐지를 위해 한 픽셀 기준으로 미리 생성하는, 서로 다른 크기와 비율의 박스들임.
 - feature map을 통과할 때 **모든 픽셀마다 동일한 기준의 박스들**이 생성됨.
 - 이 default box를 기준으로 classification과 bounding box regression을 수행함.
 
-#### 세부 구조
+## 세부 구조
 
 ![그림 2](/img/ssd/02.png)
 
@@ -67,7 +67,7 @@ SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 �
 
 4. **NMS**를 적용해 최종 탐지 결과를 결정함.
 
-**NMS의 동작 과정**
+### NMS의 동작 과정
 
 - 모든 박스를 confidence score 기준으로 정렬하고 가장 높은 박스를 선택함.
   - 예: A(0.9), B(0.85), C(0.6) → **A 선택**
@@ -79,29 +79,29 @@ SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 �
 - C와 다른 박스들의 IoU를 계산해 제거함.
 - 남은 박스가 없으면 종료함.
 
-#### 모델의 주요 구성 요소
+## 모델의 주요 구성 요소
 
-**다중 스케일 feature map**
+### 다중 스케일 feature map
 
 추가 conv layer를 붙여 점진적으로 축소되는 feature map을 만들고, 이를 통해 여러 크기의 객체를 검출한다. **feature map이 클수록 작은 객체를 탐지**한다.
 
-**convolution 기반 예측**
+### convolution 기반 예측
 
 각 feature map에 작은 **3×3 conv filter**를 적용해 객체의 category score와 bounding box offset을 예측한다. 별도의 FC Layer가 없으므로 빠르다.
 
-**Default box와 종횡비**
+### Default box와 종횡비
 
 여러 크기의 각 feature map 셀마다 여러 개의 default box를 설정해 다양한 크기와 종횡비의 객체를 탐지한다.
 
-#### 학습
+## 학습
 
-**1. Matching Strategy**
+### 1. Matching Strategy
 
 - 학습 시 각 default box를 실제 객체의 bounding box와 매칭해야 함.
 - IoU를 계산해 **가장 높은 IoU를 가지는 default box**를 실제 객체와 매칭함.
 - IoU가 **0.5 이상인 경우 추가로 매칭**해 학습을 좀 더 유연하게 만듦.
 
-**2. Loss Function**
+### 2. Loss Function
 
 - **Localization Loss** — 실제 bounding box와 예측 박스의 차이를 **Smooth L1 Loss**로 계산함. L2에 비해 튀는 값을 잘 반영함. 값을 예측해야 하므로 회귀 loss를 씀.
 - **Confidence Loss** — 각 default box에서 예측한 클래스 확률과 실제 클래스의 차이를 **Softmax Loss**로 계산함.
@@ -110,17 +110,17 @@ SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 �
 
 `N`은 매칭된 default box의 개수다.
 
-**3. Hard Negative Mining**
+### 3. Hard Negative Mining
 
 - IoU ≥ 0.5면 positive(객체 존재, 학습 대상), IoU < 0.5면 negative(배경)로 판단함.
 - positive로 분류된 박스에 대해서만 localization loss와 confidence loss를 적용함. negative 박스는 classification loss만 씀.
 - 훈련 데이터에서 positive와 negative의 비율이 크게 불균형하므로, **negative 중 손실이 큰 상위 3배수만** 학습에 씀.
 
-**4. Data Augmentation**
+### 4. Data Augmentation
 
 다양한 크기의 객체를 잘 탐지하도록 random crop과 여러 비율의 사전 변형을 적용한다. 실험 결과 데이터 증강을 추가하면 **mAP가 8.8% 향상**된다.
 
-#### 실험에서 확인된 것
+## 실험에서 확인된 것
 
 VOC2007 test 기준이다.
 
@@ -135,11 +135,11 @@ Nvidia Titan X 기준이다. **SSD300이 Faster R-CNN보다 정확하면서 8배
 
 더 큰 데이터셋으로 학습하면 SSD300이 77.2%, SSD512가 79.8%까지 오른다.
 
-**속도 향상의 출처**
+### 속도 향상의 출처
 
 근본적인 개선은 **proposal 생성과 픽셀 또는 feature resampling 단계를 없앤 것**이다. 그 자리를 작은 conv filter로 대체했다. 그리고 그 필터를 **여러 스케일의 feature map에 적용하고 종횡비별로 예측을 분리**한 것이 정확도를 지켜준다.
 
-#### 정리
+## 정리
 
 SSD가 보여준 것은 "**단계를 없애고 그 역할을 구조로 흡수할 수 있다**"는 것이다.
 
