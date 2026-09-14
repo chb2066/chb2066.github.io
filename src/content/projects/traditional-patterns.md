@@ -31,9 +31,9 @@ Each channel measured alone, same split.
 
 Text is worth about 20 points more than the image. Metadata — including the `meaning` field I expected to help — is worth the same as the pixels and no more.
 
-One caveat on the text number: emotion words appear verbatim in the description in ~19% of records, ~34% counting inflected forms. A separate caption source that exposed labels more directly was verified unused in the final system.
+One caveat on the text number: emotion words appear verbatim in the description in ~19% of records, ~34% counting inflected forms. The training pipeline redacts the 22 vocabulary words from the input text for this reason.
 
-> **To write ①** — one or two sentences on why I accepted this leakage. Only the facts are here.
+<!-- **To write ①** — one or two sentences on how I handled emotion words leaking into the description text. Only the facts are here. -->
 
 ## The image ceiling
 
@@ -63,7 +63,7 @@ image ─▶ 16 soft tokens ─▶ [ frozen text encoder ] ─▶ [ frozen head 
 
 It reached 0.592. The auxiliary loss aligning the translated tokens to the real description embedding bottomed out at cosine distance ~0.66 and would not go lower — the image-reconstructed embedding points in a different direction from the text describing the same object.
 
-> **To write ②** — two or three sentences on why the table above plus the soft-prompt result convinced me the ceiling belongs to the data, not the model. This is the most important passage in the note and the thing an interviewer will ask about, so it has to be in my own words.
+<!-- **To write ②** — two or three sentences on why the table above plus the soft-prompt result convinced me the ceiling belongs to the data, not the model. This is the most important passage in the note and the thing an interviewer will ask about, so it has to be in my own words. -->
 
 ## Fusion
 
@@ -77,7 +77,7 @@ text  ─▶ Korean encoder (tuned) ▶ proj ─▶ 1 token ─┘
 
 Concat 0.661 → self-attention 0.677 under identical settings, text encoder frozen in both. Unfreezing the text encoder moved the same architecture to ~0.78, which made **text fine-tuning the one decisive lever** in the project.
 
-> **To write ③** — one or two sentences on why 256 patch tokens collapsed and 2 tokens did not.
+<!-- **To write ③** — one or two sentences on why 256 patch tokens collapsed and 2 tokens did not. -->
 
 | Image encoder treatment | F1@5 |
 |---|---|
@@ -90,7 +90,7 @@ Four conditions inside 0.4 points. Opening the image backbone buys nothing, so D
 
 ### A bug
 
-Late in the project I found that what I called "description-only" text input was in fact description plus all nine metadata fields. A comment in the training script meant "the description source, not the discarded label-exposing caption source," and I read it as "the description field, not metadata." I added an explicit flag and retrained everything. Individual scores moved 0.003–0.005, consistent with the channel measurements above.
+Late in the project I found that what I called "description-only" text input was in fact description plus all nine metadata fields — a comment in the training script was about which *source* the text came from, and I read it as which *field*. I added an explicit flag and retrained everything. Individual scores moved 0.003–0.005, consistent with the channel measurements above.
 
 ## Results
 
@@ -126,11 +126,11 @@ All 63 subsets of six candidates, searched with Dirichlet-weighted random search
 - When uncertain, the model falls back to the two highest-frequency labels.
 - The five ensemble members agree at Jaccard 0.74–0.79, differing at ambiguous boundaries rather than making unrelated predictions.
 
-> **To write ④** — one or two sentences on what the error analysis tells me.
+<!-- **To write ④** — one or two sentences on what the error analysis tells me. -->
 
 ## Next
 
-> **To write ⑤** — three or four bullets. Candidates: repeat the image ablation at the ensemble level, handle deployment without a description, label distribution learning, sharpen the guidelines for the ambiguous labels.
+<!-- **To write ⑤** — three or four bullets. Candidates: repeat the image ablation at the ensemble level, handle deployment without a description, label distribution learning, sharpen the guidelines for the ambiguous labels. -->
 
 ---
 

@@ -1,0 +1,307 @@
+%-------------
+% Resume in Latex
+% Author : Jake Gutierrez
+% Based off of: https://github.com/sb2nov/resume
+% License : MIT
+%------------
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage[hangul]{kotex}
+\usepackage{ragged2e}
+\setlength{\multicolsep}{-3.0pt}
+\setlength{\columnsep}{-1pt}
+\input{glyphtounicode}
+
+%-----FONT OPTIONS-----
+% sans-serif
+% \usepackage[sfdefault]{FiraSans}
+% \usepackage[sfdefault]{roboto}
+% \usepackage[sfdefault]{noto-sans}
+% \usepackage[default]{sourcesanspro}
+
+% serif
+% \usepackage{CormorantGaramond}
+% \usepackage{charter}
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-7pt}\scshape\raggedright\LARGE\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-3pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\classesList}[4]{
+    \item\small{
+        {#1 #2 #3 #4 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{2pt}\item
+    \begin{minipage}[t]{0.75\textwidth}
+      \textbf{#1} \\
+      \textit{\small#3}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.23\textwidth}
+      \raggedleft
+      \small #2 \\
+      \small #4
+    \end{minipage}
+}
+
+\newcommand{\cusSubheading}[5]{
+  \vspace{1pt}\item
+    \begin{minipage}[t]{0.7\textwidth}
+      \textbf{#1} \\
+      \textit{\small#3} \\
+      \vspace{-22pt}
+      {\small#5}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.28\textwidth}
+      \raggedleft
+      \small #2 \\
+      \small #4
+    \end{minipage}
+}
+
+\newenvironment{cvitems}{%
+  \begin{justify}
+  \begin{itemize}[leftmargin=2ex, nosep, noitemsep]
+    \setlength{\parskip}{0pt}
+    \renewcommand{\labelitemi}{\bullet}
+}{%
+  \end{itemize}
+  \end{justify}
+}
+
+\newenvironment{publicationitems}{%
+  \begin{justify}
+  \begin{itemize}[leftmargin=2ex, nosep, noitemsep]
+    \setlength{\parskip}{0pt}
+    \renewcommand{\labelitemi}{\raisebox{0.15ex}{\scriptsize$\bullet$}}
+}{%
+  \end{itemize}
+  \end{justify}
+}
+
+\newcommand{\educationSubheading}[8]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & \small #2 \\
+      \textit{\small#3} & \small #4 \\[5pt]
+      \small#5 & \small #6 \\
+      \small#7 & \small #8 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{1.001\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & \textbf{\small #2}\\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%----------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%-----HEADING-----
+\begin{center}
+    {\Huge \scshape Hyunbin Choi} \\ \vspace{1pt}
+    \vspace{5mm}
+    \small
+    \raisebox{-0.1\height}\faPhone\ +82 10-2403-2325 ~
+    \href{mailto:hyunbin.choi@edu.hanbat.ac.kr}{\raisebox{-0.2\height}\faEnvelope\ \underline{hyunbin.choi@edu.hanbat.ac.kr}} ~
+    \href{https://scholar.google.com/citations?user=8g2iGIkAAAAJ}{\raisebox{-0.2\height}\faGraduationCap\ \underline{Google Scholar}} ~
+    \href{https://chb2066.github.io}{\raisebox{-0.2\height}\faGlobe\ \underline{Homepage}} ~
+    \href{https://github.com/chb2066}{\raisebox{-0.2\height}\faGithub\ \underline{GitHub}}
+    \\
+    \vspace{10pt}
+    \centerline{Computer Vision{\enskip$\cdotp$\enskip}Vision-Language Models{\enskip$\cdotp$\enskip}Multimodal Learning}
+\end{center}
+
+%------RESEARCH INTERESTS------
+\section{Research Interests}
+\vspace{1pt}
+\small{Vision-language models and multimodal representation learning, with earlier work in object
+detection and semantic segmentation. Interested in separating model limits from data limits.}
+\vspace{4pt}
+
+%------EDUCATION------
+\section{Education}
+  \resumeSubHeadingListStart
+    \educationSubheading
+      {Hanbat National University}{Daejeon, Republic of Korea}
+      {B.S. in Department of Information and Communication Engineering}{Mar. 2021 -- Feb. 2027 (expected)}
+      {GPA: 4.13 / 4.5 }{}
+      {}{}
+  \resumeSubHeadingListEnd
+
+%------RESEARCH EXPERIENCE------
+\section{Research Experience}
+  \resumeSubHeadingListStart
+    \cusSubheading
+      {Hanbat National University AiRLab}{Daejeon, Republic of Korea}
+      {Undergraduate Researcher, Advised by Prof. Dong-Geol Choi}{Jan. 2025 -- Aug. 2026}
+      {
+      \begin{cvitems}
+        \item {Research on computer vision, vision-language models, and LLMs; weekly paper seminars}
+        \item {Participated in lab research projects and maintained the multi-GPU training environment}
+      \end{cvitems}
+      }
+  \resumeSubHeadingListEnd
+
+%------PUBLICATIONS------
+\section{Publications}
+  \resumeSubHeadingListStart
+    \cusSubheading
+      {Hierarchical Knowledge Distillation Network for Image Classification in Incomplete Real-World Data Environments}
+      {Jun. 2026}
+      {\textup{Taeseop Kim, Hayun Jang, \textbf{Hyunbin Choi}, Hyobin Park, Yuhyun Kim, Dong-Geol Choi} \\
+       J. Korean Inst. Next Gener. Comput., 22(3), pp. 71--84 \textup{(KCI, in Korean)}}
+      {}
+      {
+      \begin{cvitems}
+        \item {Hierarchical knowledge distillation for image classification under incomplete hierarchical labels}
+        \item {\textbf{Contribution:} ran the training and benchmark comparison experiments}
+      \end{cvitems}
+      }
+  \resumeSubHeadingListEnd
+
+%------HONORS AND AWARDS------
+\section{Honors and Awards}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {2nd Place, 2025 SW-Centered University SW$\cdot$AI Competition}{Jun. 2025}
+      {Campus AI competition, Hanbat National University}{ }
+      \resumeItemListStart
+        \resumeItem{Detection of AI-generated versus human-written text; handled data analysis and training experiments}
+        \resumeItem{Advanced to the national joint competition as university representative}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+\newpage
+
+%------PROJECT EXPERIENCES------
+\section{Project Experiences}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {KBO Pitch Command Success Probability Prediction}{Aug. 2026 -- Sep. 2026}
+      {LG Aimers 9th / DACON $\cdot$ 97th of 2,403 participants $\cdot$ \href{https://github.com/chb2066/lg-aimers-9-kbo-pitch-command}{\underline{code}}}{ }
+      \resumeItemListStart
+        \resumeItem{Led experiment design and implementation; training and evaluation sit on opposite sides of a season boundary, so the question was which offline gains survive the shift}
+        \resumeItem{Measured transfer rate per axis against the leaderboard and discounted offline gains accordingly: within-season cell structure transferred at 0\%, structural and objective changes at about 90\%}
+        \resumeItem{Derived the calibration constant from training data alone and certified with a convex-combination oracle that reweighting was exhausted, which closed the ensemble axis}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Multi-Label Classification of Korean Traditional Patterns}{Jun. 2026 -- Aug. 2026}
+      {Hanbat National University AiRLab (ETRI-funded project)}{ }
+      \resumeItemListStart
+        \resumeItem{Multi-label classification of pattern images into aesthetic adjective labels, from the image together with text metadata}
+        \resumeItem{Isolated weak visual representation, not the alignment objective, as the bottleneck and redesigned the model around late fusion}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Abnormal Behavior and Anomaly Detection in Subway Stations}{May 2026 -- Jul. 2026}
+      {Hanbat National University AiRLab}{ }
+      \resumeItemListStart
+        \resumeItem{Built the training set from public footage and self-collected video, as no public dataset covered the targets}
+        \resumeItem{Trained separate detectors for hazards and behavior, and filtered false positives from stationary light sources}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Satellite Image Building Area Segmentation}{Jan. 2026 -- Feb. 2026}
+      {Self-directed study on the 2023 SW-Centered University AI Competition dataset (Dacon)}{ }
+      \resumeItemListStart
+        \resumeItem{Traced low performance, reproduced across three architecturally distinct models, to a train/test resolution mismatch}
+        \resumeItem{Replaced resize-based matching with crop-based training and padding-based inference}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Paragraph-Level Detection of AI-Generated Text}{Jul. 2025 -- Aug. 2025}
+      {2025 SW-Centered University Digital Competition, AI Division (national round) $\cdot$ \href{https://github.com/chb2066/AI\_generated\_text\_detection}{\underline{code}}}{ }
+      \resumeItemListStart
+        \resumeItem{National round entered as university representative; unlike the campus round, which labelled a whole text as human or AI, this task scored each paragraph separately while allowing paragraphs of the same document to reference one another}
+        \resumeItem{Implemented the task as multiple-instance learning, treating the paragraphs of a document as one bag, and compared two aggregation orders: per-paragraph prediction then aggregation, and aggregation then document-level prediction}
+        \resumeItem{Combined focal and differentiable AUC losses for the label imbalance, and calibrated the output probabilities with temperature scaling}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+\vspace{5pt}
+
+%------TECHNICAL SKILLS------
+\section{Technical Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages}{: Python} \\
+     \textbf{Frameworks}{: PyTorch, Hugging Face Transformers, OpenCV} \\
+     \textbf{Infrastructure}{: Multi-GPU distributed training (PyTorch DDP, NCCL), Docker, Linux, Weights \& Biases} \\
+    }}
+ \end{itemize}
+ \vspace{-16pt}
+
+\end{document}
