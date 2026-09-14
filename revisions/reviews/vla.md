@@ -32,7 +32,7 @@ draft: false
 
 #### 주요 전략
 1. 연속 행동을 quantile binning으로 256개 bin에 이산화하고, Llama tokenizer의 덜 쓰이는 토큰 256개에 덮어써서 연속 행동을 사용함.
-2. SigLIP과 DINOv2의 임베딩을 모두 사용한 공간 이해도 증대함.
+2. SigLIP과 DINOv2의 임베딩을 모두 사용해 공간 이해도를 높임.
 
 #### 배경 지식
 

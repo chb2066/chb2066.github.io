@@ -2,7 +2,7 @@
 개정: 2026-09-10 (원본: src/content/reviews/simsiam.md)
 - 원본이 25편 중 두 번째로 짧았다(1,191자). 논문에서 보강이 많이 필요했다
 - 「배경 지식」 신설 — SimSiam 이 무엇을 하나씩 제거해가며 도달한 결과인지 정리.
-  음성 샘플(SimCLR), 메모리 뱅크(MoCo), 클러스터링(SwAV), 모멘텀 인코더(BYOL)를
+  negative sample(SimCLR), 메모리 뱅크(MoCo), 클러스터링(SwAV), 모멘텀 인코더(BYOL)를
   차례로 없앤 자리에 남은 것이 stop-gradient 와 predictor 뿐이라는 것이 논문의 요지다
 - 「stop-gradient 가 없으면」 신설 — 논문의 핵심 실험. 제거하면 즉시 붕괴하고
   손실이 최소값으로 떨어진다. 원본에 이 대조가 없어서 stop-gradient 의 필요성이
@@ -46,8 +46,8 @@ draft: true
 
 | 방법 | 붕괴 방지 장치 |
 |---|---|
-| SimCLR | **음성 샘플** (큰 배치 필요) |
-| MoCo | 음성 샘플 + **메모리 뱅크** + 모멘텀 인코더 |
+| SimCLR | **negative sample** (큰 배치 필요) |
+| MoCo | negative sample + **메모리 뱅크** + 모멘텀 인코더 |
 | SwAV | **클러스터링 제약** (Sinkhorn 균등 배분) |
 | BYOL | **모멘텀 인코더(EMA)** + predictor + stop-gradient |
 
@@ -68,7 +68,7 @@ SimSiam은 BYOL과 비슷하게 stop-gradient를 쓰는 구조지만, **target�
 - **predictor** — 한쪽 branch에만 붙는 MLP
 - **stop-gradient** — 반대쪽 branch로는 기울기를 보내지 않음
 
-음성 샘플도, 메모리 뱅크도, 클러스터링도, 모멘텀 인코더도 없다.
+negative sample도, 메모리 뱅크도, 클러스터링도, 모멘텀 인코더도 없다.
 
 **Loss — negative cosine similarity**
 
@@ -118,14 +118,14 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 #### 실험에서 확인된 것
 
 - **ImageNet linear evaluation에서 경쟁력 있는 성능**을 냄. 특히 **100 epoch 같은 짧은 학습에서는 다른 방법들을 앞섬.**
-- **배치 크기 의존이 낮음.** SimCLR처럼 큰 배치가 필요하지 않음. 음성 샘플을 쓰지 않기 때문임.
+- **배치 크기 의존이 낮음.** SimCLR처럼 큰 배치가 필요하지 않음. negative sample을 쓰지 않기 때문임.
 - 구조가 가장 단순한데 성능이 크게 뒤지지 않는다는 것이 요지임.
 
 #### 정리
 
 SimSiam의 값어치는 새 방법을 제안한 게 아니라 **무엇이 불필요했는지 밝힌 것**에 있다.
 
-음성 샘플, 메모리 뱅크, 클러스터링, 모멘텀 인코더 — 이들이 전부 붕괴 방지를 위해 도입됐다고 여겨졌는데, 하나씩 빼보니 **stop-gradient와 predictor만 있으면 됐다.**
+negative sample, 메모리 뱅크, 클러스터링, 모멘텀 인코더 — 이들이 전부 붕괴 방지를 위해 도입됐다고 여겨졌는데, 하나씩 빼보니 **stop-gradient와 predictor만 있으면 됐다.**
 
 여기서 옮겨갈 만한 것은 방법이 아니라 **태도**다. 여러 장치가 함께 쓰이고 있을 때, 각각이 정말 필요한지는 따로 확인해야 안다. 관행적으로 함께 쓰이던 것들이 사실은 한 가지 이유를 중복해서 다루고 있을 수 있다.
 

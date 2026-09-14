@@ -94,7 +94,7 @@ teacher가 feature를 뽑고 projection head로 점수를 매기는 데까지는
 
 **5. teacher를 momentum encoder로 두지 않음**
 
-가장 큰 모델인 **ViT-g(1B 파라미터)를 먼저 학습시켜 고정한 뒤, 거기서 작은 모델들로 distill한다.** 처음부터 학습시키는 대신 큰 모델을 교사로 쓰는 것이다.
+가장 큰 모델인 **ViT-g(1B 파라미터)를 먼저 학습시켜 고정한 뒤, 거기서 작은 모델들로 distill한다.** 처음부터 학습시키는 대신 큰 모델을 teacher로 쓰는 것이다.
 
 distillation의 세부 조건은 이렇다. 목적함수 자체가 이미 teacher에서 student로의 distillation 형태이므로 **같은 학습 루프를 쓰되 몇 가지만 바꾼다.**
 

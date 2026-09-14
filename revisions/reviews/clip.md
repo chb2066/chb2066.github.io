@@ -22,7 +22,7 @@ title: CLIP
 paper: Learning Transferable Visual Models From Natural Language Supervision
 venue: ICML 2021
 link: https://arxiv.org/abs/2103.00020
-claim: 이미지-텍스트 쌍에 대한 대조 학습만으로 zero-shot 전이가 가능한 시각 표현을 얻는다.
+claim: 이미지-텍스트 쌍에 대한 contrastive learning만으로 zero-shot 전이가 가능한 시각 표현을 얻는다.
 tags: [Vision-Language, Contrastive]
 tier: main
 date: 2025-04-10

@@ -24,7 +24,7 @@ title: SwAV
 paper: Unsupervised Learning of Visual Features by Contrasting Cluster Assignments
 venue: NeurIPS 2020
 link: https://arxiv.org/abs/2006.09882
-claim: 인스턴스 비교 대신 prototype 할당을 서로 바꿔 예측하게 하면 메모리 뱅크 없이 대조 학습이 된다.
+claim: 인스턴스 비교 대신 prototype 할당을 서로 바꿔 예측하게 하면 메모리 뱅크 없이 contrastive learning이 된다.
 tags: [Self-supervised, Clustering]
 tier: basic
 date: 2025-06-04
@@ -44,7 +44,7 @@ SimCLR과 MoCo는 **인스턴스 구별 방식**을 쓴다. 모든 이미지를 
 - **SimCLR** — 메모리 사용량이 많음. 큰 배치가 필요하기 때문임.
 - **MoCo** — 메모리 뱅크가 필요함.
 
-둘 다 **많은 음성 샘플을 어떻게 확보할 것인가**의 문제를 서로 다른 방식으로 우회한 것이다.
+둘 다 **많은 negative sample을 어떻게 확보할 것인가**의 문제를 서로 다른 방식으로 우회한 것이다.
 
 #### SwAV method
 
@@ -55,7 +55,7 @@ SwAV는 특징 벡터를 직접 비교하지 않는다. 대신 **learnable vecto
 이 방식의 이점은 두 가지다.
 
 1. clustering을 통해 이산 분포가 아니라 **연속적인 분포**를 얻으므로, retrieval이나 classification 작업에 바로 쓸 수 있음.
-2. **메모리 관리 효율이 좋음.** 음성 샘플을 저장할 필요가 없음.
+2. **메모리 관리 효율이 좋음.** negative sample을 저장할 필요가 없음.
 
 **Swapping 메커니즘**
 
@@ -110,7 +110,7 @@ DeepCluster 같은 선행 연구는 전체 데이터셋에 대해 k-means를 돌
 
 SwAV에서 가져갈 재료는 세 가지고, 셋 다 이후 다른 방법으로 옮겨갔다.
 
-**첫째, 쌍별 비교 대신 클러스터 할당을 비교하기.** 음성 샘플을 정의하지 않아도 되고, 그래서 메모리 뱅크가 사라진다.
+**첫째, 쌍별 비교 대신 클러스터 할당을 비교하기.** negative sample을 정의하지 않아도 되고, 그래서 메모리 뱅크가 사라진다.
 
 **둘째, Sinkhorn의 균등 배분 제약.** 이것 자체가 **떼어 쓸 수 있는 붕괴 방지 장치**다. DINOv2가 teacher 분포를 만들 때 centering 대신 이걸 가져다 쓴다.
 
