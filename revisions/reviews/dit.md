@@ -10,6 +10,9 @@
 - adaLN-Zero 의 zero-init 근거(ResNet의 identity 초기화 계보) 보강
 - 끝맺음을 평서형으로 통일
 - 원본의 adaLN-Zero 메커니즘 서술과 CFG 관찰은 그대로 유지
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: DiT
@@ -23,12 +26,9 @@ date: 2025-05-28
 draft: false
 ---
 
-핵심 키워드:
-diffusion 백본을 U-Net에서 Transformer로 교체, adaLN-Zero 조건 주입, 예측 가능한 스케일링
-주요 전략:
-latent 공간에서 동작하는 Transformer를 만들고, 조건 주입 방식 네 가지를 비교해 adaLN-Zero를 고른다
-사용 가능 분야:
-클래스 조건부 이미지 생성. 이후 대부분의 대규모 diffusion 모델이 이 백본을 따른다
+#### 주요 전략
+1. diffusion 백본을 U-Net에서 Transformer로 교체해 예측 가능한 스케일링 확보.
+2. 조건 주입 방식 네 가지를 비교해 adaLN-Zero 선택.
 
 #### 배경 지식
 

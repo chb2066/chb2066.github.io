@@ -9,6 +9,9 @@
 - 끝맺음을 평서형으로 통일
 - 원본의 NMS 단계별 예시(A 0.9 / B 0.85 / C 0.6)와 hard negative mining 3배수 근거는
   그대로 유지. 이 글에서 가장 구체적인 부분이다
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: SSD
@@ -22,12 +25,9 @@ date: 2025-03-05
 draft: false
 ---
 
-핵심 키워드:
-single-shot detection, default box, 다중 스케일 feature map, hard negative mining
-주요 전략:
-proposal 단계를 없애고, 여러 해상도의 feature map 각 위치에 미리 박스를 깔아 한 번에 예측한다
-사용 가능 분야:
-실시간 객체 검출. 이후 one-stage 검출기의 기본 골격
+#### 주요 전략
+1. proposal 단계를 제거하고 여러 해상도의 feature map 각 위치에 default box를 미리 배치해 한 번에 예측.
+2. hard negative mining으로 배경 박스가 학습을 지배하지 않게 조정.
 
 #### 배경 지식
 
@@ -143,7 +143,7 @@ Nvidia Titan X 기준이다. **SSD300이 Faster R-CNN보다 정확하면서 8배
 더 큰 데이터셋으로 학습하면 SSD300이 77.2%, SSD512가 79.8%까지 오른다.
 
 **속도 향상이 어디서 오는가**
-근본적인 개선은 **proposal 생성과 픽셀·feature resampling 단계를 없앤 것**이다. 그 자리를 작은 conv filter로 대체했다. 그리고 그 필터를 **여러 스케일의 feature map에 적용하고 종횡비별로 예측을 분리**한 것이 정확도를 지켜준다.
+근본적인 개선은 **proposal 생성과 픽셀, feature resampling 단계를 없앤 것**이다. 그 자리를 작은 conv filter로 대체했다. 그리고 그 필터를 **여러 스케일의 feature map에 적용하고 종횡비별로 예측을 분리**한 것이 정확도를 지켜준다.
 
 #### 정리
 

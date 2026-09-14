@@ -11,6 +11,9 @@
 - iBOT 이 관찰한 창발 현상(local semantic pattern) 추가
 - 끝맺음을 평서형으로 통일
 - 원본의 DINOv2 와의 head 공유/분리 대조는 그대로 유지. 두 글이 이어지는 좋은 지점이다
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: iBOT
@@ -24,12 +27,9 @@ date: 2025-05-14
 draft: false
 ---
 
-핵심 키워드:
-Masked Image Modeling, online tokenizer, self-distillation, blockwise masking
-주요 전략:
-EMA teacher가 토크나이저 역할을 겸해서, 토크나이저를 미리 학습시키는 단계 자체를 없앤다
-사용 가능 분야:
-linear probing 분류, 객체 검출, instance/semantic segmentation
+#### 주요 전략
+1. EMA teacher가 online tokenizer 역할을 겸해서 토크나이저 사전학습 단계 제거.
+2. blockwise masking으로 의미 단위를 가려 저수준 보간만으로 풀 수 없게 구성.
 
 #### 요약
 

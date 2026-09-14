@@ -16,6 +16,9 @@
 - 끝맺음을 평서형으로 통일
 - 원본의 attention 직관 설명(긍정·부정 분류, 질의응답 예시)과 decoder 단계별 추적,
   multi-head 의 view/transpose 코드 설명은 그대로 유지. 이 글에서 가장 좋은 부분이다
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: Attention Is All You Need
@@ -29,12 +32,9 @@ date: 2025-03-24
 draft: true
 ---
 
-핵심 키워드:
-self-attention, multi-head, positional encoding, encoder-decoder
-주요 전략:
-순환 구조를 없애고 attention만으로 시퀀스를 처리해, 병렬화와 장거리 의존성을 동시에 얻는다
-사용 가능 분야:
-기계 번역을 시작으로 사실상 모든 시퀀스 모델링
+#### 주요 전략
+1. 순환 구조를 제거하고 self-attention만으로 시퀀스를 처리해 학습 병렬화.
+2. positional encoding으로 순서 정보를 별도 주입하고, multi-head로 서로 다른 관계를 동시에 포착.
 
 #### 사전 개념 — attention
 

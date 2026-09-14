@@ -9,6 +9,9 @@
 - 끝맺음을 평서형으로 통일
 - 원본의 SigLIP 선택 이유에 대한 판단은 그대로 유지. 논문 근거(DINOv2가 공간 추론을
   보강한다는 서술)를 덧붙임
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: OpenVLA
@@ -23,12 +26,9 @@ date: 2025-08-06
 draft: false
 ---
 
-핵심 키워드:
-open-source VLA, discrete action tokenization, DINOv2+SigLIP 융합 인코더, Open X-Embodiment
-주요 전략:
-연속 행동을 quantile binning으로 256개 bin에 이산화하고, Llama tokenizer의 덜 쓰이는 토큰 256개를 덮어써서 행동을 "말하게" 만든다
-사용 가능 분야:
-다중 로봇 조작, 새 로봇 셋업으로의 fine-tuning, 소비자용 GPU에서의 적응
+#### 주요 전략
+1. 연속 행동을 quantile binning으로 256개 bin에 이산화하고, Llama tokenizer의 덜 쓰이는 토큰 256개에 덮어써서 연속 행동을 사용.
+2. SigLIP과 DINOv2의 임베딩을 모두 사용한 공간 이해도 증대.
 
 #### 배경 지식
 
@@ -40,8 +40,6 @@ open-source VLA, discrete action tokenization, DINOv2+SigLIP 융합 인코더, O
 
 1. **모델이 닫혀 있다.** 가중치도 학습 코드도 공개되지 않아서 아무도 이어서 연구할 수 없다.
 2. **새 태스크로 효율적으로 fine-tuning하는 방법이 탐색되지 않았다.** 실제로 쓰려면 이게 핵심인데 비어 있었다.
-
-OpenVLA는 이 둘을 정면으로 다룬다. 7B 파라미터로 55B를 이기면서 전부 공개한다.
 
 #### OpenVLA method
 
@@ -63,7 +61,7 @@ SigLIP은 image-text contrastive 학습으로 patch feature 공간이 텍스트�
 **SigLIP과 CLIP의 차이**
 CLIP은 배치 내 모든 쌍에 대해 softmax 기반 contrastive loss를 써서 큰 배치가 필요하다. SigLIP은 각 쌍을 독립적인 binary classification 문제로 보는 sigmoid loss를 써서 배치 전체 정규화가 필요 없고, 작은 배치에서도 안정적으로 학습된다.
 
-**그런데 SigLIP만 쓰지 않는다**
+**SigLIP과 DINOv2 사용**
 논문은 CLIP이나 SigLIP 단독 인코더 대신 **DINOv2를 함께 융합**한다. DINOv2의 저수준 공간 정보가 SigLIP의 고수준 의미와 합쳐지면 공간 추론이 개선된다는 것이 근거다. 로봇 조작은 "무엇을"뿐 아니라 "어디를"이 중요하므로 이 조합이 맞아떨어진다.
 
 #### 세부 아키텍처
@@ -91,7 +89,7 @@ quantile을 쓰는 이유가 중요하다. min-max로 잡으면 분포 양 끝�
 예를 들어 `x = 0.023`이고 이 차원의 `[q1, q99]`가 `[-0.8, 0.9]`였다면, 이 범위를 256개 bin으로 균등 분할해서 bin index를 계산한다.
 
 **토큰 자리를 어떻게 확보하는가**
-Llama tokenizer는 fine-tuning 중 새로 도입되는 토큰용으로 **special token을 100개밖에 예약해두지 않는다.** 256개가 필요한데 부족하다. 그래서 **어휘 사전에서 가장 덜 쓰이는 토큰 256개(마지막 256개)를 action 토큰으로 덮어쓴다.**
+Llama tokenizer는 fine-tuning 중 새로 도입되는 토큰용으로 **special token을 100개만 예약해두지만**, 본 논문에서는 256개의 토큰이 필요하다. 그래서 **어휘 사전에서 가장 덜 쓰이는 토큰 256개(마지막 256개)를 action 토큰으로 덮어쓴다.**
 
 **출력 구조**
 LLM이 autoregressive하게 토큰을 생성한다.
@@ -117,7 +115,7 @@ Loss = (CE_x + CE_y + CE_z + CE_roll + CE_pitch + CE_yaw + CE_gripper) / 7
 **Open X-Embodiment**
 70개 이상의 개별 로봇 데이터셋, 200만 개 이상의 궤적이 하나의 형식으로 모여 있는 데이터다. 여기서 큐레이션을 거쳐 **970k 궤적**을 학습에 쓴다. 큐레이션의 목적은 두 가지다.
 
-1. 모든 학습 데이터에서 **입력·출력 공간을 일관되게** 만들기
+1. 모든 학습 데이터에서 **입력, 출력 공간을 일관되게** 만들기
 2. embodiment, 장면, 태스크의 다양성 확보
 
 **학습 설정** (논문 3.4절의 설계 결정)
@@ -129,20 +127,18 @@ Loss = (CE_x + CE_y + CE_z + CE_roll + CE_pitch + CE_yaw + CE_gripper) / 7
 | learning rate | 2e-5 고정 | 여러 자릿수를 훑어서 결정. warmup은 이득이 없었다 |
 | 하드웨어 | 64× A100, 14일 | |
 
-VLM 벤치마크에서는 해상도를 올리면 성능이 오르는 경우가 많은데, **여기서는 그렇지 않았다**는 게 특기할 만하다.
+VLM 벤치마크에서는 해상도를 올리면 성능이 오르는 경우가 많은데, **여기서는 그렇지 않았다**는 것이 특징이다.
 
 #### 실험에서 확인된 것
 
 - **RT-2-X(55B) 대비 절대 성공률 +16.5%p.** 29개 태스크, 여러 로봇 embodiment에서. **파라미터는 7배 적다.**
 - **Diffusion Policy 대비 +20.4%p.** 여러 물체가 등장하고 강한 language grounding이 필요한 다중 태스크 환경에서 특히 강했다.
-- **LoRA로 소비자용 GPU에서 fine-tuning이 가능하고, 양자화해서 서빙해도 downstream 성공률이 떨어지지 않는다.** 이게 별도 기여로 제시된다.
+- **LoRA로 소비자용 GPU에서 fine-tuning이 가능하고, 양자화해서 서빙해도 downstream 성공률이 떨어지지 않는다.**
 
 #### 정리
 
-이 논문의 값어치는 새로운 알고리즘이 아니라 **선택의 조합**에 있다.
+이 논문의 값어치는 새로운 알고리즘이 아니라 **구성 변경**에 있다.
 
-- RT-2의 행동 토큰화를 가져오되 binning을 min-max에서 quantile로 바꿨다.
-- 인코더를 SigLIP 단독이 아니라 DINOv2와 융합해서 공간 정보를 보강했다.
-- 그 결과 7배 작은 모델로 55B를 이겼고, 전부 공개했다.
-
-행동을 토큰으로 바꾸는 순간 **LLM 생태계 전체를 상속받는다**는 게 이 계열의 핵심이다. 디코딩 전략, 캐싱, 양자화, LoRA가 전부 그대로 따라온다.
+- RT-2의 행동 토큰화를 가져오되 binning을 min-max에서 quantile로 변경.
+- 인코더를 SigLIP 단독이 아니라 DINOv2와 융합해서 공간 정보를 보강.
+- 결과 **7배 작은 모델로 55B급 모델을 이김.**

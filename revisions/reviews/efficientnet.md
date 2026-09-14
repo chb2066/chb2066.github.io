@@ -10,13 +10,16 @@
 - 끝맺음을 평서형으로 통일
 - 원본의 「고찰」(배율이 작을 때와 클 때 최적 비율이 다르지 않나)은 그대로 유지.
   이 글에서 가장 값진 부분이라 위치만 정리했다
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: EfficientNet
 paper: "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks"
 venue: ICML 2019
 link: https://arxiv.org/abs/1905.11946
-claim: depth·width·resolution을 따로 키우는 대신 고정된 비율로 함께 키우는 compound scaling이 같은 연산량에서 더 좋다.
+claim: depth, width, resolution을 따로 키우는 대신 고정된 비율로 함께 키우는 compound scaling이 같은 연산량에서 더 좋다.
 take: 배율이 작을 때와 클 때 최적 비율이 다를 수 있지 않냐는 의문이 남지만, 경향성이 거의 유사해서 단순한 제약만으로도 좋은 방향을 준다.
 tags: [Backbone, Model Scaling]
 tier: main
@@ -24,12 +27,9 @@ date: 2025-04-02
 draft: false
 ---
 
-핵심 키워드:
-compound scaling, depth·width·resolution 균형, MBConv 기반 baseline
-주요 전략:
-세 축을 고정된 비율로 함께 키우고, 그 비율을 작은 모델에서 한 번만 grid search로 찾는다
-사용 가능 분야:
-자원 제약이 정해진 상황에서의 백본 선택. 다른 모델의 스케일링 규칙으로 재사용
+#### 주요 전략
+1. depth, width, resolution을 고정된 비율로 함께 키우는 compound scaling.
+2. 그 비율을 작은 baseline 모델에서 한 번만 grid search로 찾고 큰 모델에 재사용.
 
 #### 배경 지식
 

@@ -11,6 +11,9 @@
 - 오타 수정: "label이 었다면" → "label이 있다면"
 - 끝맺음을 평서형으로 통일
 - 원본의 loss 이해 서술(H가 작아지는 방향 = 예측값을 키우는 방향)은 그대로 유지
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: DINO
@@ -24,12 +27,9 @@ date: 2025-05-08
 draft: true
 ---
 
-핵심 키워드:
-self-distillation, multi-crop, centering + sharpening, attention map의 창발
-주요 전략:
-teacher와 student가 서로 다른 크기의 crop을 보게 하고, 두 개의 반대 방향 장치로 붕괴를 막는다
-사용 가능 분야:
-k-NN 분류, 라벨 없는 객체 분할, 범용 백본
+#### 주요 전략
+1. teacher와 student에 서로 다른 크기의 crop을 주는 multi-crop으로 부분에서 전체를 예측.
+2. centering과 sharpening을 짝지어 반대 방향으로 작용시켜 collapse 방지.
 
 #### 배경 지식
 

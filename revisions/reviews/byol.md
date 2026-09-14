@@ -12,6 +12,9 @@
 - 「실험에서 확인된 것」 신설 — ImageNet linear 74.3%(ResNet-50), 배치 크기와
   augmentation 선택에 대한 강건성. 원본에 결과가 없었다
 - 끝맺음을 평서형으로 통일
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: BYOL
@@ -25,12 +28,9 @@ date: 2025-06-18
 draft: true
 ---
 
-핵심 키워드:
-negative 없는 자기지도, online/target 비대칭, predictor, EMA 부트스트랩
-주요 전략:
-음성 샘플 대신 한쪽에만 predictor를 두는 비대칭과 stop-gradient로 붕괴를 막는다
-사용 가능 분야:
-음성 샘플을 정의하기 어려운 도메인의 표현 학습. 의료 영상, 로봇 궤적 등
+#### 주요 전략
+1. online network에만 predictor를 두는 비대칭과 stop-gradient로 negative pair 없이 collapse 방지.
+2. target network를 EMA로 천천히 갱신해 안정적인 예측 목표 확보.
 
 #### 배경 지식
 

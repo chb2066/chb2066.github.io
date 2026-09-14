@@ -10,6 +10,9 @@
 - 끝맺음을 평서형으로 통일
 - 원본의 RoIAlign 양선형 보간 전개와 FPN 단계 추적(C5→P5→P4→P3)은 그대로 유지.
   이 글에서 가장 구체적인 부분이다
+- 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
+  핵심 키워드 / 사용 가능 분야 블록 삭제, 주요 전략을 「#### 주요 전략」 번호 목록으로 교체,
+  가운뎃점을 쉼표로, 메타 코멘트와 구어체 소제목 정리. 강조 볼드는 사용자 요청으로 유지
 -->
 ---
 title: Mask R-CNN
@@ -23,12 +26,9 @@ date: 2025-03-12
 draft: false
 ---
 
-핵심 키워드:
-instance segmentation, RoIAlign, 마스크 branch 병렬 추가, 클래스별 독립 sigmoid
-주요 전략:
-Faster R-CNN에 마스크 예측을 병렬로 붙이되, 픽셀 정렬을 깨뜨리던 정수 양자화를 제거한다
-사용 가능 분야:
-instance segmentation, 객체 검출, 사람 자세 추정
+#### 주요 전략
+1. Faster R-CNN에 마스크 예측 branch를 병렬로 추가.
+2. RoIPool의 정수 양자화를 RoIAlign의 bilinear interpolation으로 교체해 픽셀 정렬 보존.
 
 #### 배경 지식
 
