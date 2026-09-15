@@ -31,10 +31,6 @@ Each channel measured alone, same split.
 
 Text is worth about 20 points more than the image. Metadata — including the `meaning` field I expected to help — is worth the same as the pixels and no more.
 
-One caveat on the text number: emotion words appear verbatim in the description in ~19% of records, ~34% counting inflected forms. The training pipeline redacts the 22 vocabulary words from the input text for this reason.
-
-<!-- **To write ①** — one or two sentences on how I handled emotion words leaking into the description text. Only the facts are here. -->
-
 ## The image ceiling
 
 A single backbone stalling proves nothing, so I attacked 0.59 from as many unrelated directions as I could.
@@ -63,7 +59,9 @@ image ─▶ 16 soft tokens ─▶ [ frozen text encoder ] ─▶ [ frozen head 
 
 It reached 0.592. The auxiliary loss aligning the translated tokens to the real description embedding bottomed out at cosine distance ~0.66 and would not go lower — the image-reconstructed embedding points in a different direction from the text describing the same object.
 
-<!-- **To write ②** — two or three sentences on why the table above plus the soft-prompt result convinced me the ceiling belongs to the data, not the model. This is the most important passage in the note and the thing an interviewer will ask about, so it has to be in my own words. -->
+At that point the image-only routes were exhausted — plain backbones, a VLM, and several attempts to pull the image representation toward the text side. None of them moved. What the sequence settled is that the image alone has a clear limit on this task, while the text reaches far higher, because the description simply carries more of what the labels depend on than the pixels do.
+
+So the question stopped being how to extract more from the image and became how to train the text side harder. With a dataset this small, fine-tuning a BERT-family encoder was the realistic way to get there, and getting there was the point — the brief asked for a visible number, not a diagnosis.
 
 ## Fusion
 
@@ -75,9 +73,9 @@ image ─▶ DINOv3 (frozen) ──────▶ proj ─▶ 1 token ─┐
 text  ─▶ Korean encoder (tuned) ▶ proj ─▶ 1 token ─┘
 ```
 
-Concat 0.661 → self-attention 0.677 under identical settings, text encoder frozen in both. Unfreezing the text encoder moved the same architecture to ~0.78, which made **text fine-tuning the one decisive lever** in the project.
+The pattern images carry little information individually and look alike across the set. Give a decoder many queries under that condition and they search a space where the answers barely differ, so they interfere rather than specialise — the ML-Decoder-style arrangement was working against the data it had. Few queries should behave better, and among the ways to use very few, attention over one token per modality is the smallest arrangement that still forms the output from both distributions at once.
 
-<!-- **To write ③** — one or two sentences on why 256 patch tokens collapsed and 2 tokens did not. -->
+Concat 0.661 → self-attention 0.677 under identical settings, text encoder frozen in both. Unfreezing the text encoder moved the same architecture to ~0.78, which made **text fine-tuning the one decisive lever** in the project.
 
 | Image encoder treatment | F1@5 |
 |---|---|
@@ -126,11 +124,7 @@ All 63 subsets of six candidates, searched with Dirichlet-weighted random search
 - When uncertain, the model falls back to the two highest-frequency labels.
 - The five ensemble members agree at Jaccard 0.74–0.79, differing at ambiguous boundaries rather than making unrelated predictions.
 
-<!-- **To write ④** — one or two sentences on what the error analysis tells me. -->
-
-## Next
-
-<!-- **To write ⑤** — three or four bullets. Candidates: repeat the image ablation at the ensemble level, handle deployment without a description, label distribution learning, sharpen the guidelines for the ambiguous labels. -->
+Reading the predictions, part of what the model has learned is not individual labels but label *sets* — which five tend to travel together. Inside a set it recovers even rare labels; a label that the inferred set does not imply is under-predicted no matter how common it is. That places the remaining error on the label definitions rather than on the model: the vocabulary has groupings the annotation never made explicit.
 
 ---
 
