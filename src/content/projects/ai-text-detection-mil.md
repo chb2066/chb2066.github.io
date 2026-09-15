@@ -23,11 +23,15 @@ The third row is the design lever. Evaluation rows carry a `title`, and rows sha
 
 That matters because a single paragraph is a weak piece of evidence. Three sentences of neutral prose look the same from either author. The document around it is far more informative, but the score is collected per paragraph, so you cannot simply classify the document and copy the answer down.
 
+Scored by ROC-AUC. Finished **46th**.
+
 ## Why MIL is the right shape
 
 A group of instances that must be judged individually, where the group carries signal the individual does not, is a **bag**. That is the setting multiple-instance learning was built for, so the task was reframed rather than merely tuned: split each document on newlines, tokenise the paragraphs separately, and feed the whole bag to the model.
 
-The open question is where aggregation sits relative to prediction. The two orders lead to genuinely different models, so both were implemented.
+The open question is where aggregation sits relative to prediction — and it is not a question of implementation convenience. **The order decides what the classifier is actually looking at.** Predict first and the thing being classified is a paragraph: short, sometimes ambiguous, but exactly the unit the score is collected on. Aggregate first and the thing being classified is a pooled document vector: richer, but one step removed from what is scored.
+
+Those are different objects with different properties, so I built both.
 
 ### EPA — Embed → Predict → Aggregate
 
@@ -53,6 +57,8 @@ No paragraph head, one document-level loss. Importance comes from the embedding 
 
 The trade is visible in the diagrams. EPA spends parameters on judging each paragraph and can explain which ones drove the document; EAP commits earlier to a single document representation and asks less of the paragraph level.
 
+In the end neither was discarded. The two were **ensembled** — which follows from the reason they were built separately. They classify different objects, so their mistakes are not the same mistakes, and that is the condition under which combining helps.
+
 ## Two details that mattered
 
 **The loss was built to match the metric.** Scoring is AUC and the labels are imbalanced, so cross-entropy is the wrong target twice over. The models optimise focal loss combined with a differentiable AUC surrogate, weighted 0.3, with the focal parameters exposed (`gamma` 3.0, `alpha` 0.75). Optimising a relaxation of the metric instead of a proxy for it is the cheapest alignment available.
@@ -65,7 +71,7 @@ Training runs under `DistributedDataParallel` with mixed precision; prediction r
 
 The useful move was noticing the task had changed shape, not just changed granularity. "Score each paragraph" and "paragraphs of a document may see each other" are two facts that only pay off when read together — separately, the first suggests a paragraph classifier and the second suggests a document classifier, and both are worse than treating the document as a bag.
 
-Building both aggregation orders rather than picking one on intuition was the right call too. Predict-then-aggregate and aggregate-then-predict are equally defensible on paper, and the difference between them is not something I could have reasoned out in advance.
+The second thing is that where aggregation sits is not a hyperparameter. Moving it changes what the classifier is handed — a paragraph or a pooled document — and two models that classify different objects fail differently. That is why both were worth building, and it is also why ensembling them was the natural end rather than a tie-breaker between two attempts at the same thing.
 
 ---
 
