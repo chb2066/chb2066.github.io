@@ -1,6 +1,6 @@
 ---
 title: Emotion labels for Korean traditional patterns
-summary: Eight unrelated methods failed to push image-only accuracy past a ceiling. Why I concluded that ceiling belongs to the data, and the fusion model I built on top of it.
+summary: Nine unrelated methods all stalled in the same narrow band on image-only accuracy. Why I stopped pushing on the image and invested in the text side instead, and the fusion model that came out of it.
 context: AiRLab · ETRI-funded
 period: 2026.06 – 2026.08
 role: Experiment design, training, analysis
