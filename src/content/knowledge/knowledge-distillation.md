@@ -16,7 +16,7 @@ Transferring what a large model (teacher) has learned to a smaller model, or to 
 - **Feature KD** - align intermediate representations. Often a bigger win than imitating outputs.
 - **Relational KD** - transfer the structure between samples rather than per-sample values.
 
-> **To write** - this is the format for a knowledge base entry. Rewrite it the way I actually understand it.
+> To write - this is the format for a knowledge base entry. Rewrite it the way I actually understand it.
 
 ## What I saw
 

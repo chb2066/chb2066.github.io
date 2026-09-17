@@ -10,16 +10,16 @@ date: 2025-05-28
 draft: false
 ---
 
-> 📄 [**Scalable Diffusion Models with Transformers**](https://arxiv.org/abs/2212.09748) · ICCV 2023 · Peebles, Xie
+[Scalable Diffusion Models with Transformers](https://arxiv.org/abs/2212.09748)
 
 ## Abstract
 
 **문제**
-diffusion 모델의 백본은 관행적으로 U-Net이었음. 그런데 Transformer는 다른 분야에서 **뛰어난 스케일링 특성**을 보여줌
+diffusion 모델의 백본은 관행적으로 U-Net이었음. 그런데 Transformer는 다른 분야에서 뛰어난 스케일링 특성을 보여줌
 U-Net의 귀납 편향이 정말 필요한지, Transformer로 바꾸면 그 스케일링이 따라오는지가 확인되지 않았음
 
 **해결책**
-latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조건 주입 방식 네 가지를 비교해 **adaLN-Zero** 선택
+latent 공간에서 동작하는 Transformer 백본(DiT) 을 만들고, 조건 주입 방식 네 가지를 비교해 adaLN-Zero 선택
 모델 Gflops와 FID가 강하게 상관됨을 보여 스케일링 법칙이 그대로 적용됨을 확인
 
 ---
@@ -32,7 +32,7 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 
 **이 논문의 질문**
 - diffusion에서 U-Net을 Transformer로 바꾸면 어떻게 되는가
-- 그리고 그 **스케일링 특성이 따라오는가**
+- 그리고 그 스케일링 특성이 따라오는가
 
 ---
 
@@ -42,25 +42,21 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 
 **입력 요소와 전체 흐름**
 1. 원본 이미지를 입력
-1. 사전학습된 **VAE Encoder** 를 통과 → 기존에는 fc를 거쳤다면 여기서는 fc 없이 출력
-1. **latent `z`** 를 뽑음
-1. `z` 를 **DiT** 에 입력
+1. 사전학습된 VAE Encoder 를 통과 → 기존에는 fc를 거쳤다면 여기서는 fc 없이 출력
+1. latent `z` 를 뽑음
+1. `z` 를 DiT 에 입력
 
 즉 DiT는 픽셀이 아니라 latent 공간에서 동작한다. 이 부분은 Latent Diffusion과 같다.
 
 ### 3.2 Diffusion Transformer Design Space
 
-![Figure 3](/img/dit/f3.png)
-
 **Patchify**
-
-![Figure 4](/img/dit/f4.png)
 
 - 입력은 latent image
 - 패치화해서 일렬로 나열
 - positional embedding으로 위치 정보를 더함
-- 여기서 **patch size `p` 가 설계 다이얼** → `p` 가 작을수록 토큰 시퀀스가 길어지고 Gflops가 늘어남
-- 논문은 `p ∈ {2, 4, 8}` 을 비교 → **작은 패치가 일관되게 더 낮은 FID**
+- 여기서 patch size `p` 가 설계 다이얼 → `p` 가 작을수록 토큰 시퀀스가 길어지고 Gflops가 늘어남
+- 논문은 `p ∈ {2, 4, 8}` 을 비교 → 작은 패치가 일관되게 더 낮은 FID
 
 **DiT Block** - adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)를 쓴다.
 
@@ -69,7 +65,7 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 - 시간 `t` 와 클래스 label `c` 는 단순히 더하는 방식으로 값의 분포를 바꿨음
 
 *adaLN-Zero 방식*
-- **γ, β 가 `t`, `c` 에 의해 바뀌도록** 하는 layer norm → 단순 값 변환이 아니라 feature map의 강도와 분포를 결정
+- γ, β 가 `t`, `c` 에 의해 바뀌도록 하는 layer norm → 단순 값 변환이 아니라 feature map의 강도와 분포를 결정
 - 메커니즘
   - `z = Emb(t) + Emb(c)`
   - `MLP(z) = γ, β`
@@ -77,36 +73,34 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 
 *블록 구조*
 - adaLN-Zero를 통과하며 시간과 클래스 정보가 주입됨
-- **Self-Attention** 으로 전역 정보를 얻고 noise 부분을 강조해 학습
-- **Pointwise MLP**(각 패치에 대한 MLP)로 정보를 가공하고 업데이트
+- Self-Attention 으로 전역 정보를 얻고 noise 부분을 강조해 학습
+- Pointwise MLP(각 패치에 대한 MLP)로 정보를 가공하고 업데이트
 
 **Final Layer**
 - Standard Layer Norm과 Linear로 데이터를 정리하고 차원을 맞춤
 - unpatchify로 재배치
 - conv로 최종 출력 → VAE latent `z` 의 예상 noise
 
-**조건 주입 방식 비교** - 논문이 실제로 비교한 것은 **네 가지**다.
-
-![Figure 5](/img/dit/f5.png)
+**조건 주입 방식 비교** - 논문이 실제로 비교한 것은 네 가지다.
 
 | 방식 | 어떻게 | Gflops 비용 |
 |---|---|---|
-| **In-context** | `t`, `c` 임베딩을 추가 토큰 두 개로 시퀀스에 붙임. ViT의 cls token과 비슷. 마지막 블록 뒤에 제거 | 거의 없음 |
-| **Cross-attention** | `t`, `c` 를 길이 2의 별도 시퀀스로 두고 self-attention 뒤에 cross-attention 층 추가 | **가장 큼, 약 15%** |
-| **adaLN** | γ, β 를 직접 학습하지 않고 `t`, `c` 임베딩의 합에서 회귀 | 가장 적음 |
-| **adaLN-Zero** | adaLN에 더해 **블록을 항등함수로 초기화** | 거의 없음 |
+| In-context | `t`, `c` 임베딩을 추가 토큰 두 개로 시퀀스에 붙임. ViT의 cls token과 비슷. 마지막 블록 뒤에 제거 | 거의 없음 |
+| Cross-attention | `t`, `c` 를 길이 2의 별도 시퀀스로 두고 self-attention 뒤에 cross-attention 층 추가 | 가장 큼, 약 15% |
+| adaLN | γ, β 를 직접 학습하지 않고 `t`, `c` 임베딩의 합에서 회귀 | 가장 적음 |
+| adaLN-Zero | adaLN에 더해 블록을 항등함수로 초기화 | 거의 없음 |
 
-**adaLN-Zero가 학습의 모든 단계에서 나머지 셋을 앞선다.** cross-attention은 가장 비싼데 성능은 더 낮다.
+adaLN-Zero가 학습의 모든 단계에서 나머지 셋을 앞선다. cross-attention은 가장 비싼데 성능은 더 낮다.
 
 **adaLN-Zero의 zero-init이 좋은 이유**
 - ResNet 계열에서 각 residual block을 항등함수로 초기화하는 게 이롭다는 것이 알려져 있었음
 - 각 블록의 마지막 batch norm scale을 0으로 초기화하면 대규모 학습이 빨라진다는 관찰
 - diffusion U-Net도 residual 연결 직전의 마지막 conv를 zero-init
-- DiT는 같은 것을 함 → **MLP가 모든 스케일 파라미터에 zero-vector를 출력하도록 초기화해서 블록 전체가 처음에 항등함수**
+- DiT는 같은 것을 함 → MLP가 모든 스케일 파라미터에 zero-vector를 출력하도록 초기화해서 블록 전체가 처음에 항등함수
 
 **adaLN 계열의 제약 하나**
-- 세 블록 설계 중 adaLN만이 **모든 토큰에 같은 함수를 적용하도록 제한**됨 → 조건이 공간적으로 균일하게 작용
-- 클래스 label처럼 전역 조건에는 맞지만, **위치마다 다른 조건**을 줘야 한다면 부적합
+- 세 블록 설계 중 adaLN만이 모든 토큰에 같은 함수를 적용하도록 제한됨 → 조건이 공간적으로 균일하게 작용
+- 클래스 label처럼 전역 조건에는 맞지만, 위치마다 다른 조건을 줘야 한다면 부적합
 
 ---
 
@@ -121,40 +115,33 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 | DiT-L | 24 | 1024 | 16 | 19.7 |
 | DiT-XL | 28 | 1152 | 16 | 29.1 |
 
-patch size와 조합하면 **0.3에서 118.6 Gflops까지** 커버한다.
+patch size와 조합하면 0.3에서 118.6 Gflops까지 커버한다.
 
 **학습과 생성**
 - **학습** - 실제 노이즈와 DiT의 예측 noise 차이로 학습
 - **생성** - DiT가 낸 noise를 latent `z` 에서 빼고 VAE decoder에 넣어 이미지 출력
 
 **Classifier-Free Guidance**
-- 조건(class label `c`)이 있는 예측과 없는 예측을 각각 구해 **그 차이를 증폭**하는 방향으로 노이즈 예측을 보정
+- 조건(class label `c`)이 있는 예측과 없는 예측을 각각 구해 그 차이를 증폭하는 방향으로 노이즈 예측을 보정
 - 조건에 더 충실하면서도 품질 높은 샘플이 나옴
 
 ---
 
 ## 5. Experiments
 
-![Figure 8](/img/dit/f8.png)
-
 **핵심 관찰**
 - 모델 Gflops가 늘면 FID가 꾸준히 내려감
-- 모델을 키우는 것과 패치를 줄이는 것 **양쪽 모두** 효과가 있고, 둘 다 결국 "토큰당 연산량을 늘리는" 같은 방향
-
-![Table 2](/img/dit/t2.png)
+- 모델을 키우는 것과 패치를 줄이는 것 양쪽 모두 효과가 있고, 둘 다 결국 "토큰당 연산량을 늘리는" 같은 방향
 
 - 가장 큰 DiT-XL/2가 기존 U-Net 기반(ADM, LDM)을 전부 앞서면서 연산 효율도 좋음
-- ImageNet 256×256 클래스 조건부 생성에서 **FID 2.27** 로 당시 최고 성능
-- 샘플링 연산을 늘려도 **모델 연산 부족을 메우지 못함** → 모델을 키우는 것이 근본적
+- ImageNet 256×256 클래스 조건부 생성에서 FID 2.27 로 당시 최고 성능
+- 샘플링 연산을 늘려도 모델 연산 부족을 메우지 못함 → 모델을 키우는 것이 근본적
 
 ---
 
 ## 정리
 
-이 논문이 남긴 것은 "**diffusion 백본에 Transformer의 스케일링 법칙이 그대로 적용된다**"는 확인이다. U-Net의 귀납 편향이 없어도 되고, 오히려 없는 편이 크게 키울 때 유리하다.
+이 논문이 남긴 것은 "diffusion 백본에 Transformer의 스케일링 법칙이 그대로 적용된다"는 확인이다. U-Net의 귀납 편향이 없어도 되고, 오히려 없는 편이 크게 키울 때 유리하다.
 
-설계 측면에서 가져갈 것은 **adaLN-Zero**다. 전역 조건을 아주 싸게 주입하면서, zero-init으로 학습 초기를 안정화한다. 이 조합은 diffusion 밖에서도 동결 백본에 조건을 붙일 때 반복해서 등장한다.
+설계 측면에서 가져갈 것은 adaLN-Zero다. 전역 조건을 아주 싸게 주입하면서, zero-init으로 학습 초기를 안정화한다. 이 조합은 diffusion 밖에서도 동결 백본에 조건을 붙일 때 반복해서 등장한다.
 
----
-
-*`f`·`t` 로 시작하는 그림은 원 논문에서 가져왔다. Peebles & Xie, [Scalable Diffusion Models with Transformers](https://arxiv.org/abs/2212.09748), ICCV 2023.*
