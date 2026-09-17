@@ -35,8 +35,8 @@ proposal과 resampling 단계를 **아예 제거**하고, 여러 해상도의 fe
 1. 고품질 분류기에 넣음
 
 **여기서 문제가 갈린다**
-- **Faster R-CNN** — (1)과 (2) 때문에 느림
-- **YOLO** — single-shot으로 속도를 높였지만 정확도가 부족
+- **Faster R-CNN** - (1)과 (2) 때문에 느림
+- **YOLO** - single-shot으로 속도를 높였지만 정확도가 부족
 
 **SSD의 차별점**
 - Faster R-CNN과 달리 **proposal도 feature resampling도 없이** 바로 검출
@@ -72,15 +72,15 @@ proposal과 resampling 단계를 **아예 제거**하고, 여러 해상도의 fe
 ![그림](/img/ssd/04.png)
 
 **주요 구성 요소 세 가지**
-- **다중 스케일 feature map** — 추가 conv layer로 점진적으로 축소되는 feature map을 만들어 여러 크기의 객체를 검출. **feature map이 클수록 작은 객체를 탐지**
-- **convolution 기반 예측** — 각 feature map에 작은 **3×3 conv filter**를 적용해 category score와 bounding box offset 예측. 별도 FC Layer가 없어 빠름
-- **Default box와 종횡비** — 각 feature map 셀마다 여러 default box를 설정해 다양한 크기·종횡비의 객체 탐지
+- **다중 스케일 feature map** - 추가 conv layer로 점진적으로 축소되는 feature map을 만들어 여러 크기의 객체를 검출. **feature map이 클수록 작은 객체를 탐지**
+- **convolution 기반 예측** - 각 feature map에 작은 **3×3 conv filter**를 적용해 category score와 bounding box offset 예측. 별도 FC Layer가 없어 빠름
+- **Default box와 종횡비** - 각 feature map 셀마다 여러 default box를 설정해 다양한 크기·종횡비의 객체 탐지
 
 **NMS의 동작 과정**
 - 모든 박스를 confidence score 기준으로 정렬하고 가장 높은 박스 선택 → 예: A(0.9), B(0.85), C(0.6) → **A 선택**
 - 선택한 박스와 다른 박스들의 IoU를 계산해 임계값 이상인 것 제거
-  - A–B IoU 0.7 (기준 0.5 초과) → **B 제거**
-  - A–C IoU 0.3 (기준 0.5 미만) → **C 유지**
+  - A-B IoU 0.7 (기준 0.5 초과) → **B 제거**
+  - A-C IoU 0.3 (기준 0.5 미만) → **C 유지**
 - 남은 박스 중 최고 confidence 선택 → **C(0.6)** → 반복
 - 남은 박스가 없으면 종료
 
@@ -92,8 +92,8 @@ proposal과 resampling 단계를 **아예 제거**하고, 여러 해상도의 fe
 - IoU **0.5 이상이면 추가로 매칭**해 학습을 유연하게
 
 **② Loss Function**
-- **Localization Loss** — 실제 박스와 예측 박스의 차이를 **Smooth L1**으로. L2보다 튀는 값을 잘 반영. 값을 예측하므로 회귀 loss
-- **Confidence Loss** — 예측 클래스 확률과 실제 클래스의 차이를 **Softmax Loss**로
+- **Localization Loss** - 실제 박스와 예측 박스의 차이를 **Smooth L1**으로. L2보다 튀는 값을 잘 반영. 값을 예측하므로 회귀 loss
+- **Confidence Loss** - 예측 클래스 확률과 실제 클래스의 차이를 **Softmax Loss**로
 
 ![그림](/img/ssd/05.png)
 
@@ -117,14 +117,14 @@ VOC2007 test 기준이다.
 | 모델 | mAP | FPS |
 |---|---|---|
 | **SSD300** | 74.3% | **59** |
-| **SSD512** | 76.9% | — |
+| **SSD512** | 76.9% | - |
 | Faster R-CNN | 73.2% | 7 |
 | YOLO | 63.4% | 45 |
 
 - Nvidia Titan X 기준. **SSD300이 Faster R-CNN보다 정확하면서 8배 이상 빠르고, YOLO보다 훨씬 정확하면서 더 빠름**
 - 더 큰 데이터셋으로 학습하면 SSD300 77.2%, SSD512 79.8%까지 오름
 
-**3.2 Model analysis — 무엇이 약점인가**
+**3.2 Model analysis - 무엇이 약점인가**
 
 ![Fig. 4](/img/ssd/f4.png)
 

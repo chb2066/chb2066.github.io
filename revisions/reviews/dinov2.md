@@ -1,9 +1,9 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/dinov2.md)
 - 원본 마지막 문장이 "먼저 학습시켜 고정한 뒤 distill" 에서 끊겨 있어 논문 5절로 완성
-- 데이터 구축에 실제 수치 보강 — uncurated 1.2B → LVD-142M, Faiss, k-means 기반
+- 데이터 구축에 실제 수치 보강 - uncurated 1.2B → LVD-142M, Faiss, k-means 기반
   retrieval 규칙(query pool 크기에 따라 N개 최근접 / 클러스터에서 M개 샘플링)
-- 「효율화」 신설 — FlashAttention 자체 구현, sequence packing, efficient stochastic depth, FSDP.
+- 「효율화」 신설 - FlashAttention 자체 구현, sequence packing, efficient stochastic depth, FSDP.
   논문 5절. 이게 "대규모로 밀어붙일 수 있었던 이유"라 원본의 서술과 직접 이어진다
 - 고해상도 단계의 구체값(518×518, 사전학습 말미 짧은 기간) 확인해 반영
 - distillation 의 세부 조건(frozen teacher, student EMA를 최종 모델로, masking·stochastic depth
@@ -38,8 +38,8 @@ draft: false
 
 ### Self-supervised learning의 두 갈래
 
-- **Intra-image SSL** — 이미지의 가려진 부분을 복원하는 방식임. 표현은 나오지만 fine-tuning을 해야 쓸 수 있음.
-- **Discriminative SSL** — 이미지 그룹 간 판별 신호로 특징을 학습함. DINO, iBOT이 여기 속함.
+- **Intra-image SSL** - 이미지의 가려진 부분을 복원하는 방식임. 표현은 나오지만 fine-tuning을 해야 쓸 수 있음.
+- **Discriminative SSL** - 이미지 그룹 간 판별 신호로 특징을 학습함. DINO, iBOT이 여기 속함.
 
 ### Scaling의 문제
 
@@ -56,7 +56,7 @@ ImageNet 같은 정제된 데이터로 특징을 뽑고, 인터넷의 비정제 
 
 유사도는 `q·k` 내적으로 구한다.
 
-## 데이터 구축 — LVD-142M
+## 데이터 구축 - LVD-142M
 
 비정제 데이터 풀에서 정제 데이터와 닮은 이미지를 retrieval해서 최종 데이터셋을 만든다.
 
@@ -75,7 +75,7 @@ ImageNet 같은 정제된 데이터로 특징을 뽑고, 인터넷의 비정제 
 
 ### 1. 짧은 고해상도 단계
 
-낮은 해상도로 학습하다가 **사전학습이 끝나기 직전 짧은 기간 동안만 518×518로 올린다.** 분할이나 검출처럼 픽셀 수준 태스크에서는 해상도가 중요한데 — 작은 물체가 저해상도에서 사라진다 — 처음부터 고해상도로 학습하면 시간과 메모리가 너무 든다. 그래서 말미에만 짧게 붙인다.
+낮은 해상도로 학습하다가 **사전학습이 끝나기 직전 짧은 기간 동안만 518×518로 올린다.** 분할이나 검출처럼 픽셀 수준 태스크에서는 해상도가 중요한데(작은 물체가 저해상도에서 사라진다)처음부터 고해상도로 학습하면 시간과 메모리가 너무 든다. 그래서 말미에만 짧게 붙인다.
 
 ### 2. head 분리
 
@@ -85,8 +85,8 @@ DINO loss와 iBOT loss가 각각 학습 가능한 MLP projection head를 쓴다.
 
 teacher가 feature를 뽑고 projection head로 점수를 매기는 데까지는 같다. 그 다음이 갈린다.
 
-- **기존(DINO)** — softmax로 확률을 출력한 뒤 정답의 이동평균을 저장함. centering으로 특정 칼럼이 정답으로 많이 나왔으면 점수를 깎고, sharpening으로 temperature를 조절함.
-- **DINOv2** — MLP를 통과시켜 logit을 뽑고, 배치 내 전체 이미지가 정답 칸에 골고루 들어가도록 **SwAV의 Sinkhorn-Knopp 정규화**를 씀. 모든 칼럼을 각 칼럼 내 logit 합으로 나눠서, 특정 칼럼이 크면 패널티를 주고 작으면 어드밴티지를 주는 구조임. Sinkhorn-Knopp은 3회 반복함.
+- **기존(DINO)** - softmax로 확률을 출력한 뒤 정답의 이동평균을 저장함. centering으로 특정 칼럼이 정답으로 많이 나왔으면 점수를 깎고, sharpening으로 temperature를 조절함.
+- **DINOv2** - MLP를 통과시켜 logit을 뽑고, 배치 내 전체 이미지가 정답 칸에 골고루 들어가도록 **SwAV의 Sinkhorn-Knopp 정규화**를 씀. 모든 칼럼을 각 칼럼 내 logit 합으로 나눠서, 특정 칼럼이 크면 패널티를 주고 작으면 어드밴티지를 주는 구조임. Sinkhorn-Knopp은 3회 반복함.
 
 ### 4. KoLeo regularizer 추가
 
@@ -109,10 +109,10 @@ ablation에서 이 방식이 처음부터 학습시키는 것보다 낫다는 �
 
 대규모로 밀어붙일 수 있었던 이유가 여기 있다. A100 GPU에서 PyTorch 2.0으로 학습한다.
 
-- **FlashAttention 자체 구현** — 메모리 효율적인 attention을 직접 구현했음.
-- **Sequence packing** — DINO 알고리즘은 224 해상도의 large crop과 그보다 작은 local crop을 함께 forward해야 함. 길이가 다른 시퀀스를 따로 돌리면 낭비가 크므로, NLP에서 온 sequence packing으로 **여러 시퀀스를 이어붙여 한 번에 처리**함.
-- **Efficient stochastic depth** — 건너뛸 층의 연산을 실제로 생략하도록 개선했음.
-- **FSDP (Fully-Sharded Data Parallel)** — AdamW의 옵티마이저 상태를 여러 GPU에 분산함. 그래서 **모델 크기가 한 GPU 메모리에 묶이지 않음.** GPU 간 통신 비용도 줄어듦.
+- **FlashAttention 자체 구현** - 메모리 효율적인 attention을 직접 구현했음.
+- **Sequence packing** - DINO 알고리즘은 224 해상도의 large crop과 그보다 작은 local crop을 함께 forward해야 함. 길이가 다른 시퀀스를 따로 돌리면 낭비가 크므로, NLP에서 온 sequence packing으로 **여러 시퀀스를 이어붙여 한 번에 처리**함.
+- **Efficient stochastic depth** - 건너뛸 층의 연산을 실제로 생략하도록 개선했음.
+- **FSDP (Fully-Sharded Data Parallel)** - AdamW의 옵티마이저 상태를 여러 GPU에 분산함. 그래서 **모델 크기가 한 GPU 메모리에 묶이지 않음.** GPU 간 통신 비용도 줄어듦.
 
 ## 정리
 

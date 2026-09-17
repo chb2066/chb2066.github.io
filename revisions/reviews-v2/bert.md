@@ -48,9 +48,9 @@ draft: true
 
 ## 2. Related Work
 
-**2.1 Unsupervised Feature-based Approaches** — ELMo 계열. 사전학습된 표현을 **고정된 feature로** 가져다 쓰고 태스크별 구조는 따로 설계
+**2.1 Unsupervised Feature-based Approaches** - ELMo 계열. 사전학습된 표현을 **고정된 feature로** 가져다 쓰고 태스크별 구조는 따로 설계
 
-**2.2 Unsupervised Fine-tuning Approaches** — OpenAI GPT 계열. 사전학습 모델 전체를 fine-tuning. 다만 단방향(left-to-right)
+**2.2 Unsupervised Fine-tuning Approaches** - OpenAI GPT 계열. 사전학습 모델 전체를 fine-tuning. 다만 단방향(left-to-right)
 
 **차별점**
 - GPT는 단방향, ELMo는 좌→우와 우→좌를 **따로 학습해 이어붙인** 얕은 결합
@@ -64,7 +64,7 @@ draft: true
 
 ![Figure 2](/img/bert/f2.png)
 
-**입력 요소** — 세 임베딩의 합. 셋 모두 **학습 가능**하다.
+**입력 요소** - 세 임베딩의 합. 셋 모두 **학습 가능**하다.
 
 ```python
 self.token_embeddings    = nn.Embedding(vocab_size, hidden_size)
@@ -75,9 +75,9 @@ embeddings = word_embeddings + pos_embeddings + seg_embeddings
 embeddings = self.layer_norm(embeddings)
 ```
 
-- **Token Embedding** — 토큰 ID를 임베딩 벡터로. `vocab_size` 는 tokenizer 어휘 사전 크기(`[CLS]`, `apple`, `##ing`, `[SEP]` …)
-- **Segment Embedding** — `[SEP]` 으로 문장을 나누고 0/1로 표시. 두 문장까지만 쓸 수 있어 두 문장씩 잘라서 학습
-- **Position Embedding** — 각 위치에 해당하는 고유 벡터. `max_position_embeddings` 가 한 번에 처리 가능한 최대 토큰 수
+- **Token Embedding** - 토큰 ID를 임베딩 벡터로. `vocab_size` 는 tokenizer 어휘 사전 크기(`[CLS]`, `apple`, `##ing`, `[SEP]` …)
+- **Segment Embedding** - `[SEP]` 으로 문장을 나누고 0/1로 표시. 두 문장까지만 쓸 수 있어 두 문장씩 잘라서 학습
+- **Position Embedding** - 각 위치에 해당하는 고유 벡터. `max_position_embeddings` 가 한 번에 처리 가능한 최대 토큰 수
 
 ![그림](/img/bert/01.png)
 
@@ -103,7 +103,7 @@ embeddings = self.layer_norm(embeddings)
 - **무작위 단어 10%** → 어떤 토큰이든 문맥으로 검증하게 만듦
 - **원본 유지 10%** → 마스크 표시가 없어도 그 위치의 표현을 제대로 만들도록 강제
 
-**전체 손실** — MLM과 NSP는 독립적인 태스크로 동시에 수행되며 각각 계산한 뒤 합산
+**전체 손실** - MLM과 NSP는 독립적인 태스크로 동시에 수행되며 각각 계산한 뒤 합산
 ```text
 Loss_total = Loss_MLM + Loss_NSP
 ```
@@ -135,9 +135,9 @@ Loss_total = Loss_MLM + Loss_NSP
 
 ![Table 5](/img/bert/t5.png)
 
-- **5.1 사전학습 과제의 효과** — NSP를 빼거나 MLM 대신 단방향 LM을 쓰면 성능이 떨어짐. 양방향성이 핵심 기여임을 분리해 보인 실험
-- **5.2 모델 크기의 효과** — 크기를 키울수록 좋아지고, 데이터가 적은 태스크에서도 그랬음
-- **5.3 feature-based 접근** — fine-tuning 없이 고정 feature로 써도 경쟁력 있음
+- **5.1 사전학습 과제의 효과** - NSP를 빼거나 MLM 대신 단방향 LM을 쓰면 성능이 떨어짐. 양방향성이 핵심 기여임을 분리해 보인 실험
+- **5.2 모델 크기의 효과** - 크기를 키울수록 좋아지고, 데이터가 적은 태스크에서도 그랬음
+- **5.3 feature-based 접근** - fine-tuning 없이 고정 feature로 써도 경쟁력 있음
 
 ---
 

@@ -5,7 +5,7 @@ const { title, kicker, back, backLabel, summary, meta = [], tags = [], headings 
 const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
 const hasToc = toc.length > 2;
 ---
-<Base title={`${title} — Hyunbin Choi`} description={summary} katex={true}>
+<Base title={`${title} - Hyunbin Choi`} description={summary} katex={true}>
   <div class:list={['shell', hasToc && 'with-toc']}>
     <Sidebar />
     <main class="main">

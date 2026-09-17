@@ -1,10 +1,10 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/ae-vae.md)
 - i-jepa 형식으로 재배치
-- 「reparameterization trick」 신설 — 원본에 z = μ + σ·ε 수식은 있었지만
+- 「reparameterization trick」 신설 - 원본에 z = μ + σ·ε 수식은 있었지만
   이게 왜 필요한지(샘플링 연산에는 기울기가 흐르지 않으므로 확률성을 ε 으로 분리한다)
   가 빠져 있었다. VAE 의 핵심 기법이라 채웠다
-- 「ELBO」 신설 — 원본의 "Reconstruction Loss + KL Divergence" 가 어디서 나온
+- 「ELBO」 신설 - 원본의 "Reconstruction Loss + KL Divergence" 가 어디서 나온
   식인지를 밝혔다. 변분 추론에서 로그 가능도의 하한이다
 - 원본의 "기존 AE는 점 z를 통해 디코더로 복원하는 구조" 아래 불릿들이
   입력·인코더·샘플링이 뒤섞여 있어 흐름대로 정리했다
@@ -76,10 +76,10 @@ $$
 L = Reconstruction Loss + KL Divergence
 ```
 
-- **Reconstruction Loss** — 복원된 이미지와 원본 이미지 간의 차이임.
-- **KL Divergence** — `D_KL(q(z|x) || p(z)) = D_KL(N(μ, σ²) || N(0, I))`
-  - `q(z|x)` — encoder가 만든 분포. 평균 `μ`, 표준편차 `σ`.
-  - `p(z)` — 사전에 정해둔 목표 분포. 보통 표준정규분포 `N(0, I)`.
+- **Reconstruction Loss** - 복원된 이미지와 원본 이미지 간의 차이임.
+- **KL Divergence** - `D_KL(q(z|x) || p(z)) = D_KL(N(μ, σ²) || N(0, I))`
+  - `q(z|x)` - encoder가 만든 분포. 평균 `μ`, 표준편차 `σ`.
+  - `p(z)` - 사전에 정해둔 목표 분포. 보통 표준정규분포 `N(0, I)`.
   - 이 항이 encoder가 만드는 분포를 `N(0, I)`에 가깝게 정규화함.
 
 ### 식의 유도

@@ -32,7 +32,7 @@ Open X-Embodiment 97만 궤적으로 VLM을 fine-tuning해 7B VLA 정책을 만�
 
 **기존 상황**
 - CLIP, SigLIP, Llama 2 같은 모델이 보여준 일반화를 로봇 제어로 옮기려는 시도가 이어짐
-- 가장 가까운 선행 연구는 **RT-2-X** — Open X-Embodiment로 학습한 55B VLA, 당시 최고 성능
+- 가장 가까운 선행 연구는 **RT-2-X** - Open X-Embodiment로 학습한 55B VLA, 당시 최고 성능
 
 **RT-2-X의 두 가지 문제**
 - 모델이 닫혀 있음 → 가중치도 학습 코드도 비공개라 이어서 연구할 수 없음
@@ -41,7 +41,7 @@ Open X-Embodiment 97만 궤적으로 VLM을 fine-tuning해 7B VLA 정책을 만�
 **본 논문의 기여**
 1. 97만 궤적으로 학습한 7B VLA를 가중치·코드·레시피까지 전부 공개
 1. LoRA fine-tuning과 양자화 서빙으로 소비자용 GPU에서 쓸 수 있게 함
-1. RT-2-X(55B) 대비 절대 성공률 +16.5%p — 파라미터는 7배 적음
+1. RT-2-X(55B) 대비 절대 성공률 +16.5%p - 파라미터는 7배 적음
 
 ---
 
@@ -52,12 +52,12 @@ Open X-Embodiment 97만 궤적으로 VLM을 fine-tuning해 7B VLA 정책을 만�
 - 이후: VLM 전체를 백본으로 쓰고 action을 출력하게 fine-tuning → RT-2 계열
 
 **행동을 어떻게 출력하는가로 갈림**
-- **연속값 회귀** — 별도 action head를 붙여 실수를 직접 예측. 언어모델 구조를 바꿔야 함
-- **이산 토큰 생성** — action을 토큰으로 바꿔 언어모델이 그대로 생성. RT-2와 본 논문이 여기 속함
+- **연속값 회귀** - 별도 action head를 붙여 실수를 직접 예측. 언어모델 구조를 바꿔야 함
+- **이산 토큰 생성** - action을 토큰으로 바꿔 언어모델이 그대로 생성. RT-2와 본 논문이 여기 속함
 
 **차별점**
-- 새 알고리즘이 아니라 **구성의 선택**에 초점 — 인코더 조합, 이산화 방식, 데이터 큐레이션
-- 공개 범위 — 선행 연구가 닫아둔 가중치·코드·fine-tuning 레시피를 전부 염
+- 새 알고리즘이 아니라 **구성의 선택**에 초점 - 인코더 조합, 이산화 방식, 데이터 큐레이션
+- 공개 범위 - 선행 연구가 닫아둔 가중치·코드·fine-tuning 레시피를 전부 염
 
 ---
 
@@ -72,22 +72,22 @@ Open X-Embodiment 97만 궤적으로 VLM을 fine-tuning해 7B VLA 정책을 만�
 ![Figure 2](/img/vla/f2.png)
 
 **입력 요소**
-- **이미지** — vision encoder를 통과해 패치 토큰이 됨
-- **언어 지시** — Llama tokenizer로 토큰화
+- **이미지** - vision encoder를 통과해 패치 토큰이 됨
+- **언어 지시** - Llama tokenizer로 토큰화
 - 두 토큰열을 concat해서 LLM backbone에 넣음
 
 **백본: Prismatic-7B VLM**
-- **visual encoder** — SigLIP과 DINOv2 두 개. 같은 이미지 패치를 양쪽에 통과시킨 뒤 feature를 **채널 방향으로 concat**
-- **projector** — 융합된 시각 feature를 언어모델 임베딩 차원으로 사상하는 2층 MLP
-- **LLM backbone** — Llama 2 7B
+- **visual encoder** - SigLIP과 DINOv2 두 개. 같은 이미지 패치를 양쪽에 통과시킨 뒤 feature를 **채널 방향으로 concat**
+- **projector** - 융합된 시각 feature를 언어모델 임베딩 차원으로 사상하는 2층 MLP
+- **LLM backbone** - Llama 2 7B
 
 **SigLIP을 쓰는 이유**
 - 로봇의 action은 이미지 안에서 텍스트 지시를 받아 수행됨 → 이미지 임베딩이 **텍스트의 영향을 받은 상태**인 편이 유리
 - SigLIP은 image-text contrastive 학습으로 patch feature 공간이 텍스트와 의미적으로 정렬되도록 학습됨 → LLM에 들어가는 패치 토큰이 이미 텍스트와 정렬된 벡터
 
 **SigLIP과 CLIP의 차이**
-- CLIP — 배치 내 모든 쌍에 softmax 기반 contrastive loss. 큰 배치가 필요
-- SigLIP — 각 쌍을 독립적인 binary classification으로 보는 sigmoid loss. 배치 전체 정규화가 없어 작은 배치에서도 안정적
+- CLIP - 배치 내 모든 쌍에 softmax 기반 contrastive loss. 큰 배치가 필요
+- SigLIP - 각 쌍을 독립적인 binary classification으로 보는 sigmoid loss. 배치 전체 정규화가 없어 작은 배치에서도 안정적
 
 **DINOv2를 함께 쓰는 이유**
 - DINOv2의 저수준 공간 정보 + SigLIP의 고수준 의미 → 공간 추론 개선
@@ -95,9 +95,9 @@ Open X-Embodiment 97만 궤적으로 VLM을 fine-tuning해 7B VLA 정책을 만�
 
 ### 3.2 OpenVLA Training Procedure
 
-**행동 이산화** — 연속 행동을 LLM이 다룰 수 있는 정수 토큰으로 바꾼다.
+**행동 이산화** - 연속 행동을 LLM이 다룰 수 있는 정수 토큰으로 바꾼다.
 
-- action 값 예시: `[0.023, -0.11, 0.87, 0.002, -0.45, 0.33, 1.0]` — 7-DOF (x, y, z, roll, pitch, yaw, gripper)
+- action 값 예시: `[0.023, -0.11, 0.87, 0.002, -0.45, 0.33, 1.0]` - 7-DOF (x, y, z, roll, pitch, yaw, gripper)
 - LLM은 토큰만 생성할 수 있는데 action은 연속값 → **각 차원을 독립적으로 256개 bin에 이산화**
 - bin 폭은 학습 데이터 action 분포의 **1st ~ 99th quantile 구간을 균등 분할**해서 정함
 
@@ -141,18 +141,18 @@ Loss = (CE_x + CE_y + CE_z + CE_roll + CE_pitch + CE_yaw + CE_gripper) / 7
 
 설계 선택을 하나씩 비교해 고른 절. 값 자체보다 **무엇을 비교했는지**가 요점이다.
 
-- **이미지 해상도** — 올려도 성능이 오르지 않았고 학습 시간만 늘었음. VLM 벤치마크에서는 해상도를 올리면 좋아지는 경우가 많은데 여기서는 그렇지 않았다는 게 특징
-- **vision encoder fine-tuning 여부** — 얼리지 않고 함께 학습시키는 편이 나았음. 로봇 제어에 필요한 공간 정보가 사전학습만으로는 부족하다는 뜻
-- **학습 epoch** — 언어모델 학습의 통상 범위보다 훨씬 오래. action token 정확도가 충분히 올라갈 때까지 돌림
-- **learning rate** — 고정값이 warmup보다 나았음
+- **이미지 해상도** - 올려도 성능이 오르지 않았고 학습 시간만 늘었음. VLM 벤치마크에서는 해상도를 올리면 좋아지는 경우가 많은데 여기서는 그렇지 않았다는 게 특징
+- **vision encoder fine-tuning 여부** - 얼리지 않고 함께 학습시키는 편이 나았음. 로봇 제어에 필요한 공간 정보가 사전학습만으로는 부족하다는 뜻
+- **학습 epoch** - 언어모델 학습의 통상 범위보다 훨씬 오래. action token 정확도가 충분히 올라갈 때까지 돌림
+- **learning rate** - 고정값이 warmup보다 나았음
 
 ---
 
 ## 4. Experiments
 
 **여러 로봇 플랫폼에서의 직접 평가**
-- **RT-2-X(55B) 대비 절대 성공률 +16.5%p** — 29개 태스크, 여러 로봇 embodiment에서. 파라미터는 7배 적음
-- **Diffusion Policy 대비 +20.4%p** — 여러 물체가 등장하고 강한 language grounding이 필요한 다중 태스크 환경에서 특히 강했음
+- **RT-2-X(55B) 대비 절대 성공률 +16.5%p** - 29개 태스크, 여러 로봇 embodiment에서. 파라미터는 7배 적음
+- **Diffusion Policy 대비 +20.4%p** - 여러 물체가 등장하고 강한 language grounding이 필요한 다중 태스크 환경에서 특히 강했음
 
 **새 로봇 셋업으로의 적응**
 
@@ -161,8 +161,8 @@ Loss = (CE_x + CE_y + CE_z + CE_roll + CE_pitch + CE_yaw + CE_gripper) / 7
 - 적은 시연만으로 새 셋업에 맞춰짐 → 실제로 쓰려면 이게 핵심인데 RT-2-X에는 비어 있던 부분
 
 **효율화**
-- **LoRA fine-tuning** — 소비자용 GPU에서 새 로봇 셋업으로 적응 가능
-- **양자화 서빙** — 메모리를 줄여도 downstream 성공률이 떨어지지 않음
+- **LoRA fine-tuning** - 소비자용 GPU에서 새 로봇 셋업으로 적응 가능
+- **양자화 서빙** - 메모리를 줄여도 downstream 성공률이 떨어지지 않음
 
 ![Table 2](/img/vla/t2.png)
 

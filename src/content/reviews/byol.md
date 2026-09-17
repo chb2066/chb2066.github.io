@@ -20,7 +20,7 @@ augmentation 선택에도 민감함
 
 **해결책**
 positive pair 만으로 학습하되, **online 쪽에만 predictor 를 두는 비대칭**과 **stop-gradient** 로 붕괴를 막음
-target network 는 online 의 **EMA** — 자기 자신의 과거를 목표로 삼아 스스로를 끌어올림
+target network 는 online 의 **EMA** - 자기 자신의 과거를 목표로 삼아 스스로를 끌어올림
 
 ---
 
@@ -49,7 +49,7 @@ target network 는 online 의 **EMA** — 자기 자신의 과거를 목표로 �
 
 ![Figure 2](/img/byol/f2.png)
 
-**입력 요소** — 동일한 이미지를 다르게 augmentation 한 두 view
+**입력 요소** - 동일한 이미지를 다르게 augmentation 한 두 view
 
 **두 네트워크**
 
@@ -69,7 +69,7 @@ target network 는 online 의 **EMA** — 자기 자신의 과거를 목표로 �
 
 **비대칭이 핵심이다.** online 쪽에만 predictor 가 있고 target 쪽에는 없다. 양쪽이 대칭이면 두 출력이 같아지는 자명한 해로 무너진다.
 
-**Loss** — MSE. 정확히는 정규화된 두 벡터의 평균제곱오차이고, 이는 cosine similarity 와 동등하다.
+**Loss** - MSE. 정확히는 정규화된 두 벡터의 평균제곱오차이고, 이는 cosine similarity 와 동등하다.
 
 **target 갱신**
 ```text
@@ -92,12 +92,12 @@ negative sample 없이 "두 출력을 가깝게 만들라"고만 하면 모든 �
 - online 에만 predictor 가 있고 target 으로는 기울기가 흐르지 않음
 - 이 비대칭 때문에 **두 네트워크가 같은 자명한 해로 동시에 수렴하지 못함**
 
-**부트스트랩이라는 이름의 의미** — target network 는 online network 의 과거 버전이다. 즉 **자기 자신의 이전 상태를 목표로 삼아 스스로를 끌어올린다.** 외부 정답이 없는데도 학습이 진행되는 이유가 여기 있고, 논문 제목이 그것을 가리킨다.
+**부트스트랩이라는 이름의 의미** - target network 는 online network 의 과거 버전이다. 즉 **자기 자신의 이전 상태를 목표로 삼아 스스로를 끌어올린다.** 외부 정답이 없는데도 학습이 진행되는 이유가 여기 있고, 논문 제목이 그것을 가리킨다.
 
 ### 3.3 Implementation details
 
 **입력 요소**
-- SimCLR 과 유사한 augmentation — random crop, flip, color jitter, grayscale, Gaussian blur, solarization
+- SimCLR 과 유사한 augmentation - random crop, flip, color jitter, grayscale, Gaussian blur, solarization
 - 두 view 에 **서로 다른 augmentation 분포**를 적용
 - projection·prediction head 는 모두 hidden layer 하나를 가진 MLP
 
@@ -105,7 +105,7 @@ negative sample 없이 "두 출력을 가깝게 만들라"고만 하면 모든 �
 
 ## 4. Experimental evaluation
 
-- **ImageNet linear evaluation 74.3%**(ResNet-50) — negative sample 을 쓰는 당시 최고 방법들을 앞섬
+- **ImageNet linear evaluation 74.3%**(ResNet-50) - negative sample 을 쓰는 당시 최고 방법들을 앞섬
 - 더 큰 ResNet 에서도 일관되게 향상
 - semi-supervised, transfer, detection·segmentation 전이에서도 contrastive 기준선을 상회
 
@@ -115,9 +115,9 @@ negative sample 없이 "두 출력을 가깝게 만들라"고만 하면 모든 �
 
 ![Figure 3](/img/byol/f3.png)
 
-- **배치 크기에 덜 민감함** — SimCLR 은 배치가 작아지면 성능이 크게 떨어지는데, BYOL 은 negative sample 에 의존하지 않으므로 그 영향이 작음
-- **augmentation 선택에도 더 강건함** — contrastive 방법은 특정 augmentation(색상 왜곡 등)을 빼면 성능이 급락하는데 BYOL 은 덜 그러함
-- **predictor 를 제거하면 붕괴** — 비대칭이 실제로 붕괴 방지의 핵심임을 확인
+- **배치 크기에 덜 민감함** - SimCLR 은 배치가 작아지면 성능이 크게 떨어지는데, BYOL 은 negative sample 에 의존하지 않으므로 그 영향이 작음
+- **augmentation 선택에도 더 강건함** - contrastive 방법은 특정 augmentation(색상 왜곡 등)을 빼면 성능이 급락하는데 BYOL 은 덜 그러함
+- **predictor 를 제거하면 붕괴** - 비대칭이 실제로 붕괴 방지의 핵심임을 확인
 - **τ 를 0으로 두면**(target = online) 역시 붕괴. 느린 목표가 필요함
 
 두 번째와 세 번째가 실용적으로 중요하다. 큰 배치를 감당할 수 없거나, 도메인에 맞는 augmentation 을 잘 모를 때 선택지가 된다.

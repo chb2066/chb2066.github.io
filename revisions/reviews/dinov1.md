@@ -1,10 +1,10 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/dinov1.md)
 - ⚠️ 원본의 「해결책」에 `centering:` `sharpness` 두 단어만 있고 설명이 비어 있었다.
-  논문 3절에서 확인해 채웠다. 핵심은 두 장치가 서로 반대 방향으로 작용한다는 점이다 —
+  논문 3절에서 확인해 채웠다. 핵심은 두 장치가 서로 반대 방향으로 작용한다는 점이다
   centering 은 한 차원의 지배를 막지만 균등 분포로의 붕괴를 유도하고,
   sharpening 은 정반대다. 둘을 함께 써서 균형을 맞춘다
-- 「실험에서 확인된 것」 신설 — k-NN 만으로 78.3%, linear eval 80.1% (ViT-Base).
+- 「실험에서 확인된 것」 신설 - k-NN 만으로 78.3%, linear eval 80.1% (ViT-Base).
   k-NN 성능이 좋다는 원본의 서술에 실제 수치를 붙였다
 - 논문이 명시한 "다른 장치는 이득이 적다"는 관찰 추가 (predictor, 고급 정규화, contrastive loss)
 - i-jepa 형식으로 재배치. 원본이 「전략」→「개괄」→「발견」 순서라 시간 흐름이 뒤집혀 있었다
@@ -60,8 +60,8 @@ BERT나 GPT처럼 라벨 없이 이미지 자체의 구조를 학습하도록 SS
 
 원본 이미지에서 여러 개의 crop을 만든다.
 
-- **Global crop 2개** — 이미지의 큰 영역. 보통 50% 이상임.
-- **Local crop 여러 개** — 보통 6~8개. 작은 영역이고 50% 미만임.
+- **Global crop 2개** - 이미지의 큰 영역. 보통 50% 이상임.
+- **Local crop 여러 개** - 보통 6~8개. 작은 영역이고 50% 미만임.
 
 **teacher는 global crop 2개만 보고, student는 global crop 2개와 local crop 전부를 본다.**
 
@@ -81,7 +81,7 @@ BERT나 GPT처럼 라벨 없이 이미지 자체의 구조를 학습하도록 SS
 
 loss를 낮추는 방향으로만 학습이 진행되는데, 라벨이 없으므로 **모든 값을 0으로 만들거나 항상 같은 값을 출력하는 것**도 loss를 낮추는 유효한 해가 된다. 이걸 collapse라고 한다.
 
-### 해결책 — centering과 sharpening
+### 해결책 - centering과 sharpening
 
 DINO는 momentum teacher의 출력에 두 가지 연산만 적용해서 collapse를 막는다. 그리고 **이 둘은 서로 반대 방향으로 작용한다.**
 
@@ -147,4 +147,4 @@ DINO에서 가져갈 것은 **반대 방향으로 작용하는 두 장치를 짝
 
 centering만 쓰면 균등 분포로 무너지고, sharpening만 쓰면 한 차원이 지배한다. 각각은 실패하는데 함께 쓰면 성립한다. 붕괴를 막는 다른 방법들(contrastive loss, clustering 제약, predictor, batch norm)이 있지만, 이 조합은 **배치에 대한 의존이 가장 적다.**
 
-그리고 부수적으로 얻은 것 — attention map에서 객체 경계가 나타난다는 관찰 — 이 오히려 더 널리 쓰이게 됐다. 라벨 없는 분할의 출발점이 여기다.
+그리고 부수적으로 얻은 것(attention map에서 객체 경계가 나타난다는 관찰)이 오히려 더 널리 쓰이게 됐다. 라벨 없는 분할의 출발점이 여기다.

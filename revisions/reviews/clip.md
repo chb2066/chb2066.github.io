@@ -1,7 +1,7 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/clip.md)
 - 절 번호(2.1, 2.4 …)를 내용 제목으로 교체하고 i-jepa 형식으로 재배치
-- 「왜 contrastive 인가」 신설 — 원본은 "대조적 목표가 더 낫다"고만 적었는데,
+- 「왜 contrastive 인가」 신설 - 원본은 "대조적 목표가 더 낫다"고만 적었는데,
   논문 Figure 2 의 근거를 채웠다. 정확한 단어를 예측하는 목표는 bag-of-words 기준선보다
   3배 느리고, 이를 contrastive 로 바꾸면 다시 4배 빨라진다
 - 「Prompt engineering 과 ensembling」 신설 (논문 3.1.4). 원본에 완전히 빠져 있었는데
@@ -42,7 +42,7 @@ draft: false
 - 이미지에 대한 보편적 개념을 학습함.
 - 데이터 강건성이 뛰어남. 환경이 바뀌면 성능이 급격히 떨어지는 기존 지도학습 모델과 달리, 성능 감소량이 매우 적음. Vision-Language 모델의 기본 특성임.
 
-## 배경 지식 — Natural Language Supervision
+## 배경 지식 - Natural Language Supervision
 
 ### 아이디어
 
@@ -70,9 +70,9 @@ draft: false
 
 ### 학습 목표의 세 단계 비교
 
-1. **이미지의 정확한 캡션 단어를 예측하기** — 가장 직관적인 목표임. 그런데 같은 이미지를 설명하는 방법은 무수히 많음. 이 목표는 **bag-of-words 인코딩 기준선보다 3배 느리게** 학습함.
-2. **bag-of-words 예측** — 어순을 버리고 어떤 단어들이 등장하는지만 맞힘.
-3. **contrastive 목표** — 같은 bag-of-words 기준선에서 예측 목표를 대조 목표로 바꾸면 **다시 4배의 효율 개선**이 나옴.
+1. **이미지의 정확한 캡션 단어를 예측하기** - 가장 직관적인 목표임. 그런데 같은 이미지를 설명하는 방법은 무수히 많음. 이 목표는 **bag-of-words 인코딩 기준선보다 3배 느리게** 학습함.
+2. **bag-of-words 예측** - 어순을 버리고 어떤 단어들이 등장하는지만 맞힘.
+3. **contrastive 목표** - 같은 bag-of-words 기준선에서 예측 목표를 대조 목표로 바꾸면 **다시 4배의 효율 개선**이 나옴.
 
 즉 **"정확한 단어가 무엇인가"를 버리고 "전체로서 어떤 텍스트가 어떤 이미지와 짝인가"만 남기는 것**이 핵심이다. 어려운 문제를 푸는 대신 쉬운 문제를 대규모로 푼다.
 
@@ -97,7 +97,7 @@ symmetric CE loss = (loss_i + loss_t) / 2
 
 ## 모델 선택과 스케일링
 
-### Image encoder — ResNet-50 계열 개조
+### Image encoder - ResNet-50 계열 개조
 
 1. **antialiased rect-2 blur pooling** 적용. 7×7 conv의 기존 max pooling을 blur pooling으로 바꿈. 부드럽게 만든 뒤 max pooling함.
 2. **ResNet-D의 일부 구조**를 가져옴. stride=2인 conv를 avg pooling으로 바꿔 성능을 올리는 방식임.
@@ -122,7 +122,7 @@ x = projection_to_embed(x)   # [batch, embed_dim]
 
 ![그림 2](/img/clip/02.png)
 
-### Image encoder — ViT
+### Image encoder - ViT
 
 - 기본 ViT 논문의 내용을 그대로 씀. patch embedding과 position embedding 앞에 layer normalization을 추가하고 초기화 방식을 가볍게 바꾼 정도임.
 - 여기도 EfficientNet의 아이디어로 채널 수, 레이어 수, resolution을 최적 비율로 키움.

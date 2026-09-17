@@ -105,13 +105,13 @@ draft: false
 
 ### 2-2. tier 고르는 기준
 
-- `main` — 분야 관련해서 깊게 본 논문. `claim`과 `take`가 목록에 모두 노출
-- `basic` — 이미 아는 기초 논문. 제목과 `claim` 한 줄만. 본문은 짧아도 됨
+- `main` - 분야 관련해서 깊게 본 논문. `claim`과 `take`가 목록에 모두 노출
+- `basic` - 이미 아는 기초 논문. 제목과 `claim` 한 줄만. 본문은 짧아도 됨
 
 ### 2-3. Knowledge Base / Project Notes
 
-- Knowledge Base → `src/content/knowledge/` — `title`, `summary`, `tags`, `date`
-- Project Notes → `src/content/projects/` — `title`, `summary`, `context`, `period`, `role`, `stack`, `tags`, `date`
+- Knowledge Base → `src/content/knowledge/` - `title`, `summary`, `tags`, `date`
+- Project Notes → `src/content/projects/` - `title`, `summary`, `context`, `period`, `role`, `stack`, `tags`, `date`
 
 ### 2-3-1. Knowledge Base 작성 규칙
 
@@ -129,17 +129,17 @@ draft: false
 ```markdown
 ## Contrastive Learning / InfoNCE
 
-**하는 일** — 이름 말고 실제로 무슨 연산을 하는가. 한 문장.
+**하는 일** - 이름 말고 실제로 무슨 연산을 하는가. 한 문장.
 
 **옮길 수 있는 성질**
 
 1. 다른 문제로 가져갈 수 있는 부분.
 2. 여러 개면 번호를 매긴다.
 
-**깨지는 지점** — 그 성질이 성립하려면 무엇이 참이어야 하는가.
+**깨지는 지점** - 그 성질이 성립하려면 무엇이 참이어야 하는가.
 가정이 깨지는 자리가 이 글에서 가장 중요한 부분입니다.
 
-**비용** — 데이터·연산·추가 학습 요구. 특기할 게 없으면 생략.
+**비용** - 데이터·연산·추가 학습 요구. 특기할 게 없으면 생략.
 ```
 
 **글 끝에는 「효과로 다시 보기」 표**를 답니다. 같은 기법들을
@@ -205,20 +205,20 @@ loss = criterion(logits, targets)
 
 ## 3. 커스터마이즈
 
-**색** — `src/styles/global.css` 상단 `:root` 의 `--brand` 한 줄. 다크모드는 `[data-theme="dark"]` 블록의 같은 변수. 회색조 전체를 바꾸려면 `--background` / `--foreground` / `--muted` / `--border`.
+**색** - `src/styles/global.css` 상단 `:root` 의 `--brand` 한 줄. 다크모드는 `[data-theme="dark"]` 블록의 같은 변수. 회색조 전체를 바꾸려면 `--background` / `--foreground` / `--muted` / `--border`.
 
-**홈 내용** — `src/pages/index.astro`. 히어로 문구, About, 학력, 논문, 프로젝트, 수상이
+**홈 내용** - `src/pages/index.astro`. 히어로 문구, About, 학력, 논문, 프로젝트, 수상이
 전부 이 파일 안에 평범한 HTML로 들어 있습니다.
 
-**상단 메뉴** — `src/components/TopBar.astro` 의 `links` 배열.
+**상단 메뉴** - `src/components/TopBar.astro` 의 `links` 배열.
 
 **사이트 문구는 전부 영어**입니다. 글 본문은 한국어로 써도 되지만 섞으면 어색해지니 한쪽으로 통일하세요.
 
-**좌측 사이드바** — `src/components/Sidebar.astro` 의 `groups` 배열.
+**좌측 사이드바** - `src/components/Sidebar.astro` 의 `groups` 배열.
 
-**푸터** — `src/layouts/Base.astro` 하단.
+**푸터** - `src/layouts/Base.astro` 하단.
 
-**⌘K 검색** — `src/components/CommandPalette.astro`. 모든 글이 자동으로 색인됩니다.
+**⌘K 검색** - `src/components/CommandPalette.astro`. 모든 글이 자동으로 색인됩니다.
 
 ---
 

@@ -2,9 +2,9 @@
 개정: 2026-09-10 (원본: src/content/reviews/mask-rcnn.md)
 - i-jepa 형식으로 재배치. Introduction / Related work / Mask R-CNN 구성을
   배경 지식 → method → 세부 아키텍처 → 실험 순으로 정리
-- RoIAlign 의 효과를 수치로 보강 — 마스크 정확도를 상대적으로 10~50% 개선.
+- RoIAlign 의 효과를 수치로 보강 - 마스크 정확도를 상대적으로 10~50% 개선.
   원본은 "큰 성능 향상"이라고만 적혀 있었다 (논문 초록·1절)
-- 「실험에서 확인된 것」 신설 — COCO mask AP 35.7 (ResNet-101-FPN), 37.1 (ResNeXt-101-FPN),
+- 「실험에서 확인된 것」 신설 - COCO mask AP 35.7 (ResNet-101-FPN), 37.1 (ResNeXt-101-FPN),
   5 fps. 원본에 결과가 아예 없었다
 - 클래스 간 경쟁을 없앤 것이 "essential" 이라는 논문의 표현 반영. 원본의 서술이 맞다는 근거
 - 끝맺음을 평서형으로 통일
@@ -44,8 +44,8 @@ Faster R-CNN을 확장한 모델이다. 기존의 classification과 bounding box
 
 ### 기존 semantic segmentation 접근법과의 차이
 
-- **기존** — segmentation을 먼저 하고 classification을 함. 객체 존재 여부를 먼저 예측하고 클래스를 구분하므로 **같은 클래스의 개별 객체를 구분할 수 없음.**
-- **Mask R-CNN** — 어떤 클래스인지와 bounding box를 먼저 예측하고, 그 박스 안에서 각 픽셀의 객체 존재 여부를 예측함. 객체를 먼저(염소 1, 염소 2처럼) 구분하므로 **instance segmentation**이 됨.
+- **기존** - segmentation을 먼저 하고 classification을 함. 객체 존재 여부를 먼저 예측하고 클래스를 구분하므로 **같은 클래스의 개별 객체를 구분할 수 없음.**
+- **Mask R-CNN** - 어떤 클래스인지와 bounding box를 먼저 예측하고, 그 박스 안에서 각 픽셀의 객체 존재 여부를 예측함. 객체를 먼저(염소 1, 염소 2처럼) 구분하므로 **instance segmentation**이 됨.
 
 ![그림 2](/img/mask-rcnn/02.png)
 
@@ -135,8 +135,8 @@ ResNet 같은 백본에 **FPN**(Feature Pyramid Network)을 추가한다.
 
 ### FPN의 핵심 아이디어
 
-- **top-down path** — 상위 계층을 upsampling해 해상도를 높임. 작은 객체 탐지에 도움이 됨.
-- **lateral connection** — upsampling된 특징과 하위 계층을 결합해 위치 정보를 살림.
+- **top-down path** - 상위 계층을 upsampling해 해상도를 높임. 작은 객체 탐지에 도움이 됨.
+- **lateral connection** - upsampling된 특징과 하위 계층을 결합해 위치 정보를 살림.
 
 단계는 이렇게 진행된다.
 
@@ -156,8 +156,8 @@ ResNet 같은 백본에 **FPN**(Feature Pyramid Network)을 추가한다.
 ![그림 8](/img/mask-rcnn/08.png)
 
 - RoIAlign 이후 classification과 mask 예측이 동시에 진행됨.
-- **Mask Branch** — RoI에 대한 각 클래스별 독립적인 마스크를 예측함.
-- **Classification Branch** — 객체 클래스를 확정함. 확정된 클래스에 맞는 마스크를 최종 선택해 출력함.
+- **Mask Branch** - RoI에 대한 각 클래스별 독립적인 마스크를 예측함.
+- **Classification Branch** - 객체 클래스를 확정함. 확정된 클래스에 맞는 마스크를 최종 선택해 출력함.
 
 ![그림 9](/img/mask-rcnn/09.png)
 

@@ -6,13 +6,13 @@
 작업할 때마다 **위에서부터 `대기` 인 것 하나**를 골라 처리하고 이 표를 갱신한다.
 한 번에 한 편만 한다. 서두르지 않는다.
 
-## 우선순위 1 — 공개 중 (11편)  ✅ 전부 완료
+## 우선순위 1 - 공개 중 (11편)  ✅ 전부 완료
 
 지금 사이트에 떠 있는 글들이라 먼저 손본다.
 
 | # | slug | 논문 | arXiv | 상태 |
 |---|---|---|---|---|
-| 1 | `i-jepa` | Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture | 2301.08243 | **기준 형식** — 개정 불필요 |
+| 1 | `i-jepa` | Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture | 2301.08243 | **기준 형식** - 개정 불필요 |
 | 2 | `vla` | OpenVLA: An Open-Source Vision-Language-Action Model | 2406.09246 | **완료** |
 | 3 | `personaplex` | PersonaPlex: Voice and Role Control for Full Duplex Conversational Speech Models | 2602.06053 | **완료** |
 | 4 | `dinov2` | DINOv2: Learning Robust Visual Features without Supervision | 2304.07193 | **완료** |
@@ -24,14 +24,14 @@
 | 10 | `mask-rcnn` | Mask R-CNN | 1703.06870 | **완료** |
 | 11 | `ssd` | SSD: Single Shot MultiBox Detector | 1512.02325 | **완료** |
 
-## 우선순위 2 — 손볼 곳이 명확한 숨긴 글 (4편)  ✅ 전부 완료
+## 우선순위 2 - 손볼 곳이 명확한 숨긴 글 (4편)  ✅ 전부 완료
 
 | # | slug | 문제 | arXiv | 상태 |
 |---|---|---|---|---|
 | 12 | `v-jepa` | related work 가 원문 직역. `Vidusal encoder-decoder`, `미세조장할 때` 같은 오타. 마지막 문장이 `EMA로 업데이` 에서 끊김 | 2404.08471 | **완료** |
 | 13 | `dinov1` | 「해결책」에 `centering`, `sharpness` 두 단어만 있고 설명이 없음 | 2104.14294 | **완료** |
 | 14 | `attention-is-all-you-need` | 본문에 `20250319 수정 필요`, `거쳐서 ~~~~` 가 남아 있음. 그림 15장 | 1706.03762 | **완료** |
-| 15 | `rlhf` | 논문 4편이 한 글에 뭉쳐 있음 → **분리 필요** (아래 참조) | — | **완료 (4편 분리)** |
+| 15 | `rlhf` | 논문 4편이 한 글에 뭉쳐 있음 → **분리 필요** (아래 참조) | - | **완료 (4편 분리)** |
 
 ### `rlhf` 분리 계획
 
@@ -47,7 +47,7 @@
 원본에 `Table 1 내용 확인`, `이미지 (b) 내용 확인` 같은 미완성 표시가 있다.
 논문을 받아서 채우거나, 못 채우면 그 대목을 지운다.
 
-## 우선순위 3 — 나머지 숨긴 글 (10편)  ✅ 전부 완료
+## 우선순위 3 - 나머지 숨긴 글 (10편)  ✅ 전부 완료
 
 | # | slug | arXiv | 상태 |
 |---|---|---|---|
@@ -70,16 +70,16 @@
 
 ## 상태 표기
 
-- `대기` — 아직 안 함
-- `진행중` — 작업 시작함 (중단되면 여기서 이어받는다)
-- `완료` — `revisions/reviews/<slug>.md` 생성됨
-- `검토됨` — 사용자가 확인함
+- `대기` - 아직 안 함
+- `진행중` - 작업 시작함 (중단되면 여기서 이어받는다)
+- `완료` - `revisions/reviews/<slug>.md` 생성됨
+- `검토됨` - 사용자가 확인함
 
 ## 작업 기록
 
 | 날짜 | slug | 한 일 |
 |---|---|---|
-| 2026-09-10 | — | 형식 명세와 진행표 작성. `vla` frontmatter 에 OpenVLA 링크·서지 확인해 반영 |
+| 2026-09-10 | - | 형식 명세와 진행표 작성. `vla` frontmatter 에 OpenVLA 링크·서지 확인해 반영 |
 | 2026-09-10 | `vla` | 배경 지식·세부 아키텍처·학습 설정·실험 결과 신설. 논문 3.1~4절에서 확인. 끝맺음 평서형 통일 |
 | 2026-09-10 | `personaplex` | 배경 지식·실험 결과(Table 1·2 수치) 신설. 절 번호를 내용 제목으로 교체 |
 | 2026-09-10 | `dinov2` | 끊긴 마지막 문장(distill)을 논문 5절로 완성. 데이터 구축 수치·효율화 절 신설 |
@@ -107,7 +107,7 @@
 
 ---
 
-## 전체 완료 — 2026-09-10
+## 전체 완료 - 2026-09-10
 
 25편 원본 → **28편 개정본** (rlhf 가 4편으로 분리되어 +3).
 `i-jepa` 는 기준 형식이라 개정하지 않았다.

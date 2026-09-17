@@ -29,8 +29,8 @@ iBOT 기반 목적함수에 다섯 가지를 손보고, 큰 ViT에서 소형 모
 ![Figure 1](/img/dinov2/f1.png)
 
 **Self-supervised learning의 두 갈래**
-- **Intra-image SSL** — 이미지의 가려진 부분을 복원. 표현은 나오지만 **fine-tuning을 해야 쓸 수 있음**
-- **Discriminative SSL** — 이미지 그룹 간 판별 신호로 특징을 학습. DINO, iBOT이 여기 속함
+- **Intra-image SSL** - 이미지의 가려진 부분을 복원. 표현은 나오지만 **fine-tuning을 해야 쓸 수 있음**
+- **Discriminative SSL** - 이미지 그룹 간 판별 신호로 특징을 학습. DINO, iBOT이 여기 속함
 
 **Scaling의 문제**
 - 데이터 양을 늘려 성능을 올린 연구들이 있었지만 **데이터 품질이 낮다**는 게 걸림돌
@@ -51,9 +51,9 @@ iBOT 기반 목적함수에 다섯 가지를 손보고, 큰 ViT에서 소형 모
 - 기준 데이터가 작으면 → 기준 이미지가 속한 **클러스터에서 M개**를 샘플링. 소수 데이터를 많이 가져온다는 뜻
 - 유사도는 `q·k` 내적으로 구함
 
-**데이터 구축 흐름 — LVD-142M**
+**데이터 구축 흐름 - LVD-142M**
 1. 웹에서 `img` 태그 URL 추출. 부적절 URL·NSFW 필터링, 얼굴 블러를 거쳐 **1.2B개 고유 이미지**
-1. **중복 제거** — copy detection 파이프라인으로 비정제 데이터 안의 중복을 먼저 없애고, 정제 데이터와 겹치는 것도 제거
+1. **중복 제거** - copy detection 파이프라인으로 비정제 데이터 안의 중복을 먼저 없애고, 정제 데이터와 겹치는 것도 제거
 1. ViT로 임베딩하고 이미지 간 유사도는 **cosine similarity** 로 측정
 1. 비정제 데이터에 **k-means clustering** 적용 후 위 retrieval 규칙으로 선별
 
@@ -78,8 +78,8 @@ iBOT loss를 그대로 차용하되 **다섯 가지가 다르다.**
 - class token용과 patch token용 **MLP head를 2개 따로** 둬서 각 특징을 살림
 
 **③ teacher 확률 분포의 생성 방식**
-- **기존(DINO)** — softmax로 확률을 출력한 뒤 정답의 이동평균을 저장. centering으로 특정 칼럼이 정답으로 많이 나왔으면 점수를 깎고, sharpening으로 temperature 조절
-- **DINOv2** — MLP로 logit을 뽑고, 배치 내 전체 이미지가 정답 칸에 골고루 들어가도록 **SwAV의 Sinkhorn-Knopp 정규화** 사용. 모든 칼럼을 각 칼럼 내 logit 합으로 나눠 특정 칼럼이 크면 패널티, 작으면 어드밴티지. 3회 반복
+- **기존(DINO)** - softmax로 확률을 출력한 뒤 정답의 이동평균을 저장. centering으로 특정 칼럼이 정답으로 많이 나왔으면 점수를 깎고, sharpening으로 temperature 조절
+- **DINOv2** - MLP로 logit을 뽑고, 배치 내 전체 이미지가 정답 칸에 골고루 들어가도록 **SwAV의 Sinkhorn-Knopp 정규화** 사용. 모든 칼럼을 각 칼럼 내 logit 합으로 나눠 특정 칼럼이 크면 패널티, 작으면 어드밴티지. 3회 반복
 
 **④ KoLeo regularizer 추가**
 - 각 특징 벡터가 개별적으로 구별되도록 만듦
@@ -105,10 +105,10 @@ ablation에서 이 방식이 처음부터 학습시키는 것보다 낫고, **Vi
 
 대규모로 밀어붙일 수 있었던 이유가 여기 있다. A100 GPU에서 PyTorch 2.0으로 학습한다.
 
-- **FlashAttention 자체 구현** — 메모리 효율적인 attention을 직접 구현
-- **Sequence packing** — DINO는 224 해상도 large crop과 작은 local crop을 함께 forward해야 함. 길이가 다른 시퀀스를 따로 돌리면 낭비 → NLP에서 온 sequence packing으로 **여러 시퀀스를 이어붙여 한 번에 처리**
-- **Efficient stochastic depth** — 건너뛸 층의 연산을 실제로 생략
-- **FSDP** — AdamW 옵티마이저 상태를 여러 GPU에 분산 → **모델 크기가 한 GPU 메모리에 묶이지 않음**. GPU 간 통신 비용도 감소
+- **FlashAttention 자체 구현** - 메모리 효율적인 attention을 직접 구현
+- **Sequence packing** - DINO는 224 해상도 large crop과 작은 local crop을 함께 forward해야 함. 길이가 다른 시퀀스를 따로 돌리면 낭비 → NLP에서 온 sequence packing으로 **여러 시퀀스를 이어붙여 한 번에 처리**
+- **Efficient stochastic depth** - 건너뛸 층의 연산을 실제로 생략
+- **FSDP** - AdamW 옵티마이저 상태를 여러 GPU에 분산 → **모델 크기가 한 GPU 메모리에 묶이지 않음**. GPU 간 통신 비용도 감소
 
 ---
 
@@ -119,7 +119,7 @@ ablation에서 이 방식이 처음부터 학습시키는 것보다 낫고, **Vi
 - **6.1** 위 다섯 가지 변경이 각각 얼마나 기여하는지 분해
 - **6.4** KoLeo와 iBOT MIM 항을 빼면 성능이 떨어짐 → 둘 다 필요
 - **6.5** distillation이 처음부터 학습시키는 것보다 나음
-- **6.6** 해상도 — 짧은 고해상도 단계만으로 dense task 성능을 얻음
+- **6.6** 해상도 - 짧은 고해상도 단계만으로 dense task 성능을 얻음
 
 ---
 
@@ -127,9 +127,9 @@ ablation에서 이 방식이 처음부터 학습시키는 것보다 낫고, **Vi
 
 ![Table 4](/img/dinov2/t4.png)
 
-- **7.1 ImageNet 분류** — frozen feature에 linear probe만으로 높은 성능
-- **7.2 기타 이미지·비디오 분류** — 세밀한 분류 벤치마크에서도 일관됨
-- **7.3 Instance recognition** — 검색 태스크에서도 강함
+- **7.1 ImageNet 분류** - frozen feature에 linear probe만으로 높은 성능
+- **7.2 기타 이미지·비디오 분류** - 세밀한 분류 벤치마크에서도 일관됨
+- **7.3 Instance recognition** - 검색 태스크에서도 강함
 
 파인튜닝 없이 **얼린 특징 그대로** 여러 태스크를 커버한다는 것이 이 논문의 주장이다.
 

@@ -1,14 +1,14 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/unet.md)
 - i-jepa 형식으로 재배치
-- 「배경 지식」에 왜 의료 영상이었는지 보강 — 데이터가 적고, 세포처럼 붙어 있는
+- 「배경 지식」에 왜 의료 영상이었는지 보강 - 데이터가 적고, 세포처럼 붙어 있는
   같은 클래스 객체를 분리해야 한다는 요구가 설계를 규정했다
-- 「실험에서 확인된 것」 신설 — ISBI 세포 추적 챌린지 2015 우승, 전자현미경 분할에서
+- 「실험에서 확인된 것」 신설 - ISBI 세포 추적 챌린지 2015 우승, 전자현미경 분할에서
   당시 최고 성능, NVidia Titan GPU 로 512×512 이미지 분할에 1초 미만.
   원본에 결과가 없었다
-- Overlap-Tile 전략의 설명 보강 — 원본은 "large input tiles 사용" 으로만 적혀 있었는데,
+- Overlap-Tile 전략의 설명 보강 - 원본은 "large input tiles 사용" 으로만 적혀 있었는데,
   경계 부분을 mirroring 으로 외삽한다는 점이 빠지면 왜 이게 필요한지 안 보인다
-- weight map 의 목적을 명확히 — 같은 클래스의 인접 객체 사이 경계에 큰 가중치를 준다
+- weight map 의 목적을 명확히 - 같은 클래스의 인접 객체 사이 경계에 큰 가중치를 준다
 - 끝맺음을 평서형으로 통일
 - 원본의 encoder/decoder 단계별 서술과 skip connection 필요성 논증은 그대로 유지
 - 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
@@ -66,15 +66,15 @@ draft: true
 
 Encoder에서 CNN 과정을 통해 이미지에 대한 전역적 문맥을 학습하고, Decoder 과정에서 해상도와 경계를 복원한다.
 
-### Encoder — Contraction Path (다운샘플링)
+### Encoder - Contraction Path (다운샘플링)
 
 1. Conv 3×3 + ReLU를 2번
 2. Max pool 2×2
 
-### Decoder — Expanding Path (업샘플링)
+### Decoder - Expanding Path (업샘플링)
 
 1. feature map을 2×2 up-conv로 업샘플링함.
-2. **skip connection** — 다운샘플링 과정에서 나온 feature map을 업샘플링된 feature map에 concat함.
+2. **skip connection** - 다운샘플링 과정에서 나온 feature map을 업샘플링된 feature map에 concat함.
    - 이때 두 이미지의 크기가 다르므로 업샘플링된 이미지에 패딩을 더해 맞춤.
 3. Conv 3×3 + ReLU를 2번. 첫 conv에서 채널 수를 맞춰 세부 정보를 복원함.
 4. 1×1 Convolution으로 최종 클래스 개수만큼 채널 수를 조정함.
@@ -141,6 +141,6 @@ U-Net에서 가져갈 것은 "**다운샘플링에서 잃는 것을 옆길로 �
 
 깊이가 깊어질수록 의미는 풍부해지지만 위치는 사라진다. 이 상충을 해결하는 방법은 두 정보를 **다른 경로로 전달해서 나중에 합치는 것**이다. 하나의 경로로 모두 전달하려 하면 어느 쪽이든 손해를 본다.
 
-이 구조는 의료 영상을 훨씬 넘어서 퍼졌다. 그리고 diffusion 모델의 백본으로도 오래 쓰였다 — DiT가 그걸 Transformer로 교체하기 전까지.
+이 구조는 의료 영상을 훨씬 넘어서 퍼졌다. 그리고 diffusion 모델의 백본으로도 오래 쓰였다 - DiT가 그걸 Transformer로 교체하기 전까지.
 
 다만 옮길 때 주의할 점이 있다. **인코더 특징이 디코더에 유용한 형태여야 한다.** 도메인이 다르면 skip이 오히려 잡음을 넘겨주는 통로가 된다.

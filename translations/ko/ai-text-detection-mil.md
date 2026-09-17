@@ -1,3 +1,15 @@
+---
+title: 문단 단위 AI 생성 텍스트 판별을 multiple-instance learning 으로
+summary: 라운드가 바뀌면서 채점 단위가 글에서 문단으로 내려왔는데, 같은 글의 문단끼리 서로 참조하는 것은 여전히 허용됐다. 그 조합이 곧 bag 이라서 MIL 로 다시 짰다.
+context: 2025 SW중심대학 디지털 경진대회 AI 부문
+period: 2025.07 ~ 2025.08
+role: 구현
+stack: PyTorch, Hugging Face Transformers, DDP
+tags: [NLP, Multiple-Instance Learning, Calibration]
+date: 2025-08-12
+draft: false
+---
+
 ## 과제의 모양이 바뀌었다
 
 교내 라운드는 글 하나당 질문 하나였다. 사람인가 AI인가. 거기서 이겨 본선에 올라갔는데, 질문이 비슷해 보였지만 아니었다.
@@ -16,13 +28,13 @@ ROC-AUC로 채점했고, **46위**로 마쳤다.
 
 ## 왜 MIL이 맞는 모양인가
 
-개별로 판정해야 하지만 묶음이 개별에는 없는 신호를 지닌 인스턴스들의 모임 — 그것이 **bag**이다. multiple-instance learning이 만들어진 바로 그 상황이므로, 튜닝이 아니라 과제를 다시 정의했다. 각 글을 줄바꿈으로 나누고, 문단별로 토크나이즈해서, bag 전체를 모델에 넣는다.
+개별로 판정해야 하지만 묶음이 개별에는 없는 신호를 지닌 인스턴스들의 모임 - 그것이 **bag**이다. multiple-instance learning이 만들어진 바로 그 상황이므로, 튜닝이 아니라 과제를 다시 정의했다. 각 글을 줄바꿈으로 나누고, 문단별로 토크나이즈해서, bag 전체를 모델에 넣는다.
 
 남는 질문은 집계가 예측을 기준으로 어디에 놓이느냐다. 그리고 이건 구현 편의의 문제가 아니다. **순서가 분류기가 실제로 보는 대상을 결정한다.** 먼저 예측하면 분류되는 것은 문단이다. 짧고 때로 애매하지만, 점수가 걷히는 바로 그 단위다. 먼저 집계하면 분류되는 것은 풀링된 문서 벡터다. 더 풍부하지만 채점 단위에서 한 단계 떨어져 있다.
 
 서로 다른 성질의 대상이므로 둘 다 만들었다.
 
-### EPA — Embed → Predict → Aggregate
+### EPA - Embed → Predict → Aggregate
 
 ```
 문단들 ─▶ 인코더 ─▶ 문단별 logit ─▶ top-k ─▶ self-attention ─▶ 문서
@@ -36,13 +48,13 @@ loss = doc_loss + λ · paragraph_loss
 
 문단을 자기 logit으로 순위 매겨 top-k를 남기고, multi-head self-attention으로 합친다. 문단 head가 존재하고 지도를 받으므로, 문단별 출력이 부산물이 아니라 일급 예측이다.
 
-### EAP — Embed → Aggregate → Predict
+### EAP - Embed → Aggregate → Predict
 
 ```
 문단들 ─▶ 인코더 ─▶ 임베딩 norm 으로 top-k ─▶ pooling ─▶ 문서 예측 하나
 ```
 
-문단 head가 없고 문서 수준 loss 하나만 쓴다. 중요도는 학습된 점수가 아니라 임베딩 norm에서 오고, pooling은 고를 수 있다 — mean, max, attention, weighted attention. 기본 `top_k_ratio`는 0.7이다.
+문단 head가 없고 문서 수준 loss 하나만 쓴다. 중요도는 학습된 점수가 아니라 임베딩 norm에서 오고, pooling은 고를 수 있다 - mean, max, attention, weighted attention. 기본 `top_k_ratio`는 0.7이다.
 
 교환 관계가 그림에 드러난다. EPA는 각 문단을 판정하는 데 파라미터를 쓰고 어느 문단이 문서를 끌었는지 설명할 수 있다. EAP는 문서 표현 하나에 더 일찍 확정하고 문단 수준에 덜 요구한다.
 
@@ -60,8 +72,8 @@ loss = doc_loss + λ · paragraph_loss
 
 쓸모 있었던 수는 과제가 **단위가 세분화된 것이 아니라 모양이 바뀌었다**는 걸 알아챈 것이다. "문단마다 채점한다"와 "같은 글의 문단끼리 볼 수 있다"는 함께 읽어야 값을 한다. 따로 보면 앞의 것은 문단 분류기를, 뒤의 것은 문서 분류기를 가리키고, 둘 다 글을 bag으로 다루는 것보다 나쁘다.
 
-두 번째는 집계가 어디에 놓이느냐가 하이퍼파라미터가 아니라는 것이다. 그것을 옮기면 분류기가 건네받는 대상이 바뀌고 — 문단이냐 풀링된 문서냐 — 서로 다른 대상을 분류하는 두 모델은 다르게 실패한다. 그래서 둘 다 만들 값어치가 있었고, 같은 것에 대한 두 번의 시도 사이에서 승부를 가리는 게 아니라 앙상블로 가는 것이 자연스러운 끝이었다.
+두 번째는 집계가 어디에 놓이느냐가 하이퍼파라미터가 아니라는 것이다. 그것을 옮기면 분류기가 건네받는 대상이 바뀌고(문단이냐 풀링된 문서냐)서로 다른 대상을 분류하는 두 모델은 다르게 실패한다. 그래서 둘 다 만들 값어치가 있었고, 같은 것에 대한 두 번의 시도 사이에서 승부를 가리는 게 아니라 앙상블로 가는 것이 자연스러운 끝이었다.
 
 ---
 
-코드: [AI_generated_text_detection](https://github.com/chb2066/AI_generated_text_detection) — 두 모델, 결합 손실, 보정 절차.
+코드: [AI_generated_text_detection](https://github.com/chb2066/AI_generated_text_detection) - 두 모델, 결합 손실, 보정 절차.

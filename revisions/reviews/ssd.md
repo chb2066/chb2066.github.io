@@ -1,11 +1,11 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/ssd.md)
 - i-jepa 형식으로 재배치
-- 「실험에서 확인된 것」 신설 — 원본에 데이터 증강 +8.8% mAP 외에 결과가 없었다.
+- 「실험에서 확인된 것」 신설 - 원본에 데이터 증강 +8.8% mAP 외에 결과가 없었다.
   VOC2007 test 기준 SSD300 74.3% mAP / 59 FPS, SSD512 76.9%, 그리고
   Faster R-CNN(73.2% / 7 FPS)·YOLO(63.4% / 45 FPS)와의 대비를 넣었다.
   이 표가 있어야 "빠르면서 정확하다"는 주장이 확인된다
-- 「배경 지식」에 SSD 가 왜 빠른지의 구조적 이유 정리 — proposal 과 resampling 제거
+- 「배경 지식」에 SSD 가 왜 빠른지의 구조적 이유 정리 - proposal 과 resampling 제거
 - 끝맺음을 평서형으로 통일
 - 원본의 NMS 단계별 예시(A 0.9 / B 0.85 / C 0.6)와 hard negative mining 3배수 근거는
   그대로 유지. 이 글에서 가장 구체적인 부분이다
@@ -47,8 +47,8 @@ draft: false
 
 여기서 문제가 갈린다.
 
-- **Faster R-CNN** — (1)과 (2) 과정 때문에 느림.
-- **YOLO** — single-shot으로 속도를 높였지만 정확도가 부족함.
+- **Faster R-CNN** - (1)과 (2) 과정 때문에 느림.
+- **YOLO** - single-shot으로 속도를 높였지만 정확도가 부족함.
 
 ### SSD의 차별점
 
@@ -122,8 +122,8 @@ SSD는 하나의 CNN으로 **고정된 개수의 default box를 기반**으로 �
 
 ### 2. Loss Function
 
-- **Localization Loss** — 실제 bounding box와 예측 박스의 차이를 **Smooth L1 Loss**로 계산함. L2에 비해 튀는 값을 잘 반영함. 값을 예측해야 하므로 회귀 loss를 씀.
-- **Confidence Loss** — 각 default box에서 예측한 클래스 확률과 실제 클래스의 차이를 **Softmax Loss**로 계산함.
+- **Localization Loss** - 실제 bounding box와 예측 박스의 차이를 **Smooth L1 Loss**로 계산함. L2에 비해 튀는 값을 잘 반영함. 값을 예측해야 하므로 회귀 loss를 씀.
+- **Confidence Loss** - 각 default box에서 예측한 클래스 확률과 실제 클래스의 차이를 **Softmax Loss**로 계산함.
 
 ![그림 5](/img/ssd/05.png)
 
@@ -146,7 +146,7 @@ VOC2007 test 기준이다.
 | 모델 | mAP | FPS |
 |---|---|---|
 | **SSD300** | 74.3% | **59** |
-| **SSD512** | 76.9% | — |
+| **SSD512** | 76.9% | - |
 | Faster R-CNN | 73.2% | 7 |
 | YOLO | 63.4% | 45 |
 

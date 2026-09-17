@@ -1,112 +1,117 @@
 ---
-title: Emotion labels for Korean traditional patterns
-summary: Nine unrelated methods all stalled in the same narrow band on image-only accuracy. Why I stopped pushing on the image and invested in the text side instead, and the fusion model that came out of it.
-context: AiRLab · ETRI-funded
-period: 2026.06 – 2026.08
-role: Experiment design, training, analysis
+title: 전통문양 감성 라벨 예측
+summary: 서로 무관한 방법 아홉 개가 이미지 단독 정확도에서 같은 좁은 구간에 멈췄다. 이미지 쪽을 더 미는 대신 텍스트 쪽에 투자한 이유와, 거기서 나온 융합 모델.
+context: AiRLab · ETRI 과제
+period: 2026.06 ~ 2026.08
+role: 실험 설계, 학습, 분석
 stack: PyTorch, DINOv3, klue-roberta
 tags: [Vision-Language, Knowledge Distillation, Multi-label]
 date: 2026-08-26
+draft: false
 ---
 
 ## Setup
 
-Predict which emotional adjectives describe a traditional pattern image — *abundant*, *mysterious*, *classical*. Each image carries exactly 5 labels from a 22-word vocabulary, so precision equals recall and the metric is a set-agreement rate.
+전통문양 이미지에 어떤 감성 형용사가 붙는지 예측한다 - *풍성한*, *신비한*, *고전적인* 같은 것들이다. 이미지마다 22개 어휘 중 **정확히 5개**가 정답이므로 precision과 recall이 같아지고, 지표는 집합 일치율이 된다.
 
 ```
-top-5 F1 = |predicted ∩ ground truth| / 5
+top-5 F1 = |예측 ∩ 정답| / 5
 ```
 
-Always predicting exactly five makes this a ranking problem, not a thresholding one — that matters later. Each record also has a free-form Korean `description` written by an annotator and nine structured metadata fields. The brief required using the image together with its accompanying information, with the image influencing the prediction. Prior team result: 0.62 (FG-CLIP2). Target: 0.80.
+항상 정확히 다섯 개를 내놓는다는 건 이게 threshold 문제가 아니라 **ranking 문제**라는 뜻이다. 이 점이 뒤에서 중요해진다. 각 레코드에는 작업자가 쓴 자유 서술 `description`과 구조적 메타데이터 9개 필드가 함께 있다. 과제 요구사항은 이미지와 부속 정보를 함께 쓰되 **이미지가 예측에 영향을 줄 것**이었다. 기존 팀 결과는 0.62(FG-CLIP2), 목표는 0.80이었다.
 
-## Where the signal is
+## 신호가 어디에 있는가
 
-Each channel measured alone, same split.
+같은 split에서 각 채널을 단독으로 측정했다.
 
-| Channel | Method | F1@5 |
+| 채널 | 방법 | F1@5 |
 |---|---|---|
-| **Description** | klue/roberta-large, fine-tuned | **0.784** |
-| Metadata (9 fields) | multi-hot → linear probe | 0.581 |
-| Image | ConvNeXtV2-large, fine-tuned | 0.589 |
+| **Description** | klue/roberta-large, fine-tune | **0.784** |
+| 메타데이터 9개 필드 | multi-hot → linear probe | 0.581 |
+| 이미지 | ConvNeXtV2-large, fine-tune | 0.589 |
 
-Text is worth about 20 points more than the image. Metadata — including the `meaning` field I expected to help — is worth the same as the pixels and no more.
+텍스트가 이미지보다 약 20점 더 값어치가 있다. 도움이 될 거라 기대했던 `meaning` 필드를 포함해도, 메타데이터는 픽셀과 같은 수준이고 그 이상은 아니다.
 
-## The image ceiling
+## 이미지의 천장
 
-A single backbone stalling proves nothing, so I attacked 0.59 from as many unrelated directions as I could.
+백본 하나가 멈춘 것으로는 아무것도 증명되지 않으므로, 0.59를 서로 무관한 방향에서 최대한 여러 번 공략했다.
 
-| Approach | Best variant | F1@5 |
+| 접근 | 최선 변형 | F1@5 |
 |---|---|---|
-| Frozen features + linear probe | FG-CLIP2 / SigLIP2 / DINOv3 | 0.510 |
+| frozen feature + linear probe | FG-CLIP2 / SigLIP2 / DINOv3 | 0.510 |
 | VLM fine-tuning | Qwen2.5-VL-7B, LoRA | 0.557 |
-| ViT backbone | EVA-02-large, end-to-end | 0.571 |
-| CNN backbone | ConvNeXtV2-large + drop_path/mixup | 0.589 |
-| Vision ensemble | three fine-tuned models | 0.592 |
-| Captioning → text classifier | KoBART captioner | 0.586 |
-| Cross-modal alignment | image → generic text embedding | 0.583 |
-| Knowledge distillation | feature align + frozen teacher head | 0.590 |
-| **Soft prompting** | image → 16 tokens → frozen text encoder | **0.592** |
+| ViT 백본 | EVA-02-large, end-to-end | 0.571 |
+| CNN 백본 | ConvNeXtV2-large + drop_path/mixup | 0.589 |
+| 비전 앙상블 | fine-tune 모델 3개 | 0.592 |
+| captioning → 텍스트 분류기 | KoBART captioner | 0.586 |
+| cross-modal alignment | 이미지 → 범용 텍스트 임베딩 | 0.583 |
+| knowledge distillation | feature align + frozen teacher head | 0.590 |
+| **soft prompting** | 이미지 → 16토큰 → frozen 텍스트 인코더 | **0.592** |
 
-Two more attempts made things *worse*, and both were informative. Strong augmentation (RandAugment, color jitter) dropped to 0.578 — saturation and edge orientation are plausibly causal for these labels, so standard augmentation was corrupting the target. Per-class logit offsets fitted on validation with inner 5-fold CV hurt every model by 0.001–0.008, meaning the ranking already matched label frequency. Class-balanced sampling hurt for the same reason: rebalancing targets macro-recall and works against top-*k*.
+오히려 *나빠진* 시도가 둘 더 있었고, 둘 다 정보가 됐다. 강한 augmentation(RandAugment, color jitter)은 0.578로 떨어졌다 - 채도와 edge 방향이 이 라벨들에 인과적으로 작용할 법한데, 표준 augmentation이 그 타깃을 망가뜨리고 있었던 것이다. validation에서 inner 5-fold CV로 맞춘 클래스별 logit offset은 모든 모델을 0.001~0.008 떨어뜨렸는데, 이는 ranking이 이미 라벨 빈도와 맞아 있었다는 뜻이다. class-balanced sampling도 같은 이유로 손해였다. 재균형은 macro-recall을 겨냥하는데 top-*k*에는 반대로 작용한다.
 
 ### Soft prompting
 
-The sharpest measurement. The image is converted into input tokens for the text model, so it passes through **the same frozen encoder and head** that scores 0.78 on real descriptions. Only the translator is trained.
+가장 날카로운 측정이었다. 이미지를 텍스트 모델의 입력 토큰으로 바꾸므로, 실제 description에서 0.78을 내는 **바로 그 frozen 인코더와 head**를 그대로 통과한다. 학습되는 건 변환기뿐이다.
 
 ```
-image ─▶ 16 soft tokens ─▶ [ frozen text encoder ] ─▶ [ frozen head ] ─▶ 22 logits
+이미지 ─▶ 16 soft tokens ─▶ [ frozen 텍스트 인코더 ] ─▶ [ frozen head ] ─▶ 22 logits
 ```
 
-It reached 0.592. The auxiliary loss aligning the translated tokens to the real description embedding bottomed out at cosine distance ~0.66 and would not go lower — the image-reconstructed embedding points in a different direction from the text describing the same object.
+0.592에 도달했다. 변환된 토큰을 실제 description 임베딩에 정렬시키는 보조 loss는 cosine distance 약 0.66에서 바닥을 치고 더 내려가지 않았다 - 이미지로 복원한 임베딩이 같은 대상을 설명하는 텍스트와 다른 방향을 가리킨다는 뜻이다.
 
-At that point the image-only routes were exhausted — plain backbones, a VLM, and several attempts to pull the image representation toward the text side. None of them moved. What the sequence settled is that the image alone has a clear limit on this task, while the text reaches far higher, because the description simply carries more of what the labels depend on than the pixels do.
+<!--MINE-->
+이 시점에서 이미지 단독 경로는 소진됐다 - 평범한 백본, VLM, 그리고 이미지 표현을 텍스트 쪽으로 끌어당기려는 여러 시도. 어느 것도 움직이지 않았다. 이 일련의 과정이 확정한 것은 **이 과제에서 이미지 단독으로는 명확한 한계가 있고, 텍스트는 훨씬 높이 간다**는 것이다. 라벨이 의존하는 정보를 description이 픽셀보다 더 많이 담고 있기 때문이다.
 
-So the question stopped being how to extract more from the image and became how to train the text side harder. With a dataset this small, fine-tuning a BERT-family encoder was the realistic way to get there, and getting there was the point — the brief asked for a visible number, not a diagnosis.
+그래서 질문이 **이미지에서 더 뽑아내는 법**에서 **텍스트 쪽을 더 세게 학습시키는 법**으로 바뀌었다. 데이터가 이 정도로 적은 조건에서는 BERT 계열 인코더를 fine-tuning하는 것이 목표에 닿는 현실적인 길이었고, 닿는 것 자체가 목적이었다 - 과제가 요구한 건 진단이 아니라 눈에 보이는 수치였다.
+<!--/MINE-->
 
 ## Fusion
 
-The goal changed from beating 0.59 to satisfying the brief: a model in which the image measurably contributes. The first attempt ran attention over DINOv3's 256 patch tokens and collapsed — logits went nearly uniform. Cut to one pooled vector per modality.
+목표가 0.59를 넘기는 것에서 요구사항을 만족시키는 것으로 바뀌었다. 즉 **이미지가 측정 가능하게 기여하는 모델**이다. 첫 시도는 DINOv3의 patch token 256개에 attention을 돌렸고 붕괴했다 - logit이 거의 균등해졌다. 모달리티당 pooled 벡터 하나로 줄였다.
 
 ```
-image ─▶ DINOv3 (frozen) ──────▶ proj ─▶ 1 token ─┐
+이미지 ─▶ DINOv3 (frozen) ──────▶ proj ─▶ 1 token ─┐
                                                   ├─▶ self-attn ─▶ linear ─▶ 22
-text  ─▶ Korean encoder (tuned) ▶ proj ─▶ 1 token ─┘
+텍스트 ─▶ 한국어 인코더 (fine-tune) ▶ proj ─▶ 1 token ─┘
 ```
 
-The pattern images carry little information individually and look alike across the set. Give a decoder many queries under that condition and they search a space where the answers barely differ, so they interfere rather than specialise — the ML-Decoder-style arrangement was working against the data it had. Few queries should behave better, and among the ways to use very few, attention over one token per modality is the smallest arrangement that still forms the output from both distributions at once.
+<!--MINE-->
+문양 이미지는 개별적으로 담고 있는 정보가 적고, 데이터셋 전체에서 서로 비슷하게 생겼다. 그런 조건에서 decoder에 query를 많이 주면 답이 거의 갈리지 않는 공간을 훑게 되므로, query들이 특화되는 대신 서로 간섭한다 - ML-Decoder 식 구성이 자기가 받은 데이터와 반대로 작동하고 있었던 것이다. query가 적으면 더 나을 것이고, 아주 적게 쓰는 방법들 가운데 **모달리티당 토큰 하나에 대한 attention**은 두 분포를 함께 써서 출력을 만드는 가장 작은 구성이다.
+<!--/MINE-->
 
-Concat 0.661 → self-attention 0.677 under identical settings, text encoder frozen in both. Unfreezing the text encoder moved the same architecture to ~0.78, which made **text fine-tuning the one decisive lever** in the project.
+동일 설정에서 concat 0.661 → self-attention 0.677이었고, 두 경우 모두 텍스트 인코더는 frozen이었다. 같은 구조에서 텍스트 인코더를 풀자 약 0.78로 올라갔고, 이로써 **텍스트 fine-tuning이 이 프로젝트의 유일한 결정적 지렛대**가 됐다.
 
-| Image encoder treatment | F1@5 |
+| 이미지 인코더 처리 | F1@5 |
 |---|---|
-| Frozen, off-the-shelf | 0.7767 |
-| Frozen, domain-adapted | 0.7780 |
-| Unfrozen, same LR as text | 0.7744 |
-| Unfrozen, low LR | 0.7758 |
+| frozen, 기성품 그대로 | 0.7767 |
+| frozen, 도메인 적응 | 0.7780 |
+| unfrozen, 텍스트와 같은 LR | 0.7744 |
+| unfrozen, 낮은 LR | 0.7758 |
 
-Four conditions inside 0.4 points. Opening the image backbone buys nothing, so DINOv3 stayed frozen.
+네 조건이 0.4점 안에 있다. 이미지 백본을 여는 것은 아무것도 사주지 않으므로 DINOv3는 frozen으로 뒀다.
 
-### A bug
+### 버그 하나
 
-Late in the project I found that what I called "description-only" text input was in fact description plus all nine metadata fields — a comment in the training script was about which *source* the text came from, and I read it as which *field*. I added an explicit flag and retrained everything. Individual scores moved 0.003–0.005, consistent with the channel measurements above.
+프로젝트 후반에, 내가 "description만 쓴다"고 부르던 텍스트 입력이 실은 description에 메타데이터 9개 필드가 전부 붙은 것이었음을 발견했다 - 학습 스크립트의 주석은 텍스트가 어느 *소스*에서 왔는지에 대한 것이었는데, 나는 그것을 어느 *필드*인지로 읽었다. 명시적인 플래그를 추가하고 전부 재학습했다. 개별 점수는 0.003~0.005 움직였고, 이는 위의 채널 측정과 일관된다.
 
-## Results
+## 결과
 
-### Is the image used?
+### 이미지를 실제로 쓰는가
 
-| Image input | F1@5 | Δ |
+| 이미지 입력 | F1@5 | Δ |
 |---|---|---|
-| **Real features** | **0.7785** | — |
-| Zeroed | 0.7646 | −0.0139 |
-| Shuffled across samples | 0.7709 | −0.0076 |
+| **실제 feature** | **0.7785** | - |
+| 0으로 | 0.7646 | −0.0139 |
+| 샘플 간 뒤섞음 | 0.7709 | −0.0076 |
 
-Run on a single fusion model, before the description-only fix and before the final combination was settled; not repeated on the final ensemble. What it establishes is that a trained fusion model reads the image at inference — the property the design had to satisfy — measured on the same architecture and recipe every ensemble member uses.
+fusion 모델 하나에서, description-only 수정 전에, 최종 조합이 정해지기 전에 돌린 것이다. 최종 앙상블에서는 반복하지 않았다. 이 실험이 확정하는 것은 **학습된 fusion 모델이 추론 시점에 이미지를 읽는다**는 것(설계가 만족해야 했던 성질)이고, 모든 앙상블 구성원이 쓰는 바로 그 구조와 레시피에서 측정됐다.
 
-### Final system
+### 최종 시스템
 
-Five text encoders, each fused with the same frozen DINOv3 features, then ensembled.
+텍스트 인코더 다섯 개를 각각 동일한 frozen DINOv3 feature와 융합한 뒤 앙상블했다.
 
-| Text encoder | F1@5 |
+| 텍스트 인코더 | F1@5 |
 |---|---|
 | kobigbird-bert-base | 0.7861 |
 | klue/roberta-large | 0.7794 |
@@ -114,18 +119,20 @@ Five text encoders, each fused with the same frozen DINOv3 features, then ensemb
 | bert-base-multilingual-cased | 0.7753 |
 | kcbert-large | 0.7682 |
 
-All 63 subsets of six candidates, searched with Dirichlet-weighted random search: four encoders 0.7991, all six 0.7996, and the best five (klue + xlmr + kcbert + mbert + kobigbird) **0.8000**. Swapping one architecturally similar encoder for the structurally distinct kobigbird decided whether the target was met. A fully uniform learning-rate schedule reached 0.7969, so the per-model tuning was necessary rather than convenient.
+후보 6개의 부분집합 63개를 전부, Dirichlet 가중 랜덤서치로 탐색했다. 인코더 4개 0.7991, 6개 전부 0.7996, 그리고 최선의 5개(klue + xlmr + kcbert + mbert + kobigbird)가 **0.8000**이었다. 구조적으로 비슷한 인코더 하나를 구조가 다른 kobigbird로 바꾼 것이 목표 달성 여부를 갈랐다. 학습률을 완전히 균일하게 준 경우는 0.7969였으므로, 모델별 튜닝은 편의가 아니라 필요였다.
 
-### Errors
+### 오차
 
-- No sample missed all five labels; 77.1% got at least four right.
-- Best: *abundant* 0.909, *simple* 0.893, *cute* 0.881. Worst: *mysterious* 0.656, *luxurious* 0.660, *modern* 0.691.
-- Difficulty tracks abstractness, not rarity — one of the rarest labels, *humorous*, scores 0.824, while the far more common *elegant* scores poorly.
-- When uncertain, the model falls back to the two highest-frequency labels.
-- The five ensemble members agree at Jaccard 0.74–0.79, differing at ambiguous boundaries rather than making unrelated predictions.
+- 다섯 개를 전부 놓친 샘플은 한 장도 없고, 77.1%가 최소 네 개를 맞혔다.
+- 최고: *풍성한* 0.909, *단순한* 0.893, *귀여운* 0.881. 최저: *신비한* 0.656, *고급스러운* 0.660, *현대적인* 0.691.
+- 어려움은 희소성이 아니라 추상성을 따라간다 - 가장 드문 축에 속하는 *익살스러운*이 0.824인데, 훨씬 흔한 *우아한*은 낮다.
+- 확신이 없을 때 모델은 최빈 라벨 두 개로 물러선다.
+- 앙상블 다섯은 Jaccard 0.74~0.79로 일치하며, 무관한 예측을 하는 게 아니라 애매한 경계에서 갈린다.
 
-Reading the predictions, part of what the model has learned is not individual labels but label *sets* — which five tend to travel together. Inside a set it recovers even rare labels; a label that the inferred set does not imply is under-predicted no matter how common it is. That places the remaining error on the label definitions rather than on the model: the vocabulary has groupings the annotation never made explicit.
+<!--MINE-->
+예측을 들여다보면, 모델이 학습한 것의 일부는 개별 라벨이 아니라 **라벨 집합**이다 - 어떤 다섯 개가 함께 다니는지다. 집합 안에서는 희소한 라벨도 되찾아내고, 추론된 집합이 함의하지 않는 라벨은 아무리 흔해도 덜 나온다. 이는 남은 오차를 모델이 아니라 **라벨 정의** 쪽에 놓는다. 어휘에 어노테이션이 한 번도 명시하지 않은 묶음이 있는 것이다.
+<!--/MINE-->
 
 ---
 
-All numbers come from one fixed validation split with seed 42 and reproduce within ±0.2 points under bf16 non-determinism. Dataset composition and per-record details are omitted as project material.
+모든 수치는 seed 42로 고정한 하나의 validation split에서 나왔고, bf16 비결정성 아래 ±0.2점 안에서 재현된다. 데이터셋 구성과 레코드별 세부사항은 과제 자료라 생략했다.

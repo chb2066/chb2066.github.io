@@ -15,11 +15,10 @@ draft: false
 ## Abstract
 
 **문제**
-기존 시각 모델은 **미리 정해진 고정 클래스 집합**을 예측하도록 학습됨 → 새 개념을 다루려면 라벨을 새로 붙여야 하고, 일반성과 사용성이 제한됨
+기존 Vision model은 **미리 정해진 class**를 예측하도록 학습됨 → 새 개념을 다루려면 라벨을 새로 붙여야 하고, 일반성과 사용성이 제한됨
 
 **해결책**
 인터넷의 **4억 개 (이미지, 텍스트) 쌍**으로 "어떤 캡션이 어떤 이미지와 짝인지"를 맞히게 학습
-자연어를 클래스 인터페이스로 써서 **학습 없이 분류 대상을 바꿈**
 
 ---
 
@@ -27,11 +26,11 @@ draft: false
 
 ![Figure 1](/img/clip/f1.png)
 
-**요지** — 자연어를 지도 신호로 써서, zero-shot 이미지 분류 성능을 **지도학습으로 훈련한 모델과 견줄 만한 수준**까지 올렸다.
+**요지** - 자연어를 지도 신호로 써서, zero-shot 이미지 분류 성능을 **지도학습으로 훈련한 모델과 견줄 만한 수준**까지 올림
 
-**핵심 두 가지**
-- 이미지에 대한 **보편적 개념**을 학습함
-- **데이터 강건성이 뛰어남** → 환경이 바뀌면 성능이 급격히 떨어지는 기존 지도학습 모델과 달리 감소량이 매우 적음. Vision-Language 모델의 기본 특성
+**핵심**
+- 1. 이미지에 대한 **보편적 개념**을 학습함
+- 2. **데이터 강건성이 뛰어남** → 환경이 바뀌면 성능이 급격히 떨어지는 기존 지도학습 모델과 달리 감소량이 매우 적음. Vision-Language 모델의 기본 특성
 
 ---
 
@@ -39,11 +38,10 @@ draft: false
 
 ### 2.1 Natural Language Supervision
 
-**아이디어** — 자연어에 포함된 지도 신호로부터 인식을 학습한다. 세부 라벨이 아니라 **자연어 자체를 훈련 신호로** 삼는다.
+**아이디어** - 자연어에 포함된 supervised signal을 통한 학습을 진행한다. 세부 라벨이 아니라 **자연어 자체를 training signal로** 삼는다.
 
 **자연어 지도의 강점**
 - 자연어 지도를 확장하는 것이 image classification용 crowd-sourced labeling보다 쉬움
-- 인터넷의 방대한 텍스트로부터 **수동적으로** 학습할 수 있음
 - 단순히 표현을 학습하는 게 아니라 **그 표현을 언어와 연결** → 유연한 zero-shot 전이가 가능
 
 ### 2.2 Creating a Sufficiently Large Dataset
@@ -59,9 +57,9 @@ draft: false
 ![Figure 2](/img/clip/f2.png)
 
 **학습 목표의 세 단계 비교**
-1. **정확한 캡션 단어를 예측** — 가장 직관적이지만 같은 이미지를 설명하는 방법은 무수히 많음 → **bag-of-words 기준선보다 3배 느리게** 학습
-1. **bag-of-words 예측** — 어순을 버리고 어떤 단어가 등장하는지만 맞힘
-1. **contrastive 목표** — 같은 기준선에서 예측을 대조로 바꾸면 **다시 4배의 효율 개선**
+1. **정확한 캡션 단어를 예측** - 가장 직관적이지만 같은 이미지를 설명하는 방법은 무수히 많음 → **bag-of-words 기준선보다 3배 느리게** 학습
+1. **bag-of-words 예측** - 어순을 버리고 어떤 단어가 등장하는지만 맞힘
+1. **contrastive 목표** - 같은 기준선에서 예측을 대조로 바꾸면 **다시 4배의 효율 개선**
 
 즉 **"정확한 단어가 무엇인가"를 버리고 "전체로서 어떤 텍스트가 어떤 이미지와 짝인가"만 남기는 것**이 핵심이다. 어려운 문제를 푸는 대신 쉬운 문제를 대규모로 푼다.
 
@@ -79,15 +77,15 @@ symmetric CE loss = (loss_i + loss_t) / 2
 
 **기타 설정**
 - 사전 훈련 데이터 대부분이 단일 문장이므로 단일 문장 샘플링 함수를 제거
-- augmentation 최소화 — random resize crop 정도만
+- augmentation 최소화 - random resize crop 정도만
 - softmax의 logit 범위를 제어하는 temperature τ 를 수동 설정에서 **학습 가능하게** 변경
 
 ### 2.4 Choosing and Scaling a Model
 
-**Image encoder — ResNet-50 계열 개조**
-1. **antialiased rect-2 blur pooling** — 7×7 conv의 max pooling을 blur pooling으로. 부드럽게 만든 뒤 max pooling
-1. **ResNet-D의 일부 구조** — stride=2 conv를 avg pooling으로 교체
-1. 마지막 층의 **Global Average Pooling을 attention pooling으로 교체** — 평균으로 눌러 flatten하던 구조에서, 특정 부분에 attention하고 학습 가능한 파라미터로 최적화하는 구조로
+**Image encoder - ResNet-50 계열 개조**
+1. **antialiased rect-2 blur pooling** - 7×7 conv의 max pooling을 blur pooling으로. 부드럽게 만든 뒤 max pooling
+1. **ResNet-D의 일부 구조** - stride=2 conv를 avg pooling으로 교체
+1. 마지막 층의 **Global Average Pooling을 attention pooling으로 교체** - 평균으로 눌러 flatten하던 구조에서, 특정 부분에 attention하고 학습 가능한 파라미터로 최적화하는 구조로
 1. EfficientNet의 아이디어로 채널 수·레이어 수·resolution을 **최적 비율로 함께** 키움
 
 ```python
@@ -104,7 +102,7 @@ x = projection_to_embed(x)   # [batch, embed_dim]
 
 ![그림](/img/clip/01.png)
 
-**Image encoder — ViT**
+**Image encoder - ViT**
 - 기본 ViT 를 그대로 쓰되 patch·position embedding 앞에 layer normalization 추가, 초기화 방식만 가볍게 변경
 - 여기도 EfficientNet 방식으로 스케일링
 
@@ -122,10 +120,10 @@ zero-shot 성능을 실제로 끌어올린 요소이고, 논문이 별도 절로
 
 ![Figure 4](/img/clip/f4.png)
 
-- **클래스 이름만 쓸 때의 문제** — `{label}` 하나만 넣으면 성능이 낮음. 학습 데이터의 텍스트는 대부분 문장인데 추론 시엔 단어 하나만 들어가 **분포가 어긋남**
-- **기본 템플릿** — `"A photo of a {label}."` 이 좋은 기본값
-- **도메인 정보 추가** — 반려동물 분류라면 `"A photo of a {label}, a type of pet."` 처럼 카테고리를 명시해 후보 공간을 좁힘
-- **Ensembling** — `"A photo of a big {label}"`, `"A photo of a small {label}"` 같이 서로 다른 템플릿으로 만든 분류기를 결합
+- **클래스 이름만 쓸 때의 문제** - `{label}` 하나만 넣으면 성능이 낮음. 학습 데이터의 텍스트는 대부분 문장인데 추론 시엔 단어 하나만 들어가 **분포가 어긋남**
+- **기본 템플릿** - `"A photo of a {label}."` 이 좋은 기본값
+- **도메인 정보 추가** - 반려동물 분류라면 `"A photo of a {label}, a type of pet."` 처럼 카테고리를 명시해 후보 공간을 좁힘
+- **Ensembling** - `"A photo of a big {label}"`, `"A photo of a small {label}"` 같이 서로 다른 템플릿으로 만든 분류기를 결합
 
 **둘을 함께 쓰면 zero-shot 성능이 유의미하게 오른다.** 모델을 바꾸지 않고 얻는 이득이다.
 

@@ -4,10 +4,10 @@ import { getCollection } from 'astro:content';
 const items = (await getCollection('projects')).filter(e => !e.data.draft)
   .sort((a,b) => b.data.date - a.data.date);
 ---
-<Doc title="Project Notes — Hyunbin Choi" description="What I tried, what failed, and why I changed direction.">
+<Doc title="Project Notes - Hyunbin Choi" description="What I tried, what failed, and why I changed direction.">
   <h1 class="h-page rv">Project Notes</h1>
   <p class="sub rv rv-1" style="margin-top:12px">
-    Process over results — what I tried, what failed, and what changed my mind.
+    Process over results - what I tried, what failed, and what changed my mind.
   </p>
   <section class="sect">
     {items.length ? (

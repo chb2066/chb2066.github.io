@@ -51,18 +51,18 @@ data augmentation을 적극 사용하고, 경계에 가중치를 주는 weight m
 
 Encoder에서 전역적 문맥을 학습하고, Decoder에서 해상도와 경계를 복원한다.
 
-**Encoder — Contraction Path (다운샘플링)**
+**Encoder - Contraction Path (다운샘플링)**
 1. Conv 3×3 + ReLU 2번
 1. Max pool 2×2
 
-**Decoder — Expanding Path (업샘플링)**
+**Decoder - Expanding Path (업샘플링)**
 1. feature map을 2×2 up-conv로 업샘플링
-1. **skip connection** — 다운샘플링에서 나온 feature map을 업샘플링된 것에 concat
+1. **skip connection** - 다운샘플링에서 나온 feature map을 업샘플링된 것에 concat
    - 두 이미지 크기가 다르므로 업샘플링된 쪽에 패딩을 더해 맞춤
 1. Conv 3×3 + ReLU 2번. 첫 conv에서 채널 수를 맞춰 세부 정보 복원
 1. 1×1 Convolution으로 최종 클래스 개수만큼 채널 수 조정
 
-**Output** — softmax로 픽셀 단위 확률값을 출력
+**Output** - softmax로 픽셀 단위 확률값을 출력
 
 ### Skip connection이 필요한 이유
 
@@ -107,7 +107,7 @@ Encoder에서 전역적 문맥을 학습하고, Decoder에서 해상도와 경�
 ### 3.1 Data Augmentation
 
 - 데이터가 적으므로 augmentation이 선택이 아니라 필수
-- 특히 **elastic deformation** — 조직이 변형되는 실제 양상을 흉내 내는 변형이라 이 도메인에서 값이 큼
+- 특히 **elastic deformation** - 조직이 변형되는 실제 양상을 흉내 내는 변형이라 이 도메인에서 값이 큼
 
 ---
 
@@ -117,7 +117,7 @@ Encoder에서 전역적 문맥을 학습하고, Decoder에서 해상도와 경�
 
 ![Table 2](/img/unet/t2.png)
 
-- **ISBI 세포 추적 챌린지 2015 우승** — 두 개 범주 모두에서 큰 격차
+- **ISBI 세포 추적 챌린지 2015 우승** - 두 개 범주 모두에서 큰 격차
 - 전자현미경 스택의 신경 구조 분할에서 당시 최고 성능
 - **NVidia Titan GPU에서 512×512 이미지 분할에 1초 미만**
 
@@ -131,7 +131,7 @@ U-Net에서 가져갈 것은 "**다운샘플링에서 잃는 것을 옆길로 �
 
 깊이가 깊어질수록 의미는 풍부해지지만 위치는 사라진다. 이 상충을 해결하는 방법은 두 정보를 **다른 경로로 전달해서 나중에 합치는 것**이다. 하나의 경로로 모두 전달하려 하면 어느 쪽이든 손해를 본다.
 
-이 구조는 의료 영상을 훨씬 넘어서 퍼졌다. 그리고 diffusion 모델의 백본으로도 오래 쓰였다 — DiT가 그걸 Transformer로 교체하기 전까지.
+이 구조는 의료 영상을 훨씬 넘어서 퍼졌다. 그리고 diffusion 모델의 백본으로도 오래 쓰였다 - DiT가 그걸 Transformer로 교체하기 전까지.
 
 다만 옮길 때 주의할 점이 있다. **인코더 특징이 디코더에 유용한 형태여야 한다.** 도메인이 다르면 skip이 오히려 잡음을 넘겨주는 통로가 된다.
 

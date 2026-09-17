@@ -1,7 +1,7 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
 
 /* ------------------------------------------------------------------
-   tokens — shadcn/ui 계열. 배경은 흰색, 구분은 테두리로.
+   tokens - shadcn/ui 계열. 배경은 흰색, 구분은 테두리로.
 ------------------------------------------------------------------ */
 :root{
   --background:#ffffff;
@@ -96,7 +96,7 @@ kbd{
 @media(max-width:860px){.toplinks{display:none}.kbtn{min-width:0}.kbtn .sp,.kbtn kbd{display:none}}
 
 /* ------------------------------------------------------------------
-   docs shell — 좌측 사이드바
+   docs shell - 좌측 사이드바
 ------------------------------------------------------------------ */
 .shell{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:grid;grid-template-columns:232px minmax(0,1fr);gap:48px;align-items:start}
 .shell.with-toc{grid-template-columns:232px minmax(0,1fr) 208px}
@@ -136,7 +136,7 @@ h1,h2,h3,h4{letter-spacing:-.024em;line-height:1.25;font-weight:600;color:var(--
 .num{font-family:var(--mono);font-size:12px;color:var(--subtle);font-variant-numeric:tabular-nums}
 
 /* ------------------------------------------------------------------
-   badge / button — shadcn 형태
+   badge / button - shadcn 형태
 ------------------------------------------------------------------ */
 .badge{
   display:inline-flex;align-items:center;gap:5px;
@@ -176,7 +176,7 @@ a.badge:hover{background:var(--muted);color:var(--foreground)}
 .sect-head a{font-size:13px;color:var(--muted-foreground);transition:color .15s}
 .sect-head a:hover{color:var(--brand)}
 
-/* 목록 행 — 카드가 아니라 구분선으로 나눈 리스트 */
+/* 목록 행 - 카드가 아니라 구분선으로 나눈 리스트 */
 .rows{border-top:1px solid var(--border)}
 .row{
   display:block;padding:18px 14px;border-bottom:1px solid var(--border);
@@ -303,7 +303,7 @@ a.badge:hover{background:var(--muted);color:var(--foreground)}
 .toc a.d3{padding-left:22px}
 
 /* ------------------------------------------------------------------
-   motion — 진입 리빌 / 페이지 전환
+   motion - 진입 리빌 / 페이지 전환
 ------------------------------------------------------------------ */
 @keyframes rise{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 .rv{animation:rise .55s cubic-bezier(.2,.75,.3,1) both}

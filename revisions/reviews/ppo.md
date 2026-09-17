@@ -5,7 +5,7 @@
 - 이 글은 PPO 부분. 원본의 「PPO 알고리즘」 절과, 그 앞의 「POLICY란?」 절을 가져왔다.
   policy 가 무엇을 가리키는지는 PPO 를 읽을 때 필요한 배경이라 여기 두는 게 맞다
 - 그림은 /img/rlhf/01.png, 02.png 를 그대로 참조한다 (파일을 옮기지 않았다)
-- 「배경 지식」 신설 — PPO 가 TRPO 의 무엇을 대체했는지. 원본은 clipping 만 언급했다
+- 「배경 지식」 신설 - PPO 가 TRPO 의 무엇을 대체했는지. 원본은 clipping 만 언급했다
 - clipped surrogate objective 를 식으로 명시
 - 오타 수정: "PRO algorithm" → "PPO algorithm"
 - 끝맺음을 평서형으로 통일
@@ -40,10 +40,10 @@ draft: true
 
 Transformer 기반 정책이라면 갱신되는 것은 다음과 같다.
 
-- **Self-Attention 가중치 (Q, K, V 행렬)** — query, key, value의 가중치가 갱신됨.
-- **Feed-Forward 가중치** — FFN에서 GELU 같은 비선형 함수로 사라지는 값을 조절할 수 있음. 가중치를 더하거나 빼서 특정 성질에 대한 벡터값이 바뀌면, 역전파를 통해 중요도에 따른 제외나 강조가 가능해짐.
-- **Layer Normalization 파라미터** — 각 feature에 대한 정규화를 통해 위와 같이 특징별 중요도 조절이 가능해짐.
-- **Positional Embedding** — 토큰 단위로 위치가 임베딩돼 있다고 하면, 각 토큰의 임베딩이 더 관련 있는 토큰과 가까워지도록 조정됨. 의미론적 표현이 증대됨.
+- **Self-Attention 가중치 (Q, K, V 행렬)** - query, key, value의 가중치가 갱신됨.
+- **Feed-Forward 가중치** - FFN에서 GELU 같은 비선형 함수로 사라지는 값을 조절할 수 있음. 가중치를 더하거나 빼서 특정 성질에 대한 벡터값이 바뀌면, 역전파를 통해 중요도에 따른 제외나 강조가 가능해짐.
+- **Layer Normalization 파라미터** - 각 feature에 대한 정규화를 통해 위와 같이 특징별 중요도 조절이 가능해짐.
+- **Positional Embedding** - 토큰 단위로 위치가 임베딩돼 있다고 하면, 각 토큰의 임베딩이 더 관련 있는 토큰과 가까워지도록 조정됨. 의미론적 표현이 증대됨.
 
 즉 "정책을 갱신한다"는 것은 이 파라미터들을 **보상을 최대화하는 방향으로** 조금씩 움직이는 것이다.
 
@@ -67,7 +67,7 @@ TRPO는 이를 KL 발산에 대한 제약으로 풀었는데, 2차 최적화가 
 
 ## PPO 알고리즘
 
-### 핵심 — clipped surrogate objective
+### 핵심 - clipped surrogate objective
 
 정책 비율을 `r(θ) = π_θ(a|s) / π_old(a|s)` 로 두면, 목적함수는 이렇게 된다.
 

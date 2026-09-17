@@ -27,8 +27,8 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 ## 1. Introduction
 
 **기존 생성 방식**
-- **DDPM** — 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성
-- **VAE** — latent space로 압축했다가 복원. 평균과 표준편차를 다룸
+- **DDPM** - 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성
+- **VAE** - latent space로 압축했다가 복원. 평균과 표준편차를 다룸
 
 **이 논문의 질문**
 - diffusion에서 U-Net을 Transformer로 바꾸면 어떻게 되는가
@@ -62,7 +62,7 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 - 여기서 **patch size `p` 가 설계 다이얼** → `p` 가 작을수록 토큰 시퀀스가 길어지고 Gflops가 늘어남
 - 논문은 `p ∈ {2, 4, 8}` 을 비교 → **작은 패치가 일관되게 더 낮은 FID**
 
-**DiT Block** — adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)를 쓴다.
+**DiT Block** - adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)를 쓴다.
 
 *기존 방식*
 - Layer norm은 γ, β 로 한 이미지 내의 채널을 정규화
@@ -85,7 +85,7 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 - unpatchify로 재배치
 - conv로 최종 출력 → VAE latent `z` 의 예상 noise
 
-**조건 주입 방식 비교** — 논문이 실제로 비교한 것은 **네 가지**다.
+**조건 주입 방식 비교** - 논문이 실제로 비교한 것은 **네 가지**다.
 
 ![Figure 5](/img/dit/f5.png)
 
@@ -112,7 +112,7 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 
 ## 4. Experimental Setup
 
-**모델 구성** — ViT 설정을 따라 층 수, hidden size, head 수를 함께 키운다.
+**모델 구성** - ViT 설정을 따라 층 수, hidden size, head 수를 함께 키운다.
 
 | 모델 | Layers | Hidden size | Heads | Gflops (I=32, p=4) |
 |---|---|---|---|---|
@@ -124,8 +124,8 @@ latent 공간에서 동작하는 **Transformer 백본(DiT)** 을 만들고, 조�
 patch size와 조합하면 **0.3에서 118.6 Gflops까지** 커버한다.
 
 **학습과 생성**
-- **학습** — 실제 노이즈와 DiT의 예측 noise 차이로 학습
-- **생성** — DiT가 낸 noise를 latent `z` 에서 빼고 VAE decoder에 넣어 이미지 출력
+- **학습** - 실제 노이즈와 DiT의 예측 noise 차이로 학습
+- **생성** - DiT가 낸 noise를 latent `z` 에서 빼고 VAE decoder에 넣어 이미지 출력
 
 **Classifier-Free Guidance**
 - 조건(class label `c`)이 있는 예측과 없는 예측을 각각 구해 **그 차이를 증폭**하는 방향으로 노이즈 예측을 보정

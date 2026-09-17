@@ -8,9 +8,9 @@
     각각을 감싸는 residual + LayerNorm 을 명시적으로 서술했다.
     FFN 은 d_model=512 → d_ff=2048 → 512 의 두 선형 변환에 ReLU 를 끼운 것이고,
     각 sub-layer 는 LayerNorm(x + Sublayer(x)) 형태다
-- 「전체 구조」 신설 — encoder/decoder 각 6층, d_model=512. 원본에 층 수가 없어서
+- 「전체 구조」 신설 - encoder/decoder 각 6층, d_model=512. 원본에 층 수가 없어서
   "여러 개의 Self-Attention 레이어" 로만 서술돼 있었다
-- 「실험에서 확인된 것」 신설 — WMT2014 En-De 28.4 BLEU, En-Fr 41.8 BLEU,
+- 「실험에서 확인된 것」 신설 - WMT2014 En-De 28.4 BLEU, En-Fr 41.8 BLEU,
   8 GPU 3.5일. 원본에 결과가 아예 없었다
 - 오타 수정: "ther mat" → "the mat"
 - 끝맺음을 평서형으로 통일
@@ -40,7 +40,7 @@ draft: true
 1. 순환 구조를 제거하고 self-attention만으로 시퀀스를 처리해 학습 병렬화함.
 2. positional encoding으로 순서 정보를 별도 주입하고, multi-head로 서로 다른 관계를 동시에 포착함.
 
-## 사전 개념 — attention
+## 사전 개념 - attention
 
 ![그림 1](/img/attention-is-all-you-need/01.png)
 
@@ -48,7 +48,7 @@ draft: true
 
 이렇게 만들어진, **높은 attention score에 정보가 곱해진 벡터**로 다양한 태스크를 수행한다.
 
-### 예시 1 — 긍정/부정 분류기
+### 예시 1 - 긍정/부정 분류기
 
 ```text
 "I really love this movie. It was amazing!"
@@ -56,7 +56,7 @@ draft: true
 
 **"love", "amazing" 같은 단어**에 높은 가중치를 주고 "긍정적"으로 분류한다.
 
-### 예시 2 — 질의응답
+### 예시 2 - 질의응답
 
 ```text
 질문: "Where was Albert Einstein born?"
@@ -76,9 +76,9 @@ draft: true
 
 ### Positional Encoding
 
-*필요한 이유* — Transformer는 단어를 한 번에 병렬 처리하므로 **단어 간 순서 정보가 사라진다.**
+*필요한 이유* - Transformer는 단어를 한 번에 병렬 처리하므로 **단어 간 순서 정보가 사라진다.**
 
-*방식* — 토큰에 위치 정보 값을 더한다.
+*방식* - 토큰에 위치 정보 값을 더한다.
 
 ![그림 2](/img/attention-is-all-you-need/02.png)
 
@@ -104,11 +104,11 @@ query와 key를 내적해 각 단어별 중요도를 확률로 변환한다.
 
 encoder는 **동일한 층 6개를 쌓은 구조**다. 그리고 각 층은 **두 개의 sub-layer**로 이루어진다.
 
-### sub-layer 1 — Multi-Head Self-Attention
+### sub-layer 1 - Multi-Head Self-Attention
 
 위에서 설명한 self-attention이다.
 
-### sub-layer 2 — Position-wise Feed-Forward Network
+### sub-layer 2 - Position-wise Feed-Forward Network
 
 attention sub-layer에 더해, 각 층은 완전연결 feed-forward 네트워크를 갖는다. 이 네트워크는 **각 위치에 대해 개별적으로, 그리고 동일하게** 적용된다. 단어들을 각각 독립적인 벡터로 변형하는 것이다.
 
@@ -127,7 +127,7 @@ FFN(x) = max(0, x·W₁ + b₁)·W₂ + b₂
 
 **차원을 4배로 확장했다가 ReLU로 불필요한 정보를 날리고 다시 축소**하는 구조다. 중요한 정보를 강조하는 효과가 있다.
 
-### 두 sub-layer를 감싸는 것 — residual + LayerNorm
+### 두 sub-layer를 감싸는 것 - residual + LayerNorm
 
 각 sub-layer의 출력은 그대로 다음으로 가지 않는다. **입력을 더하고 정규화한다.**
 
@@ -152,7 +152,7 @@ residual 연결을 쓰기 위해 **모델의 모든 sub-layer와 임베딩 층�
 
 Masked Self-Attention과 Cross-Attention이 순서대로 진행된다. decoder도 6층이고, encoder의 두 sub-layer에 **encoder 출력에 대한 attention을 수행하는 세 번째 sub-layer**가 추가된다.
 
-예시: `[start] i am a student [EOS]` — `[start]` 기준으로 따라가 본다.
+예시: `[start] i am a student [EOS]` - `[start]` 기준으로 따라가 본다.
 
 ### 1. Masked Self-Attention
 
@@ -233,8 +233,8 @@ WMT 2014 기계 번역 태스크 기준이다.
 
 | 태스크 | BLEU |
 |---|---|
-| English → German | **28.4** — 기존 최고 성능(앙상블 포함)을 2 BLEU 이상 상회 |
-| English → French | **41.8** — 단일 모델 최고 성능 |
+| English → German | **28.4** - 기존 최고 성능(앙상블 포함)을 2 BLEU 이상 상회 |
+| English → French | **41.8** - 단일 모델 최고 성능 |
 
 English→French 모델은 **GPU 8장으로 3.5일** 학습했다. 당시 최고 모델들의 학습 비용에 비하면 아주 작은 부분이다.
 

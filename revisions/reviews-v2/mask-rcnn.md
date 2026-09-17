@@ -32,8 +32,8 @@ Faster R-CNN에 마스크 예측 branch를 **병렬로** 붙이고, RoIPool의 �
 - Faster R-CNN(anchor box 기반 two-stage 검출기)의 classification·bounding box regression에 더해, **픽셀 단위 존재 여부를 예측하는 branch를 병렬로 추가**
 
 **기존 semantic segmentation과의 차이**
-- **기존** — segmentation을 먼저 하고 classification. 존재 여부를 먼저 예측하고 클래스를 구분 → **같은 클래스의 개별 객체를 구분할 수 없음**
-- **Mask R-CNN** — 클래스와 bounding box를 먼저 예측하고, 그 박스 안에서 픽셀별 존재 여부를 예측. 객체를 먼저 구분(염소 1, 염소 2) → **instance segmentation**
+- **기존** - segmentation을 먼저 하고 classification. 존재 여부를 먼저 예측하고 클래스를 구분 → **같은 클래스의 개별 객체를 구분할 수 없음**
+- **Mask R-CNN** - 클래스와 bounding box를 먼저 예측하고, 그 박스 안에서 픽셀별 존재 여부를 예측. 객체를 먼저 구분(염소 1, 염소 2) → **instance segmentation**
 
 ![그림](/img/mask-rcnn/02.png)
 
@@ -46,7 +46,7 @@ Faster R-CNN에 마스크 예측 branch를 **병렬로** 붙이고, RoIPool의 �
 
 ## 2. Related Work
 
-**RoI Pooling과 그 문제** — FC Layer를 쓰기 위해 크기를 고정하는 과정
+**RoI Pooling과 그 문제** - FC Layer를 쓰기 위해 크기를 고정하는 과정
 
 1. 후보 영역 좌표를 feature map의 정수 좌표로 변환 → `[x/s]` 로 stride로 나누고 내림. 예: `[4/2.5] = [1.6] = 1`
 1. 후보 영역을 일정 개수의 셀(spatial bin)로 나눔 → 이때도 가장 가까운 정수로 변환
@@ -73,9 +73,9 @@ Faster R-CNN에 마스크 예측 branch를 **병렬로** 붙이고, RoIPool의 �
 - classification branch에서 정해진 클래스의 마스크만 최종 선택
 - 논문은 이 분리가 **필수적**(essential)이라고 명시 → 클래스별로 경쟁시키면(softmax) 성능이 떨어짐
 
-**Lmask** — 최종 선택된 클래스의 마스크에만 픽셀 단위 sigmoid를 적용하고 **binary cross-entropy**로 정의
+**Lmask** - 최종 선택된 클래스의 마스크에만 픽셀 단위 sigmoid를 적용하고 **binary cross-entropy**로 정의
 
-**전체 손실** — classification + box regression + mask 세 항의 합
+**전체 손실** - classification + box regression + mask 세 항의 합
 
 ![그림](/img/mask-rcnn/03.png)
 
@@ -89,7 +89,7 @@ Faster R-CNN에 마스크 예측 branch를 **병렬로** 붙이고, RoIPool의 �
 
 ![Figure 3](/img/mask-rcnn/f3.png)
 
-**필요한 이유** — pixel-to-pixel 마스크 예측에서는 공간 정렬이 정확히 유지돼야 하는데, RoIPool은 정수 변환을 거침
+**필요한 이유** - pixel-to-pixel 마스크 예측에서는 공간 정렬이 정확히 유지돼야 하는데, RoIPool은 정수 변환을 거침
 
 **핵심 아이디어**
 1. **RoI 경계와 bin의 양자화 제거** → `[x/16]` 대신 `x/16` 을 그대로
@@ -110,8 +110,8 @@ Faster R-CNN에 마스크 예측 branch를 **병렬로** 붙이고, RoIPool의 �
 - 기존 CNN은 깊은 층 feature만 써서 해상도가 낮음 → **작은 객체를 놓침**
 
 **FPN의 핵심 아이디어**
-- **top-down path** — 상위 계층을 upsampling해 해상도를 높임
-- **lateral connection** — upsampling된 특징과 하위 계층을 결합해 위치 정보를 살림
+- **top-down path** - 상위 계층을 upsampling해 해상도를 높임
+- **lateral connection** - upsampling된 특징과 하위 계층을 결합해 위치 정보를 살림
 
 1. ResNet 각 stage에서 feature map `C2`, `C3`, `C4`, `C5` 추출
 1. `C5` 부터 아래로 내려오며 결합
@@ -124,8 +124,8 @@ Faster R-CNN에 마스크 예측 branch를 **병렬로** 붙이고, RoIPool의 �
 
 **Network Head**
 - RoIAlign 이후 classification과 mask 예측이 동시에 진행
-- **Mask Branch** — 각 클래스별 독립적인 마스크 예측
-- **Classification Branch** — 객체 클래스 확정 → 그 클래스에 맞는 마스크를 최종 선택
+- **Mask Branch** - 각 클래스별 독립적인 마스크 예측
+- **Classification Branch** - 객체 클래스 확정 → 그 클래스에 맞는 마스크를 최종 선택
 
 ---
 

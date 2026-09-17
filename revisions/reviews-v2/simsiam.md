@@ -15,7 +15,7 @@ draft: true
 ## Abstract
 
 **문제**
-Siamese 구조의 SSL 은 **붕괴**(collapse)를 막기 위해 방법마다 장치를 하나씩 달고 있었음 — negative sample, 메모리 뱅크, 클러스터링 제약, 모멘텀 인코더
+Siamese 구조의 SSL 은 **붕괴**(collapse)를 막기 위해 방법마다 장치를 하나씩 달고 있었음 - negative sample, 메모리 뱅크, 클러스터링 제약, 모멘텀 인코더
 그런데 **그중 무엇이 실제로 필요한지**는 검증된 적이 없음
 
 **해결책**
@@ -38,7 +38,7 @@ Siamese 구조의 SSL 은 **붕괴**(collapse)를 막기 위해 방법마다 장
 | SwAV | **클러스터링 제약** (Sinkhorn 균등 배분) |
 | BYOL | **모멘텀 인코더(EMA)** + predictor + stop-gradient |
 
-**이 논문의 질문** — 그렇다면 **정말로 필요한 것은 무엇인가.** 하나씩 제거해보면 무엇이 남는가.
+**이 논문의 질문** - 그렇다면 **정말로 필요한 것은 무엇인가.** 하나씩 제거해보면 무엇이 남는가.
 
 ---
 
@@ -49,8 +49,8 @@ Siamese 구조의 SSL 은 **붕괴**(collapse)를 막기 위해 방법마다 장
 SimSiam 은 BYOL 과 비슷하게 stop-gradient 를 쓰는 구조지만, **두 branch 의 파라미터가 완전히 동일하다.** 사실상 **EMA만 제거한 것**이다.
 
 **남은 것은 두 개뿐**
-- **predictor** — 한쪽 branch 에만 붙는 MLP
-- **stop-gradient** — 반대쪽 branch 로는 기울기를 보내지 않음
+- **predictor** - 한쪽 branch 에만 붙는 MLP
+- **stop-gradient** - 반대쪽 branch 로는 기울기를 보내지 않음
 
 negative sample 도, 메모리 뱅크도, 클러스터링도, 모멘텀 인코더도 없다.
 
@@ -59,7 +59,7 @@ negative sample 도, 메모리 뱅크도, 클러스터링도, 모멘텀 인코�
 - 두 view 가 **같은 encoder** `f`(backbone + projection MLP)를 통과
 - 한쪽만 predictor `h` 를 추가로 통과
 
-**Loss — negative cosine similarity**
+**Loss - negative cosine similarity**
 ```text
 D(p, z) = -(p/||p||₂) · (z/||z||₂)
 
@@ -91,14 +91,14 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 
 ![Table 1](/img/simsiam/t1.png)
 
-- **predictor 를 제거하면 역시 붕괴** — 두 branch 가 완전히 대칭이 되면 자명한 해로 수렴함
+- **predictor 를 제거하면 역시 붕괴** - 두 branch 가 완전히 대칭이 되면 자명한 해로 수렴함
 - predictor 를 **고정된 랜덤 초기화로 두면** 학습이 수렴하지 않음 → 학습되는 predictor 여야 함
 - predictor 의 학습률을 **감쇠시키지 않는 편**이 오히려 나음
 
 ### 4.3 Batch Size
 
 - 배치 64 ~ 4096 전 구간에서 안정적으로 학습
-- **배치 크기 의존이 낮음** — SimCLR 처럼 큰 배치가 필요하지 않음. negative sample 을 쓰지 않기 때문
+- **배치 크기 의존이 낮음** - SimCLR 처럼 큰 배치가 필요하지 않음. negative sample 을 쓰지 않기 때문
 
 ### 4.4 Batch Normalization
 
@@ -108,7 +108,7 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 ### 4.5 Similarity Function · 4.6 Symmetrization
 
 - cosine similarity 를 cross-entropy 형태로 바꿔도 동작 → **붕괴 방지가 특정 loss 형태에 의존하지 않음**
-- 대칭화는 성능을 올리지만 **붕괴 방지와는 무관** — 비대칭 버전도 무너지지 않음
+- 대칭화는 성능을 올리지만 **붕괴 방지와는 무관** - 비대칭 버전도 무너지지 않음
 
 ### 4.7 Summary
 
@@ -127,8 +127,8 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 
 이렇게 보면 stop-gradient 는 자연스럽다. 한쪽을 고정한 채 다른 쪽을 최적화하는 **EM 알고리즘의 구조와 같아지기** 때문이다. predictor 는 그 최적화 과정에서 기대값을 근사하는 역할을 한다.
 
-- **5.2 Proof of concept** — 교대 최적화를 명시적으로 구현해도 비슷하게 동작함을 확인
-- **5.3 Discussion** — 가설이고 완전한 증명은 아니지만, 실험 결과와 일관된 설명을 줌
+- **5.2 Proof of concept** - 교대 최적화를 명시적으로 구현해도 비슷하게 동작함을 확인
+- **5.3 Discussion** - 가설이고 완전한 증명은 아니지만, 실험 결과와 일관된 설명을 줌
 
 **남는 의문 하나**
 
@@ -156,7 +156,7 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 
 SimSiam의 값어치는 새 방법을 제안한 게 아니라 **무엇이 불필요했는지 밝힌 것**에 있다.
 
-negative sample, 메모리 뱅크, 클러스터링, 모멘텀 인코더 — 이들이 전부 붕괴 방지를 위해 도입됐다고 여겨졌는데, 하나씩 빼보니 **stop-gradient와 predictor만 있으면 됐다.**
+negative sample, 메모리 뱅크, 클러스터링, 모멘텀 인코더 - 이들이 전부 붕괴 방지를 위해 도입됐다고 여겨졌는데, 하나씩 빼보니 **stop-gradient와 predictor만 있으면 됐다.**
 
 여기서 옮겨갈 만한 것은 방법이 아니라 **태도**다. 여러 장치가 함께 쓰이고 있을 때, 각각이 정말 필요한지는 따로 확인해야 안다. 관행적으로 함께 쓰이던 것들이 사실은 한 가지 이유를 중복해서 다루고 있을 수 있다.
 

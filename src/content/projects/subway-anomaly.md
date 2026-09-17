@@ -1,80 +1,81 @@
 ---
-title: Building a training set for scenes you cannot film
-summary: The system had to work in three environments. We could only film in one and a half of them. What closed the gap was not more footage — it was more kinds of footage, and a label definition we could actually apply twice.
-context: Hanbat National University AiRLab
-period: 2026.05 – 2026.07
-role: Data construction, training, error analysis
+title: 찍을 수 없는 장면의 학습셋 만들기
+summary: 시스템은 세 환경에서 동작해야 했는데 촬영할 수 있는 곳은 한 곳 반뿐이었다. 간극을 메운 것은 더 많은 영상이 아니라 더 여러 종류의 영상, 그리고 두 번 적용해도 같게 나오는 라벨 정의였다.
+context: 한밭대학교 AiRLab
+period: 2026.05 ~ 2026.07
+role: 데이터 구축, 학습, 오류 분석
 stack: PyTorch, object detection
 tags: [Object Detection, Data-Centric, Video]
 date: 2026-07-31
+draft: false
 ---
 
 ## Setup
 
-Detect situations that need attention in a subway station, split across two detectors.
+지하철 역사에서 주의가 필요한 상황을 검출한다. 검출기 둘로 나눴다.
 
-| Detector | Classes | Why grouped |
+| 검출기 | 클래스 | 묶은 이유 |
 |---|---|---|
-| People | fallen, crouching | Both are body-posture judgements on a person |
-| Fire | flame, smoke | Both are fire evidence, and smoke often appears without visible flame |
+| 사람 | 쓰러짐, 웅크림 | 둘 다 사람의 자세에 대한 판단이다 |
+| 화재 | 불꽃, 연기 | 둘 다 화재의 증거이고, 불꽃 없이 연기만 보이는 경우가 많다 |
 
-Two models rather than one four-class model, because the two groups are different kinds of visual evidence. A posture is a person in an unusual configuration; smoke has no shape to speak of. Asking one detector to hold both classes of concept together buys nothing when the classes never co-occur in a way that needs joint reasoning.
+4클래스 모델 하나가 아니라 모델 둘로 간 이유는, 두 묶음이 서로 다른 종류의 시각적 증거이기 때문이다. 자세는 사람이 평소와 다른 형태를 하고 있는 것이고, 연기는 형태랄 것이 없다. 함께 추론해야 할 방식으로 같이 나타나지도 않는 두 개념을 검출기 하나에 붙들어두는 건 얻는 게 없다.
 
-No public dataset covered these targets in this setting, so the training set had to be built.
+이 환경에서 이 대상을 다루는 공개 데이터셋이 없었으므로 학습셋을 만들어야 했다.
 
-## The constraint that shaped everything
+## 모든 걸 결정한 제약
 
-The brief asked for one thing that turned out to drive the whole project: the system had to work **inside a subway station, inside a lab, and inside the research institute**.
+요구사항 중 하나가 결국 프로젝트 전체를 좌우했다. 시스템이 **지하철 역사 안, 연구실 안, 연구소 안**에서 동작해야 했다.
 
-We could film in an auditorium, and in the institute. That is it.
+우리가 촬영할 수 있는 곳은 강당, 그리고 연구소. 그게 전부였다.
 
-So two of the three required environments were places we could not record in, and one of them — the subway station — was the primary deployment target. The question stopped being "can we detect a fallen person" and became **"can a model trained where we can film work where we cannot."**
+요구된 세 환경 중 둘이 녹화할 수 없는 곳이었고, 그중 하나인 지하철 역사가 주된 배포 대상이었다. 질문이 "쓰러진 사람을 검출할 수 있는가"에서 **"촬영할 수 있는 곳에서 학습한 모델이 촬영할 수 없는 곳에서 동작할 수 있는가"**로 바뀌었다.
 
-## First pass, and why it wasn't enough
+## 1차, 그리고 왜 부족했나
 
-We filmed, labelled, trained. Two problems surfaced together.
+찍고, 라벨링하고, 학습시켰다. 문제가 둘 같이 떠올랐다.
 
-**Not enough data.** Expected, and the easy one to state.
+**데이터가 부족했다.** 예상됐고, 말하기 쉬운 쪽이다.
 
-**The label criteria would not survive contact with a second annotator — or with the same annotator on a second day.** Two boundaries in particular:
+**라벨 기준이 두 번째 작업자를 만나면(혹은 같은 작업자가 다음 날 다시 보면)버티지 못할 상태였다.** 특히 경계 둘이 그랬다.
 
-- *Crouching* — where does it start? A person tying a shoelace, sitting low on their heels, leaning down to pick something up. Some are the target and some are not, and the first pass had no line written down.
-- *Smoke* — where does it end? Smoke has no edge. Thin haze at the frame margin either is or is not part of the instance, and the answer changed from clip to clip.
+- *웅크림* - 어디서부터인가. 신발끈을 묶는 사람, 뒤꿈치에 낮게 앉은 사람, 물건을 주우려고 몸을 숙인 사람. 어떤 건 대상이고 어떤 건 아닌데, 1차에는 그 선이 적혀 있지 않았다.
+- *연기* - 어디까지인가. 연기에는 가장자리랄 것이 없다. 화면 구석의 옅은 연무가 그 인스턴스에 포함되는지 아닌지는 클립마다 답이 달라졌다.
 
-The second problem is the worse one, because it is invisible in the loss. An inconsistent boundary does not look like a bug; it looks like a hard example the model has not learned yet.
+두 번째가 더 나쁘다. loss에 드러나지 않기 때문이다. 흔들리는 경계는 버그처럼 보이지 않고, 모델이 아직 배우지 못한 어려운 예제처럼 보인다.
 
-## Second pass
+## 2차
 
-Three changes, and only one of them is about volume.
+세 가지를 바꿨고, 그중 수량에 관한 것은 하나뿐이다.
 
-**Pin down the labels first.** Write the boundary for crouching and for smoke, then apply it uniformly — including relabelling what already existed. Everything downstream depends on the target meaning the same thing in every clip.
+**라벨부터 못 박았다.** 웅크림과 연기의 경계를 적고, 이미 있던 것까지 다시 라벨링해서 균일하게 적용했다. 뒤에 오는 모든 것이 타깃이 모든 클립에서 같은 뜻이라는 데 의존한다.
 
-**Bring in outside footage and label it ourselves.** AI Hub has relevant video. Taking it under *our* label definition rather than its original one kept the set consistent instead of stapling two annotation conventions together.
+**외부 영상을 가져와 우리가 직접 라벨링했다.** AI Hub에 관련 영상이 있다. 원래 라벨 정의가 아니라 *우리* 정의로 받아들이는 편이, 두 어노테이션 관행을 이어붙이는 것보다 일관성을 지킨다.
 
-**Widen the environments, not just the count.** Filming moved to the auditorium *and outside the auditorium*, plus several additional locations. The point was not more frames — it was more backgrounds, lighting conditions, and camera geometries per target class.
+**수가 아니라 환경을 넓혔다.** 촬영을 강당 *그리고 강당 밖*으로 옮기고 장소를 몇 곳 더 늘렸다. 요점은 프레임 수가 아니라 클래스당 배경, 조명 조건, 카메라 기하의 가짓수였다.
 
-## The result that mattered
+## 중요했던 결과
 
-After the second pass, the detectors worked well **in lab environments that appeared in neither the training nor the validation set**.
+2차 이후, 검출기가 **train에도 validation에도 없던 연구실 환경**에서 잘 동작했다.
 
-That is the part worth keeping. Not that performance improved — that it improved *in an environment the model had never seen*, which is precisely what the brief demanded and precisely what we could not film. Generalisation to the unreachable environments came from environment variety in what we could reach, not from volume, and not from anything about the architecture.
+남길 만한 건 이 부분이다. 성능이 올랐다는 게 아니라, *모델이 본 적 없는 환경에서* 올랐다는 것. 그게 정확히 요구사항이 요구한 것이자 우리가 촬영할 수 없었던 것이다. 닿을 수 없는 환경으로의 일반화는 닿을 수 있는 곳에서 확보한 환경 다양성에서 나왔지, 수량에서 나오지 않았고 아키텍처와는 무관했다.
 
-The label work was the enabler rather than the cause. With an inconsistent boundary, adding environments adds noise; the model cannot tell "new background" from "annotator changed their mind." The definitions had to be fixed before diversity could pay.
+라벨 작업은 원인이라기보다 전제였다. 경계가 흔들리는 상태에서 환경을 늘리면 잡음이 늘어난다. 모델이 "새로운 배경"과 "작업자가 마음을 바꿨다"를 구분할 수 없기 때문이다. 정의가 먼저 고정돼야 다양성이 값을 한다.
 
-## Stationary light sources
+## 고정 광원
 
-The fire detector had a specific and persistent false positive: lamps, signage, and other fixed bright sources read as flame. Colour and texture put them close to fire, and a single frame carries nothing that separates them.
+화재 검출기에는 구체적이고 끈질긴 오탐이 있었다. 조명, 간판, 그 밖의 고정된 밝은 광원이 불꽃으로 읽혔다. 색과 질감이 불에 가깝고, 한 프레임에는 둘을 가를 정보가 없다.
 
-Motion does. Fire moves — it flickers, spreads, and changes shape frame to frame. A ceiling light does not change at all. Comparing across frames instead of judging each one alone separates the two cleanly, and it works regardless of how convincingly a given lamp resembles flame in a still image.
+움직임에는 있다. 불은 움직인다 - 흔들리고, 번지고, 프레임마다 형태가 바뀐다. 천장 조명은 전혀 변하지 않는다. 각 프레임을 따로 판단하는 대신 프레임 사이를 비교하면 둘이 깨끗하게 갈리고, 정지 화면에서 어떤 조명이 불과 얼마나 닮았든 상관없이 통한다.
 
-The general form is worth writing down: when a false positive is indistinguishable in the representation you are using, the fix is often a different representation rather than a better model on the same one. Here the missing axis was time, and it was free — the input was already video.
+일반화해서 적어둘 만하다. **오탐이 지금 쓰는 표현에서 구분 불가능하면, 해법은 같은 표현 위의 더 나은 모델이 아니라 다른 표현인 경우가 많다.** 여기서 빠져 있던 축은 시간이었고, 그건 공짜였다. 입력이 이미 영상이었으니까.
 
-## What I take from it
+## 여기서 가져갈 것
 
-The instinct when a model underperforms on self-collected data is to collect more of it. Both real levers here were something else: making the label mean one thing, and covering more *kinds* of scene rather than more scenes. More footage of the same auditorium would not have produced detection in a lab.
+직접 모은 데이터에서 모델이 부진하면 더 모으고 싶어진다. 여기서 실제로 작동한 지렛대는 둘 다 다른 것이었다. **라벨이 한 가지 뜻을 갖게 만드는 것**, 그리고 더 많은 장면이 아니라 더 많은 *종류의* 장면을 덮는 것. 같은 강당을 더 찍었다면 연구실에서의 검출은 나오지 않았을 것이다.
 
-And the light-source fix is the same lesson as the fire/posture split at the top — match the representation to what actually distinguishes the classes. A still frame cannot separate flame from a lamp, and no amount of training on still frames will change that.
+광원 해법도 맨 앞의 화재/자세 분리와 같은 교훈이다 - **표현을 클래스를 실제로 가르는 것에 맞춰라.** 정지 프레임은 불꽃과 조명을 가를 수 없고, 정지 프레임으로 아무리 학습해도 그건 바뀌지 않는다.
 
 ---
 
-Numbers are omitted as project material. Written from the process rather than the results.
+수치는 과제 자료라 넣지 않았다. 결과가 아니라 과정으로 썼다.

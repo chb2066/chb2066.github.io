@@ -1,12 +1,12 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/dit.md)
 - 원본의 "fc없이 출" 처럼 끊긴 문장 완성
-- 「조건 주입 방식 비교」 신설 — 논문이 실제로 비교한 네 가지(in-context, cross-attention,
+- 「조건 주입 방식 비교」 신설 - 논문이 실제로 비교한 네 가지(in-context, cross-attention,
   adaLN, adaLN-Zero)와 각각의 Gflops 비용. 원본은 adaLN-Zero만 설명해서
   "왜 그걸 골랐는가"가 빠져 있었다
-- 「스케일링」 신설 — 이 논문의 제목이 Scalable 인 이유. 모델 4종 구성표(Table 1),
+- 「스케일링」 신설 - 이 논문의 제목이 Scalable 인 이유. 모델 4종 구성표(Table 1),
   patch size가 토큰 수를 정하는 구조, Gflops와 FID의 관계
-- 결과 수치 보강 — ImageNet 256×256 FID 2.27
+- 결과 수치 보강 - ImageNet 256×256 FID 2.27
 - adaLN-Zero 의 zero-init 근거(ResNet의 identity 초기화 계보) 보강
 - 끝맺음을 평서형으로 통일
 - 원본의 adaLN-Zero 메커니즘 서술과 CFG 관찰은 그대로 유지
@@ -38,12 +38,12 @@ draft: false
 
 ### 기존 생성 방식
 
-- **DDPM** — 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성함.
-- **VAE** — latent space로 압축했다가 복원하며 이미지를 생성함. 평균과 표준편차를 다룸.
+- **DDPM** - 노이즈를 점진적으로 더하고 그 역과정을 복원하며 이미지를 생성함.
+- **VAE** - latent space로 압축했다가 복원하며 이미지를 생성함. 평균과 표준편차를 다룸.
 
 ### 이 논문의 질문
 
-diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transformer는 다른 분야에서 **뛰어난 스케일링 특성**을 보여줬다. 그래서 묻는다 — diffusion에서 U-Net을 Transformer로 바꾸면 어떻게 되는가. 그리고 그 스케일링 특성이 따라오는가.
+diffusion 모델의 백본은 관행적으로 U-Net이었다. 그런데 Transformer는 다른 분야에서 **뛰어난 스케일링 특성**을 보여줬다. 그래서 묻는다 - diffusion에서 U-Net을 Transformer로 바꾸면 어떻게 되는가. 그리고 그 스케일링 특성이 따라오는가.
 
 ## 전체 흐름
 
@@ -111,13 +111,13 @@ ResNet 계열에서 각 residual block을 항등함수로 초기화하는 게 �
 
 DiT는 같은 것을 한다. **MLP가 모든 스케일 파라미터에 대해 zero-vector를 출력하도록 초기화해서, DiT 블록 전체가 처음에 항등함수가 되게** 만든다.
 
-**adaLN 계열의 제약 하나** — 세 가지 블록 설계 중 adaLN만이 **모든 토큰에 같은 함수를 적용하도록 제한**된다. 조건이 공간적으로 균일하게 작용한다는 뜻이다. 클래스 label처럼 전역적인 조건에는 맞지만, 위치마다 다른 조건을 줘야 한다면 이 방식은 부적합하다.
+**adaLN 계열의 제약 하나** - 세 가지 블록 설계 중 adaLN만이 **모든 토큰에 같은 함수를 적용하도록 제한**된다. 조건이 공간적으로 균일하게 작용한다는 뜻이다. 클래스 label처럼 전역적인 조건에는 맞지만, 위치마다 다른 조건을 줘야 한다면 이 방식은 부적합하다.
 
 ## 스케일링
 
 이 논문의 제목이 *Scalable*인 이유가 여기 있다.
 
-**모델 구성** — ViT의 설정을 따라 층 수, hidden size, head 수를 함께 키운다.
+**모델 구성** - ViT의 설정을 따라 층 수, hidden size, head 수를 함께 키운다.
 
 | 모델 | Layers | Hidden size | Heads | Gflops (I=32, p=4) |
 |---|---|---|---|---|
@@ -128,14 +128,14 @@ DiT는 같은 것을 한다. **MLP가 모든 스케일 파라미터에 대해 ze
 
 patch size와 조합하면 **0.3에서 118.6 Gflops까지** 커버한다.
 
-**핵심 관찰** — 모델 Gflops가 늘면 FID가 꾸준히 내려간다. 모델을 키우는 것과 패치를 줄이는 것 **양쪽 모두** 효과가 있고, 둘 다 결국 "토큰당 연산량을 늘리는" 같은 방향이다.
+**핵심 관찰** - 모델 Gflops가 늘면 FID가 꾸준히 내려간다. 모델을 키우는 것과 패치를 줄이는 것 **양쪽 모두** 효과가 있고, 둘 다 결국 "토큰당 연산량을 늘리는" 같은 방향이다.
 
-**결과** — 가장 큰 DiT-XL/2는 기존 U-Net 기반 diffusion 모델(ADM, LDM)을 전부 앞서면서 연산 효율도 좋다. ImageNet 256×256 클래스 조건부 생성에서 **FID 2.27**로 당시 최고 성능이다.
+**결과** - 가장 큰 DiT-XL/2는 기존 U-Net 기반 diffusion 모델(ADM, LDM)을 전부 앞서면서 연산 효율도 좋다. ImageNet 256×256 클래스 조건부 생성에서 **FID 2.27**로 당시 최고 성능이다.
 
 ## 학습과 생성
 
-- **학습** — 실제 노이즈와 DiT의 예측 noise 차이로 학습함.
-- **생성** — DiT가 낸 noise를 latent `z`에서 빼고 VAE decoder에 넣어 이미지를 출력함.
+- **학습** - 실제 노이즈와 DiT의 예측 noise 차이로 학습함.
+- **생성** - DiT가 낸 noise를 latent `z`에서 빼고 VAE decoder에 넣어 이미지를 출력함.
 
 ### Classifier-Free Guidance
 

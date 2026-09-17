@@ -3,13 +3,13 @@
 - 원본이 25편 중 가장 짧았다(883자). 논문에서 보강이 가장 많이 필요했다
 - 원본에서 teacher / online 용어가 뒤섞여 있었다. 논문 용어인
   online network / target network 로 통일하고, 어느 쪽에 predictor 가 붙는지를 명확히 했다
-  (원본: "teacher는 predictor가 없고 Projection한 logit을 online으로 보냄" — 방향이 모호)
-- 「왜 붕괴하지 않는가」를 논문 근거로 확장 — 원본은 "EMA 로 천천히 업데이트하기 때문"
+  (원본: "teacher는 predictor가 없고 Projection한 logit을 online으로 보냄" - 방향이 모호)
+- 「왜 붕괴하지 않는가」를 논문 근거로 확장 - 원본은 "EMA 로 천천히 업데이트하기 때문"
   한 줄이었다. 실제로는 predictor + stop-gradient 의 비대칭이 함께 작용하고,
   논문은 이를 "target 이 online 을 따라오는 부트스트랩"으로 설명한다
 - 「구조」에 projection head 와 predictor 의 위치를 명시. 원본의 서술만으로는
   어느 지점에서 loss 를 계산하는지 알기 어려웠다
-- 「실험에서 확인된 것」 신설 — ImageNet linear 74.3%(ResNet-50), 배치 크기와
+- 「실험에서 확인된 것」 신설 - ImageNet linear 74.3%(ResNet-50), 배치 크기와
   augmentation 선택에 대한 강건성. 원본에 결과가 없었다
 - 끝맺음을 평서형으로 통일
 - 2차 개정 (사용자가 직접 고친 OpenVLA 수정본의 편집 방향을 반영):
@@ -38,7 +38,7 @@ draft: true
 
 ## 배경 지식
 
-기존 contrastive learning — MoCo, SimCLR 등 — 은 **negative pair와 positive pair를 모두 사용**해서 학습했다. 같은 것은 가깝게, 다른 것은 멀게 만드는 방식이다.
+기존 contrastive learning(MoCo, SimCLR 등)은 **negative pair와 positive pair를 모두 사용**해서 학습했다. 같은 것은 가깝게, 다른 것은 멀게 만드는 방식이다.
 
 여기서 negative sample이 하는 일은 붕괴 방지다. negative sample이 없으면 모든 표현을 같은 값으로 만드는 자명한 해가 생긴다.
 
@@ -50,8 +50,8 @@ draft: true
 
 ### 두 네트워크
 
-- **online network** — 학습 대상임. encoder → projection head → **predictor**로 이어짐.
-- **target network** — encoder → projection head까지만 있고 **predictor가 없음.**
+- **online network** - 학습 대상임. encoder → projection head → **predictor**로 이어짐.
+- **target network** - encoder → projection head까지만 있고 **predictor가 없음.**
 
 동일한 이미지를 다르게 augmentation한 두 view에 대해 학습한다.
 
@@ -73,8 +73,8 @@ MSE를 쓴다. 정확히는 정규화된 두 벡터의 평균제곱오차이고,
 
 ### 갱신 방식
 
-- **online network** — loss로 역전파해서 학습함. target의 분포와 최대한 가까워지는 방향으로 움직임.
-- **target network** — 역전파하지 않음. **online network의 파라미터를 EMA로 따라감.**
+- **online network** - loss로 역전파해서 학습함. target의 분포와 최대한 가까워지는 방향으로 움직임.
+- **target network** - 역전파하지 않음. **online network의 파라미터를 EMA로 따라감.**
 
 ```text
 ξ ← τ·ξ + (1 − τ)·θ

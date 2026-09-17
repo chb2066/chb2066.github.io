@@ -17,7 +17,7 @@ export async function getStaticPaths() {
 }
 const { tag, items } = Astro.props;
 ---
-<Doc title={`${tag} — Hyunbin Choi`}>
+<Doc title={`${tag} - Hyunbin Choi`}>
   <div class="badge badge-brand rv">Tag</div>
   <h1 class="h-page rv rv-1" style="margin-top:12px">{tag}</h1>
   <p class="sub rv rv-2" style="margin-top:10px">{items.length} {items.length === 1 ? "entry" : "entries"} on this topic.</p>

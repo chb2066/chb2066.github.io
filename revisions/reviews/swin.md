@@ -1,11 +1,11 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/swin.md)
 - i-jepa 형식으로 재배치. Related Work 를 「배경 지식」 앞쪽으로 옮겨 흐름을 맞춤
-- 복잡도 식을 텍스트로 명시 — 원본은 그림에 의존해서 "H*W 제곱에 비례"라고만 적혀 있었다.
+- 복잡도 식을 텍스트로 명시 - 원본은 그림에 의존해서 "H*W 제곱에 비례"라고만 적혀 있었다.
   Ω(MSA)=4hwC²+2(hw)²C, Ω(W-MSA)=4hwC²+2M²hwC 를 적고 어느 항이 문제인지 표시
-- cyclic shift 를 padding 방식과 비교 — 논문 Table 5 에서 cyclic 이 더 빠르다는 근거.
+- cyclic shift 를 padding 방식과 비교 - 논문 Table 5 에서 cyclic 이 더 빠르다는 근거.
   원본은 cyclic 만 설명해서 "왜 굳이 복잡하게" 가 빠져 있었다
-- 「실험에서 확인된 것」을 실제 수치로 교체 — ImageNet 87.3%, COCO 58.7 box AP /
+- 「실험에서 확인된 것」을 실제 수치로 교체 - ImageNet 87.3%, COCO 58.7 box AP /
   51.1 mask AP, ADE20K 53.5 mIoU, 그리고 당시 SOTA 대비 향상 폭
 - 끝맺음을 평서형으로 통일
 - 원본의 「핵심」 3항목(연산량이 줄어 hidden node 를 키울 수 있다는 관찰)은 그대로 유지
@@ -64,9 +64,9 @@ draft: false
 
 ### 선행 연구와의 관계
 
-- **conv layer를 self-attention으로 대체한 시도** — 로컬 윈도우에서 self-attention을 수행해 성능은 올랐지만 지연 문제가 생겼음. Swin은 shifted window로 이를 해결함.
-- **CNN에 self-attention이나 Transformer를 추가하는 방식** — self-attention이 CNN 백본이나 헤드에 결합되어 장거리 의존성과 이질적 상호작용을 효과적으로 인코딩함.
-- **ViT가 가장 가깝다** — 패치를 겹치지 않게 나눠 토큰으로 쓰고 Transformer 구조를 그대로 이미지 분류에 적용했음. 다만 **고해상도 입력과 세밀한 특징에는 한계**가 있음.
+- **conv layer를 self-attention으로 대체한 시도** - 로컬 윈도우에서 self-attention을 수행해 성능은 올랐지만 지연 문제가 생겼음. Swin은 shifted window로 이를 해결함.
+- **CNN에 self-attention이나 Transformer를 추가하는 방식** - self-attention이 CNN 백본이나 헤드에 결합되어 장거리 의존성과 이질적 상호작용을 효과적으로 인코딩함.
+- **ViT가 가장 가깝다** - 패치를 겹치지 않게 나눠 토큰으로 쓰고 Transformer 구조를 그대로 이미지 분류에 적용했음. 다만 **고해상도 입력과 세밀한 특징에는 한계**가 있음.
 
 ## Swin의 주요 특징
 
@@ -125,8 +125,8 @@ Stage 1에서 입력 RGB 이미지를 ViT와 비슷하게 겹치지 않는 작�
 
 윈도우를 밀면 경계에서 크기가 안 맞는 조각이 생긴다. 이걸 처리하는 방법이 두 가지다.
 
-- **padding** — 부족한 부분을 채움. 구현은 단순하지만 윈도우 수가 늘어남.
-- **cyclic shift** — 좌상단 방향으로 순환 이동시킴. **윈도우 수가 그대로 유지됨.**
+- **padding** - 부족한 부분을 채움. 구현은 단순하지만 윈도우 수가 늘어남.
+- **cyclic shift** - 좌상단 방향으로 순환 이동시킴. **윈도우 수가 그대로 유지됨.**
 
 논문은 cyclic shift를 쓴다. 다만 이렇게 하면 원래 인접하지 않던 영역이 한 윈도우 안에 들어오므로, **다른 윈도우에 있던 패치끼리 attention하지 않도록 masking을 적용**한다. A끼리, B끼리, C끼리만 계산된다. 이후 reverse cyclic shift로 위치 왜곡을 복원한다.
 
@@ -149,9 +149,9 @@ self-attention 계산 시 상대위치 임베딩을 쓴다. 이미지에서는 �
 
 ## 실험에서 확인된 것
 
-- **ImageNet-1K 분류 — top-1 87.3%**
-- **COCO 검출 — 58.7 box AP, 51.1 mask AP** (test-dev)
-- **ADE20K 분할 — 53.5 mIoU** (val)
+- **ImageNet-1K 분류 - top-1 87.3%**
+- **COCO 검출 - 58.7 box AP, 51.1 mask AP** (test-dev)
+- **ADE20K 분할 - 53.5 mIoU** (val)
 
 당시 최고 성능 대비 **COCO에서 +2.7 box AP, +2.6 mask AP, ADE20K에서 +3.2 mIoU**다. 분류에서의 우위보다 **dense prediction에서의 격차가 훨씬 크다**는 게 중요하다. 계층적 구조와 고해상도 처리 능력이 실제로 그 태스크에서 값을 한다는 뜻이다.
 
@@ -159,8 +159,8 @@ self-attention 계산 시 상대위치 임베딩을 쓴다. 이미지에서는 �
 
 Swin이 한 일은 **ViT에서 버렸던 CNN의 두 가지 귀납 편향을 되돌려 놓은 것**이다.
 
-- **국소성** — 윈도우 안에서만 attention 수행.
-- **계층 구조** — 깊어질수록 해상도 축소, 채널 확대.
+- **국소성** - 윈도우 안에서만 attention 수행.
+- **계층 구조** - 깊어질수록 해상도 축소, 채널 확대.
 
 그러면서도 윈도우를 미는 것만으로 전역 연결을 확보한다. 비용은 선형인데 표현력은 유지된다.
 

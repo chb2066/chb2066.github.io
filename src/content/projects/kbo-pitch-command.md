@@ -1,99 +1,100 @@
 ---
-title: Pitch command prediction across a season boundary
-summary: Offline gains and leaderboard gains came apart. Rather than guess which was real, I measured the transfer rate of each kind of change and discounted accordingly.
-context: LG Aimers 9th / DACON competition
-period: 2026.08 – 2026.09
-role: Experiment design and implementation
+title: 시즌 경계를 넘는 투구 제구 예측
+summary: 오프라인 개선과 리더보드 개선이 어긋났다. 둘 중 어느 쪽이 진짜인지 추측하는 대신, 변경 종류마다 경계를 건너는 비율을 재서 그만큼 할인해 반영했다.
+context: LG Aimers 9기 / DACON 대회
+period: 2026.08 ~ 2026.09
+role: 실험 설계 및 구현
 stack: Python, CatBoost, NumPy, pandas
 tags: [Tabular, Distribution Shift, Calibration]
 date: 2026-09-02
+draft: false
 ---
 
 ## Setup
 
-For a single pitch, predict the probability that the pitcher hits his spot — using only information available *before* the ball is thrown. Scored by Brier Skill Score × 1e5 against a constant-0.5 baseline.
+투구 하나에 대해, **공을 던지기 전에 알 수 있는 정보만으로** 투수가 원하는 곳에 넣을 확률을 예측한다. 상수 0.5 기준의 Brier Skill Score × 1e5로 채점한다.
 
-Train on 2019–2024 seasons. Predict **2025**. That sentence is the whole problem: train and evaluation sit on opposite sides of a season boundary, and a structure that fits beautifully inside a season may not survive crossing one.
+2019~2024 시즌으로 학습하고 **2025**를 예측한다. 이 문장이 문제의 전부다. 학습과 평가가 시즌 경계를 사이에 두고 나뉘어 있고, 시즌 안에서 훌륭하게 맞는 구조가 경계를 건너면 살아남지 못할 수 있다.
 
-Final: **1146.91**, 97th of 2,403 participants.
+최종 **1146.91**, 2,403명 중 97위.
 
-## The gap that defined the project
+## 프로젝트를 규정한 간극
 
-Early on, offline validation and the leaderboard stopped agreeing. An improvement worth +90 on the 2024 fold moved the leaderboard by −6.
+초반에 오프라인 검증과 리더보드가 어긋나기 시작했다. 2024 fold에서 +90짜리 개선이 리더보드를 −6 움직였다.
 
-The usual response is to trust one and distrust the other. Instead I spent four submissions measuring how much each *kind* of change carries across the boundary.
+보통은 둘 중 하나를 믿고 하나를 버린다. 대신 제출 네 번을 써서 **각 종류의 변경이 경계를 얼마나 건너는지** 측정했다.
 
-| What was changed | Offline → leaderboard transfer |
+| 무엇을 바꿨나 | 오프라인 → 리더보드 전이 |
 |---|---|
-| Within-season cell structure — frozen tables keyed on pitcher × handedness, pitcher × count | **0% or negative** |
-| Structure and regime — recoding the futures-league flag, a team-level regime indicator | ~90% |
-| Learning objective, ensembling, calibration | ~90% |
+| 시즌 내 셀 구조 - 투수 × 좌우, 투수 × 카운트로 키를 잡은 동결표 | **0% 또는 음수** |
+| 구조와 체제 - 퓨처스 플래그 재코딩, 팀 수준 체제 지시자 | ~90% |
+| 학습 목표, 앙상블, 보정 | ~90% |
 
-After that, offline gains were read through the axis they came from rather than at face value. That single habit is what the project is actually about.
+이후로는 오프라인 이득을 액면 그대로가 아니라 그것이 나온 축을 통해 읽었다. 이 습관 하나가 사실상 이 프로젝트의 내용이다.
 
-## Why cell structure doesn't transfer
+## 왜 셀 구조는 전이되지 않는가
 
-The tempting quantity, when hunting for group effects the model missed, is
+모델이 놓친 집단 효과를 찾을 때 손이 가는 값은 이것이다.
 
 ```
 gain = 4e5 × Σ wᵍ · bᵍ²
 ```
 
-the score you would recover by perfectly removing each group's mean residual. It is easy to compute and almost entirely noise, because the groups were chosen using the same fold's labels that then score them.
+각 집단의 평균 잔차를 완전히 지웠을 때 회수할 점수다. 계산하기 쉽고 거의 전부가 잡음이다. 집단을 고를 때 쓴 정답으로 그 집단을 다시 채점하기 때문이다.
 
-Measuring three things per axis instead of one makes the problem visible.
+축마다 하나가 아니라 셋을 재면 문제가 보인다.
 
-| Axis | Within-season split-half | Across-season | Same-fold bound | Actually transfers |
+| 축 | 시즌 내 반분 | 시즌 간 | 같은 fold 상한 | 실제 전이 |
 |---|---:|---:|---:|---:|
-| Pitcher team × batter team | **0.686** | **−0.059** | 157.2 | **0.0** |
-| Pitcher team × month | 0.626 | −0.171 | 93.3 | **0.0** |
-| Pitcher ID | 0.410 | 0.026 | 37.2 | **0.0** |
+| 투수팀 × 타자팀 | **0.686** | **−0.059** | 157.2 | **0.0** |
+| 투수팀 × 월 | 0.626 | −0.171 | 93.3 | **0.0** |
+| 투수 ID | 0.410 | 0.026 | 37.2 | **0.0** |
 
-The first column is a positive control: the effect is real and reproducible *inside* a season. The second says it does not survive the boundary. A 157-point bound next to a −0.059 across-season correlation is a measurement of noise, not an opportunity.
+첫 열은 양성 대조다. 효과가 실재하고 시즌 *안에서는* 재현된다. 둘째 열은 그것이 경계를 넘지 못한다고 말한다. 157점짜리 상한 옆에 −0.059의 시즌 간 상관이 있다면, 그건 기회가 아니라 잡음의 측정치다.
 
-The scale check is worth stating plainly. At n ≈ 2,500 per cell the standard error of a mean residual is √(0.25/2500) = 0.010. A filter of "same sign in both folds and |bias| ≥ 0.005 in each" passes **about 19% of pure noise** — 19 hits out of 100 cells, all spurious.
+규모 점검은 그냥 적어두는 게 낫다. 셀당 n ≈ 2,500이면 평균 잔차의 표준오차가 √(0.25/2500) = 0.010이다. "두 fold에서 부호가 같고 각각 |편향| ≥ 0.005"라는 필터는 **순수 잡음의 약 19%를 통과시킨다** - 100개 셀이면 19개, 전부 헛것이다.
 
-## What did transfer
+## 전이된 것
 
-The largest single gain, +33.7 offline at roughly 90% transfer, came from one team indicator.
+가장 큰 단일 이득은 오프라인 +33.7에 전이율 약 90%였고, 팀 지시자 하나에서 나왔다.
 
-Not because that team's outcomes were unusual — because its *composition* was. It played 38.1% futures-league games where other teams played 3–10%, an order of magnitude apart, and futures-league success rate collapsed from 0.70 to 0.47 in April 2023. A "this team" × "post-change regime" interaction separated that contamination from everything else.
+그 팀의 결과가 유별나서가 아니라 **구성**이 유별나서였다. 다른 팀이 3~10%인 퓨처스 경기를 38.1% 치러서 자릿수가 달랐고, 퓨처스 성공률은 2023년 4월에 0.70에서 0.47로 무너졌다. "이 팀이다" × "체제 변경 이후다" 교호항이 그 오염을 나머지에서 분리했다.
 
-Running the same logic across the data found nothing more at team level, but one more at pitcher level: pitchers with a high share of futures-league appearances carry a two-regime average in their history features, so the model systematically overpredicts them.
+같은 논리를 데이터 전체에 돌렸다. 팀 수준에서는 더 없었지만 투수 수준에서 하나 더 나왔다. 퓨처스 출장 비율이 높은 투수는 이력 피처에 두 체제가 섞인 평균을 갖고 있어서, 모델이 그들을 체계적으로 과대예측한다.
 
-| Futures share | 0 | 0–5% | 5–20% | 20–50% | 50–80% | >80% |
+| 퓨처스 비율 | 0 | 0-5% | 5-20% | 20-50% | 50-80% | >80% |
 |---|---:|---:|---:|---:|---:|---:|
-| 2023 fold residual | −0.0015 | +0.0039 | +0.0065 | −0.0020 | −0.0100 | −0.0172 |
-| 2024 fold residual | +0.0027 | +0.0041 | +0.0026 | −0.0033 | −0.0115 | −0.0075 |
+| 2023 fold 잔차 | −0.0015 | +0.0039 | +0.0065 | −0.0020 | −0.0100 | −0.0172 |
+| 2024 fold 잔차 | +0.0027 | +0.0041 | +0.0026 | −0.0033 | −0.0115 | −0.0075 |
 
-The decisive split: restricted to regular-season rows the across-season correlation is 0.233 and even flips sign; restricted to futures-league rows it is **0.804**. It was never a regular-season signal. All 12 variants of the correction were positive on both folds.
+결정적인 분리는 이것이다. 정규리그 행만 보면 시즌 간 상관이 0.233이고 부호까지 뒤집히는데, 퓨처스 행만 보면 **0.804**다. 애초에 정규리그 신호가 아니었다. 이 보정의 변형 12개가 전부 두 fold에서 양수였다.
 
-## Knowing when to stop
+## 언제 멈출지 아는 법
 
-Before searching for more ensemble weight, I asked how much was left to find. Taking 18 stored candidates and solving for the best non-negative convex combination *with access to the fold labels* — an oracle, not a deployable model — gives an upper bound on reweighting.
+앙상블 가중치를 더 찾기 전에, 남은 게 얼마인지부터 물었다. 저장된 후보 18개를 놓고 **fold 정답을 볼 수 있게 한 상태로** 최적 비음수 convex 조합을 구하면(배포용이 아니라 oracle이다)재가중의 상한이 나온다.
 
 ```
-oracle 1032.7   ·   current 1031.6   ·   headroom +1.1   ·   Frank-Wolfe gap 3.6e-08
+oracle 1032.7   ·   현재 1031.6   ·   여유 +1.1   ·   Frank-Wolfe gap 3.6e-08
 ```
 
-Cheating with the answers is worth 1.1 points. The ensemble and reweighting axis was closed, and anything further had to come from new row-level signal. This turned out to be the most useful diagnostic in the project — not because it improved the score, but because it stopped work that would not have.
+답을 보고 섞어도 1.1점이다. 앙상블과 재가중 축은 닫혔고, 그 이상은 새로운 행 단위 신호에서만 나올 수 있었다. 이게 프로젝트에서 가장 쓸모 있는 진단이었다. 점수를 올려서가 아니라, **올리지 못했을 작업을 멈춰서**다.
 
-## Calibration without the leaderboard
+## 리더보드 없이 보정하기
 
-The organisers flagged repeated submissions that differ only in a calibration constant as leaderboard probing. So the target-mean constant had to be derived from training data alone.
+주최 측이 보정 상수만 바꿔 반복 제출하는 것을 리더보드 프로빙으로 지목했다. 그래서 목표평균 상수를 학습 데이터만으로 유도해야 했다.
 
-Regular-league and futures-league rates move differently enough that a blended season average is the wrong object. Regular declines monotonically, −0.006 to −0.023 per season (sd 0.008). Futures swings −0.10 / +0.12 / +0.00 / **−0.236** / −0.014. Blending inherits the noise of the 11.8% minority.
+정규리그와 퓨처스는 충분히 다르게 움직여서, 둘을 섞은 시즌 평균은 잘못된 대상이다. 정규리그는 시즌마다 −0.006에서 −0.023으로 단조 감소한다(sd 0.008). 퓨처스는 −0.10 / +0.12 / +0.00 / **−0.236** / −0.014로 널뛴다. 섞으면 11.8%짜리 소수의 잡음을 그대로 물려받는다.
 
-Extrapolating the two separately and remixing at the previous season's row composition, A/B'd under an identical nested procedure: **RMSE 0.01748 → 0.01213**.
+둘을 따로 외삽하고 직전 시즌의 행 구성비로 다시 섞은 뒤, 완전히 동일한 중첩 절차로 A/B했다. **RMSE 0.01748 → 0.01213.**
 
-## What I take from it
+## 여기서 가져갈 것
 
-Two things.
+두 가지다.
 
-First, an offline number is not a scalar — it carries the axis it came from, and the same magnitude means different things depending on that axis. Discounting by measured transfer rate was more valuable than any individual model change.
+첫째, **오프라인 수치는 스칼라가 아니다.** 그것이 나온 축을 함께 지니고 있고, 같은 크기라도 축에 따라 뜻이 다르다. 측정된 전이율로 할인하는 것이 개별 모델 변경 어느 것보다 값어치가 있었다.
 
-Second, the strongest result in the project was a *negative* one. The convex oracle said the ensemble axis was exhausted, which was worth more than the +1.1 it identified, because it redirected the remaining time.
+둘째, 이 프로젝트에서 가장 강한 결과는 **음성 결과**였다. convex oracle이 앙상블 축이 소진됐다고 말해준 것이, 그것이 찾아낸 +1.1보다 값어치가 있었다. 남은 시간의 방향을 바꿔줬기 때문이다.
 
 ---
 
-Code and full experiment log: [lg-aimers-9-kbo-pitch-command](https://github.com/chb2066/lg-aimers-9-kbo-pitch-command). Competition data is not redistributed.
+코드와 전체 실험 기록: [lg-aimers-9-kbo-pitch-command](https://github.com/chb2066/lg-aimers-9-kbo-pitch-command). 대회 데이터는 재배포하지 않는다.

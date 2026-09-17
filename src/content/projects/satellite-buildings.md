@@ -1,94 +1,95 @@
 ---
-title: Building segmentation in satellite imagery
-summary: Three architecturally unrelated models all failed at inference in exactly the same way. The bug was not in any of them — it was in how train and test resolutions were reconciled.
-context: Self-directed study on a past competition dataset
-period: 2026.01 – 2026.02
-role: Everything — analysis, training, inference, error analysis
+title: 위성 이미지 건물 영역 분할
+summary: 구조가 전혀 다른 모델 셋이 추론에서 똑같은 방식으로 실패했다. 문제는 어느 모델에도 없었고, train 과 test 의 해상도를 맞추는 방식에 있었다.
+context: 지난 대회 데이터셋으로 진행한 자습
+period: 2026.01 ~ 2026.02
+role: 분석, 학습, 추론, 오류 분석 전부
 stack: PyTorch, UAGLNet, DINOv2, Prithvi
 tags: [Segmentation, Remote Sensing, Data-Centric]
 date: 2026-02-28
+draft: false
 ---
 
 ## Setup
 
-Segment building footprints in satellite images. Two numbers define the problem before any modelling starts.
+위성 이미지에서 건물 영역을 분할한다. 모델을 고르기 전에 이미 문제를 규정하는 숫자가 둘 있다.
 
 | | Train | Test |
 |---|---|---|
-| Resolution | 1024 × 1024 | **224 × 224** |
-| Count | 7,140 | **60,640** |
+| 해상도 | 1024 × 1024 | **224 × 224** |
+| 수량 | 7,140 | **60,640** |
 
-Train and test are at different resolutions, and the test set is 8.5× larger than the train set. Both facts end up mattering more than the choice of architecture.
+train과 test의 해상도가 다르고, test가 train보다 8.5배 많다. 두 사실 모두 아키텍처 선택보다 중요해진다.
 
-Visual inspection added two more constraints. Buildings sit in mountainous, heavily wooded terrain and are small enough that some are hard to separate from background by eye. And a portion of the training masks are simply wrong.
+육안 확인에서 제약이 둘 더 나왔다. 건물이 산과 수목이 많은 지형에 있고, 크기가 작아서 배경과 눈으로 구분하기 어려운 것들이 섞여 있다. 그리고 학습 마스크 일부는 그냥 틀려 있다.
 
-Given a small, partially mislabelled training set against a huge test set, the obvious first move was to lean on a large pretrained model rather than fit the training data hard.
+작고 일부가 잘못 라벨링된 train 데이터에 비해 test가 거대하므로, 학습 데이터에 세게 맞추기보다 큰 사전학습 모델에 기대는 것이 첫 수순이었다.
 
-## Everything failed the same way
+## 전부 같은 방식으로 실패했다
 
-| Approach | Train IoU | Test |
+| 접근 | Train IoU | Test |
 |---|---|---|
-| DINOv2 frozen + segmentation head | normal | **0.03 – 0.07** |
-| Prithvi frozen + segmentation head | normal | **0.03 – 0.07** |
-| UAGLNet, task-specific, fine-tuned | normal | below baseline |
+| DINOv2 frozen + segmentation head | 정상 | **0.03 - 0.07** |
+| Prithvi frozen + segmentation head | 정상 | **0.03 - 0.07** |
+| UAGLNet, task-specific, fine-tune | 정상 | baseline 이하 |
 
-Two foundation-model pipelines and one task-specific building-extraction network — different pretraining, different architecture families, different heads. Training looked healthy in all three. Inference collapsed in all three, to the same narrow band.
+foundation model 파이프라인 둘과 건물 추출 전용 네트워크 하나 - 사전학습도, 아키텍처 계열도, head도 다르다. 셋 다 학습은 멀쩡해 보였고, 셋 다 추론에서 무너졌다. 그것도 같은 좁은 대역으로.
 
-That pattern is the finding. A model can be wrong. Three unrelated models being wrong *identically* points at something they share, and what they shared was the data path.
+이 패턴이 단서다. 모델 하나가 틀리는 건 그 모델 탓일 수 있다. 서로 무관한 셋이 **똑같이** 틀린다면, 그건 셋이 공유하는 무언가를 가리킨다. 그리고 셋이 공유한 것은 데이터 경로였다.
 
-## The shared mistake
+## 공유하던 실수
 
-Listing what each run did to resolution made it obvious.
+각 실험이 해상도를 어떻게 다뤘는지 적어보니 분명해졌다.
 
-| Model | Train input | Test input |
+| 모델 | Train 입력 | Test 입력 |
 |---|---|---|
-| DINOv2 | resize → 518 | resize → 518, then resize → 224 |
-| Prithvi | resize → 518 | resize → 518, then resize → 224 |
-| UAGLNet | resize → 512 | resize → 512, then resize → 224 |
+| DINOv2 | resize → 518 | resize → 518, 다시 resize → 224 |
+| Prithvi | resize → 518 | resize → 518, 다시 resize → 224 |
+| UAGLNet | resize → 512 | resize → 512, 다시 resize → 224 |
 
-Every run reconciled the 1024/224 gap by **resizing**, and the test path resized twice. For classification that is survivable. For segmentation it is not: the prediction is per-pixel, and each resize resamples the very grid the prediction is defined on. The model was being asked to label pixels that no longer corresponded to the ones it trained on.
+전부 1024/224 간극을 **resize**로 맞췄고, test 경로는 두 번 resize했다. 분류라면 넘어갈 수 있다. segmentation에서는 아니다. 예측이 픽셀 단위이고, resize는 그 예측이 정의된 격자 자체를 다시 샘플링하기 때문이다. 모델은 자기가 학습한 것과 더 이상 대응하지 않는 픽셀에 라벨을 붙이라는 요구를 받고 있었다.
 
-The fix removes resizing from both sides.
+해법은 양쪽에서 resize를 없애는 것이다.
 
-- **Train** — crop 512 × 512 tiles instead of resizing the 1024 image down.
-- **Test** — pad to the working size instead of resizing 224 up and back.
+- **Train** - 1024 이미지를 줄이는 대신 512 × 512 타일로 **자른다**.
+- **Test** - 224를 키웠다 되돌리는 대신 작업 크기까지 **패딩한다**.
 
-Same UAGLNet, same weights, same schedule. **0.03 – 0.07 → 0.65.**
+같은 UAGLNet, 같은 가중치, 같은 스케줄. **0.03 - 0.07 → 0.65.**
 
-Nothing about the model changed. The entire gap was the resolution handling.
+모델에서 바뀐 것은 없다. 격차 전부가 해상도 처리였다.
 
-## Closing the scale gap
+## 스케일 간극 좁히기
 
-0.65 was stable but visibly wrong in one direction: large buildings were caught reliably, small ones were missed. Training on 512 tiles while testing on 224 images means the model learned objects at roughly twice the apparent scale it would meet at inference.
+0.65는 안정적이었지만 한 방향으로 눈에 띄게 틀렸다. 큰 건물은 잘 잡고 작은 건물은 놓쳤다. 512 타일로 학습하고 224 이미지로 테스트한다는 건, 추론에서 만날 겉보기 크기의 약 두 배로 객체를 배웠다는 뜻이다.
 
-So I matched the training patch size to the test image size — 224 × 224 crops, stride 200, giving 5 × 5 = 25 overlapping patches per source image.
+그래서 학습 패치 크기를 test 이미지 크기에 맞췄다 - 224 × 224 크롭, stride 200, 원본 한 장당 5 × 5 = 25개의 겹치는 패치.
 
-This is a trade, not a free win. The pretrained checkpoint was built at 512, so 224 inputs give up some of that transfer. What it buys is that inference needs no resolution adjustment at all — the model sees at test time exactly the geometry it trained on. The second effect was larger.
+공짜가 아니라 교환이다. 사전학습 체크포인트가 512에서 만들어졌으므로 224 입력은 그 전이의 일부를 포기한다. 대신 얻는 것은 **추론에 해상도 조정이 전혀 필요 없다**는 것이다. 모델이 테스트 시점에 학습했던 것과 정확히 같은 기하를 본다. 두 번째 효과가 더 컸다.
 
-Changing the input size meant editing the model definition and the dataset input size, since the released code assumed 512. Batch size went 14 → 56 and learning rate 1e-3 → 4e-3 to recover throughput, increased only as far as segmentation quality held.
+입력 크기를 바꾸려면 모델 정의와 데이터셋 입력 크기를 손봐야 했다. 공개된 코드가 512를 전제하고 있었기 때문이다. 처리량을 회복하려고 batch 14 → 56, learning rate 1e-3 → 4e-3으로 올렸다. segmentation 품질이 유지되는 선까지만 올렸다.
 
-**0.79 at threshold 0.35.**
+**threshold 0.35에서 0.79.**
 
-## Then the data, and mostly it didn't work
+## 그다음은 데이터였고, 대부분 안 통했다
 
-Train IoU reached 0.8896 while the test score sat near 0.80 — close enough that training failures looked like a usable proxy for test failures. Some images stayed wrong for the whole run, so I went after them.
+Train IoU가 0.8896인데 test 점수가 0.80 근처였다. 학습 실패를 test 실패의 대리 지표로 쓸 만큼 가까웠다. 학습 내내 틀린 채로 남는 이미지들이 있어서 그걸 노렸다.
 
-I logged per-patch IoU every epoch and accumulated a failure list across runs, then used it to filter the next run. What came of it:
+매 epoch마다 패치별 IoU를 기록하고 실행 사이에 실패 목록을 누적해서, 다음 실행에서 걸러내는 데 썼다. 결과는 이랬다.
 
-- **Curriculum by failure count** — warm up on never-failed patches, then upweight the ambiguous ones. No gain.
-- **Drop every failing patch** — score fell to 0.797. Removing hard examples removed the signal with them.
-- **Drop the worst 27 images** — the intersection of "model fails here" and "labels look wrong here". Roughly neutral.
+- **실패 횟수 기반 curriculum** - 한 번도 실패하지 않은 패치로 워밍업한 뒤 애매한 것에 가중치를 더 줌. 이득 없음.
+- **실패하는 패치 전부 제거** - 0.797로 떨어짐. 어려운 예제를 없애면서 신호도 같이 없앤 것이다.
+- **최악의 27장 제거** - "모델이 여기서 실패한다"와 "라벨이 이상해 보인다"의 교집합. 대체로 중립.
 
-The interesting part is why the intersection was small. I built two lists independently — images with bad labels, and images the model kept failing on — and they **did not line up**. Mislabelled images were often learned fine, and some cleanly labelled ones stayed hard. Label error and model difficulty are different axes, and filtering on either one alone mostly deletes useful data.
+흥미로운 부분은 교집합이 작았던 이유다. 목록을 둘 따로 만들었다 - 라벨이 잘못된 이미지, 그리고 모델이 계속 실패하는 이미지. 그런데 **둘이 겹치지 않았다.** 라벨이 틀린 이미지도 곧잘 학습되고, 깨끗하게 라벨링된 이미지가 계속 어렵기도 했다. 라벨 오류와 모델 난이도는 다른 축이고, 한쪽만 보고 거르면 대개 쓸모 있는 데이터를 지운다.
 
-What did help was targeted rather than subtractive. Error visualisation showed specific failure modes — shadowed regions in particular — so I added shadow augmentation and random resized crop against those, and ensembled the shadow-robust model with the base model at weighted average.
+도움이 된 것은 빼는 쪽이 아니라 겨냥하는 쪽이었다. 오차 시각화에서 구체적인 실패 양상이 보였고(특히 그림자 영역)거기에 맞춰 그림자 augmentation과 random resized crop을 넣었다. 그리고 그림자에 강건한 모델과 기존 모델을 가중 평균으로 앙상블했다.
 
-## What I take from it
+## 여기서 가져갈 것
 
-The resolution bug cost the most time and taught the most. The signal that something structural was wrong was available early and for free: **three unrelated models failing to the same narrow band**. I read that as three separate model problems for longer than I should have. A single model underperforming says little; unrelated models failing identically says the fault is in what they share.
+해상도 버그가 시간을 가장 많이 잡아먹었고 가장 많이 가르쳤다. 구조적으로 뭔가 잘못됐다는 신호는 일찍부터, 공짜로 나와 있었다 - **서로 무관한 세 모델이 같은 좁은 대역으로 실패한 것**. 나는 그걸 별개의 모델 문제 셋으로 읽은 기간이 필요 이상으로 길었다. 모델 하나가 부진한 건 말해주는 게 적지만, 무관한 모델들이 똑같이 실패하는 건 원인이 그들이 공유하는 쪽에 있다고 말한다.
 
-The pruning experiments are the other half. It is tempting to treat "the model keeps getting this wrong" as "this label is bad," and to delete accordingly. Measured separately, the two sets barely overlapped, and deleting on either signal alone made things worse.
+프루닝 실험이 나머지 절반이다. "모델이 이걸 계속 틀린다"를 "이 라벨이 나쁘다"로 읽고 그에 따라 지우고 싶어진다. 따로 재보니 두 집합은 거의 겹치지 않았고, 어느 한쪽 신호만으로 지우면 오히려 나빠졌다.
 
 ---
 
-Code: [satellite-building-segmentation](https://github.com/chb2066/satellite-building-segmentation) — UAGLNet adapted to the competition data format, patch-based dataset, and the failure-log cleaning loop.
+코드: [satellite-building-segmentation](https://github.com/chb2066/satellite-building-segmentation) - 대회 데이터 형식에 맞춘 UAGLNet, 패치 기반 데이터셋, 실패 기록 기반 정제 루프.

@@ -5,7 +5,7 @@
 - 원본에서 문장이 뒤엉킨 곳 수정: "양쪽에 대해 동일하게 계산 후 평균이 loss는 두 개의
   글로벌 뷰에만 적용" → 두 문장으로 분리
 - blockwise masking 의 prediction ratio 실제 값 보강 (r=0.3, 확률 0.5로 r=0 도 섞음)
-- 결과 보강 — ImageNet linear probing 82.3%
+- 결과 보강 - ImageNet linear probing 82.3%
 - 「왜 시각 토크나이저가 어려운가」 신설. 언어와 달리 시각 의미는 단어 빈도 통계처럼
   자연스럽게 나오지 않는다는 논문 서론의 논지. 원본의 "pretrained VAE 단점" 서술과 이어진다
 - iBOT 이 관찰한 창발 현상(local semantic pattern) 추가
@@ -57,8 +57,8 @@ BERT류의 성공은 언어를 **의미 있는 단위로 토큰화**할 수 있�
 
 그래서 기존 MIM 연구들은 두 갈래로 갈렸다.
 
-- **항등 사상을 토크나이저로 쓰기** — 픽셀을 그대로 목표로 삼음. 의미 추상화에 약하고, 고주파 디테일을 모델링하는 데 용량을 낭비함.
-- **미리 학습한 토크나이저 쓰기** — pretrained VAE(DALL-E VAE 등)를 토크나이저로 씀. 저수준 의미만 포착되고, 다른 도메인으로 옮기기 어려움.
+- **항등 사상을 토크나이저로 쓰기** - 픽셀을 그대로 목표로 삼음. 의미 추상화에 약하고, 고주파 디테일을 모델링하는 데 용량을 낭비함.
+- **미리 학습한 토크나이저 쓰기** - pretrained VAE(DALL-E VAE 등)를 토크나이저로 씀. 저수준 의미만 포착되고, 다른 도메인으로 옮기기 어려움.
 
 두 번째 방식은 **다단계 파이프라인**을 강요한다는 게 더 근본적인 문제다. 목표 모델을 학습하기 전에 의미가 풍부한 토크나이저를 먼저 학습시켜야 한다. 그런데 시각적 의미를 획득하는 것은 어차피 두 단계의 공통 목표다. **그렇다면 따로 할 이유가 있나.**
 
@@ -68,8 +68,8 @@ BERT류의 성공은 언어를 **의미 있는 단위로 토큰화**할 수 있�
 
 MIM을 **토크나이저로부터의 knowledge distillation**으로 정식화한다. 토크나이저 역할을 하는 twin teacher의 도움을 받아 distillation한다.
 
-- **입력** — 타겟 네트워크(student)는 마스킹된 이미지를, 온라인 토크나이저(teacher)는 원본 이미지를 받음.
-- **목표** — 타겟 네트워크가 마스킹된 각 패치 토큰을, 그 위치에 해당하는 토크나이저 출력으로 복원하게 함.
+- **입력** - 타겟 네트워크(student)는 마스킹된 이미지를, 온라인 토크나이저(teacher)는 원본 이미지를 받음.
+- **목표** - 타겟 네트워크가 마스킹된 각 패치 토큰을, 그 위치에 해당하는 토크나이저 출력으로 복원하게 함.
 
 ### 이 방식으로 풀리는 문제
 
@@ -82,8 +82,8 @@ MIM을 **토크나이저로부터의 knowledge distillation**으로 정식화한
 
 1. 원본 이미지 `x`에서 augmentation으로 두 개의 view `u`, `v`를 만듦. DINO처럼 global view 2개가 기준이고, 여기에 local view도 추가로 생성해서 CLS loss 쪽에 씀.
 2. `u`, `v` 각각에 **blockwise masking**을 적용해 masked view `û`, `v̂`를 만듦.
-3. **Student network** — masked view `û`, `v̂`를 받아 patch token들의 예측 분포를 출력함.
-4. **Teacher network**(online tokenizer, EMA로 업데이트) — **마스킹 안 된 원본 view** `u`, `v`를 받아 patch token들의 target 분포를 출력함.
+3. **Student network** - masked view `û`, `v̂`를 받아 patch token들의 예측 분포를 출력함.
+4. **Teacher network**(online tokenizer, EMA로 업데이트) - **마스킹 안 된 원본 view** `u`, `v`를 받아 patch token들의 target 분포를 출력함.
 
 ### blockwise masking의 비율
 
@@ -125,7 +125,7 @@ ViT-S/16, ViT-B/16, ViT-L/16, Swin-T 등 여러 backbone으로 실험한다. **o
 
 ## 실험에서 확인된 것
 
-- **ImageNet linear probing 82.3%** — ViT-L/16 기준.
+- **ImageNet linear probing 82.3%** - ViT-L/16 기준.
 - **local semantic pattern이 창발함.** 논문이 강조하는 부수 관찰인데, 이렇게 학습된 특징이 **강건성**과 dense prediction 태스크(객체 검출, instance segmentation, semantic segmentation)에서의 성능으로 이어짐.
 
 ## 정리

@@ -1,10 +1,10 @@
 <!--
 개정: 2026-09-10 (원본: src/content/reviews/vla.md)
 - 논문을 OpenVLA(arXiv 2406.09246)로 확정하고 frontmatter에 서지 정보 반영
-- 원본에 없던 「배경 지식」 추가 — RT-2 계열이 무엇을 했고 무엇이 닫혀 있었는지
+- 원본에 없던 「배경 지식」 추가 - RT-2 계열이 무엇을 했고 무엇이 닫혀 있었는지
 - 「세부 아키텍처」에 Prismatic-7B 기반, DINOv2+SigLIP 융합 방식, 학습 설정(64×A100 14일,
   224px, 27 epoch, lr 2e-5) 보강. 전부 논문 3.1~3.4절에서 확인
-- 「실험에서 확인된 것」 신설 — RT-2-X(55B) 대비 +16.5%p, Diffusion Policy 대비 +20.4%p,
+- 「실험에서 확인된 것」 신설 - RT-2-X(55B) 대비 +16.5%p, Diffusion Policy 대비 +20.4%p,
   LoRA·양자화 결과. 논문 4절
 - 끝맺음을 평서형으로 통일
 - 원본의 SigLIP 선택 이유에 대한 판단은 그대로 유지. 논문 근거(DINOv2가 공간 추론을
@@ -78,15 +78,15 @@ CLIP은 배치 내 모든 쌍에 대해 softmax 기반 contrastive loss를 써�
 
 ### 백본: Prismatic-7B VLM
 
-- **visual encoder** — SigLIP과 DINOv2 두 개. 입력 이미지 패치를 양쪽에 통과시킨 뒤 **feature를 채널 방향으로 concat**함.
-- **projector** — 융합된 시각 feature를 언어 모델의 임베딩 차원으로 사상하는 2층 MLP.
-- **LLM backbone** — Llama 2 7B.
+- **visual encoder** - SigLIP과 DINOv2 두 개. 입력 이미지 패치를 양쪽에 통과시킨 뒤 **feature를 채널 방향으로 concat**함.
+- **projector** - 융합된 시각 feature를 언어 모델의 임베딩 차원으로 사상하는 2층 MLP.
+- **LLM backbone** - Llama 2 7B.
 
 ### 행동 이산화
 
 연속 행동을 LLM이 다룰 수 있는 정수 토큰으로 바꾼다.
 
-- 실제 action 값 예시: `[0.023, -0.11, 0.87, 0.002, -0.45, 0.33, 1.0]` — 7-DOF (x, y, z, roll, pitch, yaw, gripper).
+- 실제 action 값 예시: `[0.023, -0.11, 0.87, 0.002, -0.45, 0.33, 1.0]` - 7-DOF (x, y, z, roll, pitch, yaw, gripper).
 - LLM은 토큰(정수)만 생성할 수 있는데 action은 연속값임. 그래서 **각 차원을 독립적으로 256개 bin에 이산화**함.
 - bin 폭은 학습 데이터 action 분포의 **1st ~ 99th quantile 구간을 균등 분할**해서 정함.
 

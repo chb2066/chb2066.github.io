@@ -30,8 +30,8 @@ draft: true
 ![그림](/img/attention-is-all-you-need/01.png)
 
 **어디에 쓰이는가**
-- **긍정/부정 분류** — `"I really love this movie. It was amazing!"` 에서 `love`, `amazing` 에 높은 가중치를 주고 긍정으로 분류
-- **질의응답** — 질문(query)과 지문(key)을 비교해 관련성이 높은 단어를 출력
+- **긍정/부정 분류** - `"I really love this movie. It was amazing!"` 에서 `love`, `amazing` 에 높은 가중치를 주고 긍정으로 분류
+- **질의응답** - 질문(query)과 지문(key)을 비교해 관련성이 높은 단어를 출력
 
 > **핵심은 질문과 답 사이의 관련성을 구한 벡터로 결과를 출력한다는 것이다.**
 > 단순한 a→b 매칭이 아니라 각 단어들끼리의 관계성이 함께 영향을 준다.
@@ -51,7 +51,7 @@ draft: true
 ## 2. Background
 
 **순차 계산을 줄이려는 기존 시도**
-- Extended Neural GPU, ByteNet, ConvS2S — 합성곱을 기본 블록으로 써서 병렬화 시도
+- Extended Neural GPU, ByteNet, ConvS2S - 합성곱을 기본 블록으로 써서 병렬화 시도
 - 한계: 두 위치의 신호를 잇는 데 필요한 연산이 **거리에 따라 늘어남**(선형 또는 로그) → 먼 의존성을 배우기 어려움
 
 **Transformer의 차이**
@@ -65,18 +65,18 @@ draft: true
 ![Figure 1](/img/attention-is-all-you-need/f1.png)
 
 **입력 요소**
-1. 문장을 토큰화 — `the cat is playing on the mat` → `the`, `cat`, `is`, `playing`, …
+1. 문장을 토큰화 - `the cat is playing on the mat` → `the`, `cat`, `is`, `playing`, …
 1. vocab으로 토큰을 ID로 변환
 1. 임베딩 레이어를 거쳐 고차원 벡터로
 
 ### 3.1 Encoder and Decoder Stacks
 
-**Encoder** — 동일한 층 6개를 쌓은 구조. 각 층은 **두 개의 sub-layer**로 이뤄진다.
+**Encoder** - 동일한 층 6개를 쌓은 구조. 각 층은 **두 개의 sub-layer**로 이뤄진다.
 
-- **sub-layer 1** — Multi-Head Self-Attention
-- **sub-layer 2** — Position-wise Feed-Forward Network
+- **sub-layer 1** - Multi-Head Self-Attention
+- **sub-layer 2** - Position-wise Feed-Forward Network
 
-**두 sub-layer를 감싸는 것 — residual + LayerNorm**
+**두 sub-layer를 감싸는 것 - residual + LayerNorm**
 ```text
 출력 = LayerNorm(x + Sublayer(x))
 
@@ -88,7 +88,7 @@ h  →  Feed-Forward Network       →  + h  →  LayerNorm  →  h'
 
 ![그림](/img/attention-is-all-you-need/07.png)
 
-**Decoder** — 6층이고, encoder 의 두 sub-layer 에 **encoder 출력에 대한 attention 을 수행하는 세 번째 sub-layer** 가 추가된다.
+**Decoder** - 6층이고, encoder 의 두 sub-layer 에 **encoder 출력에 대한 attention 을 수행하는 세 번째 sub-layer** 가 추가된다.
 
 예시 `[start] i am a student [EOS]` 를 `[start]` 기준으로 따라가면,
 
@@ -114,7 +114,7 @@ h  →  Feed-Forward Network       →  + h  →  LayerNorm  →  h'
 
 ![Figure 2](/img/attention-is-all-you-need/f2.png)
 
-**Self-attention** — 자기 자신을 query, key, value 에 모두 넣는다. 입력 문장의 모든 단어를 서로 비교해 각 단어가 다른 단어와 얼마나 관련 있는지 학습한다.
+**Self-attention** - 자기 자신을 query, key, value 에 모두 넣는다. 입력 문장의 모든 단어를 서로 비교해 각 단어가 다른 단어와 얼마나 관련 있는지 학습한다.
 
 - query 와 key 를 내적해 각 단어별 중요도를 확률로 변환
 - 그 확률로 value 를 가중합 → **중요도가 높은 value 가 많이 반영된 context 벡터**
@@ -123,7 +123,7 @@ h  →  Feed-Forward Network       →  + h  →  LayerNorm  →  h'
 
 ![그림](/img/attention-is-all-you-need/05.png)
 
-**Multi-Head Attention** — 임베딩 크기를 head 수로 나눠서 쓴다. `d_k × num_heads` 로 projection 한 뒤 head 단위로 분리한다.
+**Multi-Head Attention** - 임베딩 크기를 head 수로 나눠서 쓴다. `d_k × num_heads` 로 projection 한 뒤 head 단위로 분리한다.
 
 ```python
 x.shape = [batch_size, seq_len, d_model]
@@ -142,7 +142,7 @@ def forward(self, x):
 
 ### 3.3 Position-wise Feed-Forward Networks
 
-attention sub-layer 에 더해 각 층은 완전연결 FFN 을 갖는다. **각 위치에 개별적으로, 그리고 동일하게** 적용된다 — 단어들을 각각 독립적인 벡터로 변형하는 것.
+attention sub-layer 에 더해 각 층은 완전연결 FFN 을 갖는다. **각 위치에 개별적으로, 그리고 동일하게** 적용된다 - 단어들을 각각 독립적인 벡터로 변형하는 것.
 
 ```text
 FFN(x) = max(0, x·W₁ + b₁)·W₂ + b₂
@@ -153,8 +153,8 @@ FFN(x) = max(0, x·W₁ + b₁)·W₂ + b₂
 
 ### 3.5 Positional Encoding
 
-- **필요한 이유** — Transformer 는 단어를 한 번에 병렬 처리하므로 **단어 간 순서 정보가 사라짐**
-- **방식** — 토큰 임베딩에 위치 정보 값을 더함
+- **필요한 이유** - Transformer 는 단어를 한 번에 병렬 처리하므로 **단어 간 순서 정보가 사라짐**
+- **방식** - 토큰 임베딩에 위치 정보 값을 더함
 - 벡터 차원 수가 매우 크기 때문에, 이 식으로 만든 값을 더하면 각 위치가 특정될 수 있음
 
 ![그림](/img/attention-is-all-you-need/02.png)
@@ -168,8 +168,8 @@ FFN(x) = max(0, x·W₁ + b₁)·W₂ + b₂
 순환·합성곱과 비교해 세 가지를 따진다.
 
 - **층당 계산 복잡도**
-- **병렬화 가능한 연산량** — 순차적으로 처리해야 하는 최소 연산 수
-- **장거리 의존성의 경로 길이** — 두 위치를 잇는 데 필요한 연산 수. 짧을수록 먼 의존성을 배우기 쉬움
+- **병렬화 가능한 연산량** - 순차적으로 처리해야 하는 최소 연산 수
+- **장거리 의존성의 경로 길이** - 두 위치를 잇는 데 필요한 연산 수. 짧을수록 먼 의존성을 배우기 쉬움
 
 self-attention 은 경로 길이가 **상수**라 세 번째에서 압도적이다. 대신 시퀀스 길이의 제곱에 비례하는 비용을 치른다.
 
@@ -181,13 +181,13 @@ WMT 2014 기계 번역 기준이다.
 
 | 태스크 | BLEU |
 |---|---|
-| English → German | **28.4** — 기존 최고 성능(앙상블 포함)을 2 BLEU 이상 상회 |
-| English → French | **41.8** — 단일 모델 최고 성능 |
+| English → German | **28.4** - 기존 최고 성능(앙상블 포함)을 2 BLEU 이상 상회 |
+| English → French | **41.8** - 단일 모델 최고 성능 |
 
 ![Table 2](/img/attention-is-all-you-need/t2.png)
 
 - English→French 모델은 **GPU 8장으로 3.5일** 학습. 당시 최고 모델들의 학습 비용에 비하면 아주 작은 부분
-- **속도가 이 논문의 핵심 주장 중 하나** — 순환이 없으므로 시퀀스 전체를 병렬 처리할 수 있고, 그래서 같은 성능에 훨씬 적은 학습 시간
+- **속도가 이 논문의 핵심 주장 중 하나** - 순환이 없으므로 시퀀스 전체를 병렬 처리할 수 있고, 그래서 같은 성능에 훨씬 적은 학습 시간
 
 **attention 이 실제로 무엇을 보는가**
 
