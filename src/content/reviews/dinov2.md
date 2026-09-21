@@ -15,12 +15,14 @@ draft: false
 ## Abstract
 
 **문제**
+
 자기지도 학습은 대규모일 때 데이터 품질 확보가 어려우며 다양성이 적다
 
 **해결책**
-정제 데이터를 검색 query 로 삼아 비정제 데이터에서 닮은 것만 골라내는 자동 큐레이션(LVD-142M)
-iBOT 기반 목적함수를 일부 수정하여, 큰 ViT model에서 소형 모델로 distillation
-파인튜닝 없이 frozen feature 로 쓸 수 있는 높은 범용성을 가진다.
+
+- 정제 데이터를 검색 query 로 삼아 비정제 데이터에서 닮은 것만 골라내는 자동 큐레이션(LVD-142M)
+- iBOT 기반 목적함수를 일부 수정하여, 큰 ViT model에서 소형 모델로 distillation
+- 파인튜닝 없이 frozen feature 로 쓸 수 있는 높은 범용성을 가진다.
 
 ---
 

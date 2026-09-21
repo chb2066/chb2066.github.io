@@ -15,12 +15,14 @@ draft: false
 ## Abstract
 
 **문제**
-instance segmentation은 검출과 분할을 동시에 해야 함. 기존 semantic segmentation은 같은 클래스의 개별 객체를 구분하지 못함
-Faster R-CNN의 RoIPool은 좌표를 정수로 내림 → 검출에서는 무해했지만 픽셀 단위 마스크 예측에서는 치명적
+
+- instance segmentation은 검출과 분할을 동시에 해야 함. 기존 semantic segmentation은 같은 클래스의 개별 객체를 구분하지 못함
+- Faster R-CNN의 RoIPool은 좌표를 정수로 내림 → 검출에서는 무해했지만 픽셀 단위 마스크 예측에서는 치명적
 
 **해결책**
-Faster R-CNN에 마스크 예측 branch를 병렬로 붙이고, RoIPool의 양자화를 RoIAlign으로 제거
-클래스 간 경쟁 없이 독립적인 binary mask를 예측
+
+- Faster R-CNN에 마스크 예측 branch를 병렬로 붙이고, RoIPool의 양자화를 RoIAlign으로 제거
+- 클래스 간 경쟁 없이 독립적인 binary mask를 예측
 
 ---
 

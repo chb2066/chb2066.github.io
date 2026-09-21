@@ -15,11 +15,13 @@ draft: true
 ## Abstract
 
 **문제**
+
 기존 시퀀스 변환 모델은 RNN/CNN 인코더-디코더에 attention을 얹는 구조. 순환 구조가 순차 계산을 강제해 학습을 병렬화할 수 없고, 시퀀스가 길어질수록 메모리 제약이 심해짐
 
 **해결책**
-순환과 합성곱을 전부 제거하고 attention만으로 구성한 Transformer 제안
-순서 정보는 positional encoding으로 별도 주입, 서로 다른 관계는 multi-head로 동시에 포착
+
+- 순환과 합성곱을 전부 제거하고 attention만으로 구성한 Transformer 제안
+- 순서 정보는 positional encoding으로 별도 주입, 서로 다른 관계는 multi-head로 동시에 포착
 
 ---
 

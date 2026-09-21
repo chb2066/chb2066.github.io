@@ -16,12 +16,14 @@ draft: false
 ## Abstract
 
 **문제**
-CNN은 자원의 양과 성능이 비례하게 모델 크기를 올림. 
+
+CNN은 자원의 양과 성능이 비례하게 모델 크기를 올림.
 -> 하지만 모델의 크기를 어떻게 키울지는 임의로 정해져 왔고, 보통 depth·width·resolution 중 하나만 늘림
 
 **해결책**
-세 축을 고정된 비율로 함께 키우는 compound scaling 제안
-그 비율은 작은 baseline에서 한 번만 grid search로 찾고 큰 모델에 재사용
+
+- 세 축을 고정된 비율로 함께 키우는 compound scaling 제안
+- 그 비율은 작은 baseline에서 한 번만 grid search로 찾고 큰 모델에 재사용
 
 ---
 

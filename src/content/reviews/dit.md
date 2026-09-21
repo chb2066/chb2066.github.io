@@ -15,11 +15,13 @@ draft: false
 ## Abstract
 
 **문제**
+
 diffusion 모델의 백본은 대부분 U-Net계열을 사용. 다른 분야에서는 Transformer가 뛰어난 scailing 특성을 보임
 
 **해결책**
-latent 공간에서 동작하는 Transformer 백본(DiT) 을 만들고, 조건 주입 방식 네 가지를 비교해 adaLN-Zero 선택
-모델 Gflops와 FID가 강하게 상관됨을 보여 스케일링 법칙이 그대로 적용됨을 확인
+
+- latent 공간에서 동작하는 Transformer 백본(DiT) 을 만들고, 조건 주입 방식 네 가지를 비교해 adaLN-Zero 선택
+- 모델 Gflops와 FID가 강하게 상관됨을 보여 스케일링 법칙이 그대로 적용됨을 확인
 
 ---
 

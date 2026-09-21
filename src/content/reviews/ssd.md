@@ -15,12 +15,14 @@ draft: false
 ## Abstract
 
 **문제**
-기존 검출기는 box 후보를 만들고 픽셀·feature를 resampling한 뒤 분류기에 넣는 세 단계 구조 → 정확하지만 느림
-속도를 높인 single-shot 방식(YOLO)은 정확도가 부족
+
+- 기존 검출기는 box 후보를 만들고 픽셀·feature를 resampling한 뒤 분류기에 넣는 세 단계 구조 → 정확하지만 느림
+- 속도를 높인 single-shot 방식(YOLO)은 정확도가 부족
 
 **해결책**
-proposal과 resampling 단계를 아예 제거하고, 여러 해상도의 feature map 각 위치에 default box를 미리 깔아 한 번의 forward로 검출
-종횡비별로 예측을 분리해 속도를 얻으면서 정확도를 지킴
+
+- proposal과 resampling 단계를 아예 제거하고, 여러 해상도의 feature map 각 위치에 default box를 미리 깔아 한 번의 forward로 검출
+- 종횡비별로 예측을 분리해 속도를 얻으면서 정확도를 지킴
 
 ---
 

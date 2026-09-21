@@ -16,11 +16,13 @@ draft: false
 ## Abstract
 
 **문제**
+
 로봇 정책은 학습한 물체·장면·태스크 밖으로 잘 일반화되지 않음. 인터넷 규모로 사전학습된 VLM은 그 일반화를 갖고 있지만, 로봇 제어로 가져오는 경로가 닫혀 있었음
 
 **해결책**
-Open X-Embodiment 97만 궤적으로 VLM을 fine-tuning해 7B VLA 정책을 만들고, 가중치·학습 코드·fine-tuning 레시피를 전부 공개
-연속 action을 이산 토큰으로 바꿔 언어모델 백본을 구조 변경 없이 그대로 사용
+
+- Open X-Embodiment 97만 궤적으로 VLM을 fine-tuning해 7B VLA 정책을 만들고, 가중치·학습 코드·fine-tuning 레시피를 전부 공개
+- 연속 action을 이산 토큰으로 바꿔 언어모델 백본을 구조 변경 없이 그대로 사용
 
 ---
 

@@ -15,12 +15,14 @@ draft: true
 ## Abstract
 
 **문제**
-딥러닝 segmentation은 라벨된 학습 데이터가 수천 장 필요한데, 의료 영상은 전문가가 라벨링해야 해서 그만큼 모을 수 없음
-게다가 세포처럼 같은 클래스의 인접 객체를 개별로 분리해야 함
+
+- 딥러닝 segmentation은 라벨된 학습 데이터가 수천 장 필요한데, 의료 영상은 전문가가 라벨링해야 해서 그만큼 모을 수 없음
+- 게다가 세포처럼 같은 클래스의 인접 객체를 개별로 분리해야 함
 
 **해결책**
-대칭 U자형 encoder-decoder에 skip connection을 넣어 다운샘플링에서 잃은 공간 정보를 복원
-data augmentation을 적극 사용하고, 경계에 가중치를 주는 weight map으로 붙어 있는 객체를 분리
+
+- 대칭 U자형 encoder-decoder에 skip connection을 넣어 다운샘플링에서 잃은 공간 정보를 복원
+- data augmentation을 적극 사용하고, 경계에 가중치를 주는 weight map으로 붙어 있는 객체를 분리
 
 ---
 

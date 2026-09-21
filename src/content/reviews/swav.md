@@ -15,13 +15,15 @@ draft: true
 ## Abstract
 
 **문제**
-SimCLR·MoCo 같은 인스턴스 구별 방식은 모든 이미지를 서로 다른 클래스로 보고 쌍별로 비교함
-많은 negative sample 이 필요해 큰 배치(SimCLR)나 메모리 뱅크(MoCo)를 요구함
+
+- SimCLR·MoCo 같은 인스턴스 구별 방식은 모든 이미지를 서로 다른 클래스로 보고 쌍별로 비교함
+- 많은 negative sample 이 필요해 큰 배치(SimCLR)나 메모리 뱅크(MoCo)를 요구함
 
 **해결책**
-특징을 직접 비교하지 않고, 두 view 가 서로의 클러스터 할당(코드)을 예측하게 함 - swapped prediction
-Sinkhorn-Knopp 의 균등 배분 제약으로 붕괴를 막고, 온라인·배치 단위로 할당을 계산
-multi-crop 으로 연산량을 크게 늘리지 않으면서 관점 수를 늘림
+
+- 특징을 직접 비교하지 않고, 두 view 가 서로의 클러스터 할당(코드)을 예측하게 함 - swapped prediction
+- Sinkhorn-Knopp 의 균등 배분 제약으로 붕괴를 막고, 온라인·배치 단위로 할당을 계산
+- multi-crop 으로 연산량을 크게 늘리지 않으면서 관점 수를 늘림
 
 ---
 

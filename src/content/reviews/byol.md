@@ -15,12 +15,14 @@ draft: true
 ## Abstract
 
 **문제**
-contrastive 계열은 negative pair 로 붕괴를 막음 → 큰 배치나 memory bank 가 필요하고, negative 를 정의하기 어려운 도메인에서는 쓰기 곤란
-augmentation 선택에도 민감함
+
+- contrastive 계열은 negative pair 로 붕괴를 막음 → 큰 배치나 memory bank 가 필요하고, negative 를 정의하기 어려운 도메인에서는 쓰기 곤란
+- augmentation 선택에도 민감함
 
 **해결책**
-positive pair 만으로 학습하되, online 쪽에만 predictor 를 두는 비대칭과 stop-gradient 로 붕괴를 막음
-target network 는 online 의 EMA - 자기 자신의 과거를 목표로 삼아 스스로를 끌어올림
+
+- positive pair 만으로 학습하되, online 쪽에만 predictor 를 두는 비대칭과 stop-gradient 로 붕괴를 막음
+- target network 는 online 의 EMA - 자기 자신의 과거를 목표로 삼아 스스로를 끌어올림
 
 ---
 

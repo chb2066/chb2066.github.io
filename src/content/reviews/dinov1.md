@@ -15,11 +15,13 @@ draft: true
 ## Abstract
 
 **문제**
+
 ViT는 CNN 대비 뚜렷한 이점이 보이지 않았음. 지도학습의 라벨 신호가 ViT의 잠재력을 제한하고 있는 것 아닌가가 이 논문의 가설
 
 **해결책**
-라벨 없는 self-distillation - teacher와 student에 서로 다른 크기의 crop을 주고, student가 teacher 분포를 따라가게 함
-centering과 sharpening 두 장치만으로 collapse를 막음
+
+- 라벨 없는 self-distillation - teacher와 student에 서로 다른 크기의 crop을 주고, student가 teacher 분포를 따라가게 함
+- centering과 sharpening 두 장치만으로 collapse를 막음
 
 ---
 

@@ -15,10 +15,12 @@ draft: false
 ## Abstract
 
 **문제**
-불변성 기반 SSL 은 손으로 만든 augmentation 에 의존 → 그 변형이 무엇을 버려도 되는지 사람이 정해줘야 하고, 도메인이 바뀌면 다시 설계해야 함
-생성 기반 SSL(MAE, BEiT)은 픽셀을 복원하므로 저수준 디테일에 용량이 쓰임
+
+- 불변성 기반 SSL 은 손으로 만든 augmentation 에 의존 → 그 변형이 무엇을 버려도 되는지 사람이 정해줘야 하고, 도메인이 바뀌면 다시 설계해야 함
+- 생성 기반 SSL(MAE, BEiT)은 픽셀을 복원하므로 저수준 디테일에 용량이 쓰임
 
 **해결책**
+
 임베딩 공간에서 target 블록의 표현을 예측 - 손실을 입력 공간이 아니라 표현 공간에 적용
 **multi-block masking** - 충분히 큰 target 블록 여러 개를, 정보가 충분한 단일 context 블록으로부터 예측
 augmentation 없이도 선형 분류·depth·counting 등 폭넓은 downstream 에서 높은 성능
