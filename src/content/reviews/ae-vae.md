@@ -109,8 +109,6 @@ $$
 
 ## 3. Example: Variational Auto-Encoder
 
-조건을 정해놓고 데이터 흐름을 따라가 본다.
-
 **입력 요소**
 - latent space 차원을 100 으로 설정
 - 입력 이미지 `x` 가 `[32, 3, 256, 256]` (batch, channel, height, width)

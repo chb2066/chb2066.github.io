@@ -32,15 +32,13 @@ proposal과 resampling 단계를 아예 제거하고, 여러 해상도의 featur
 1. 픽셀이나 feature를 resampling
 1. 고품질 분류기에 넣음
 
-**여기서 문제가 갈린다**
+**기존 방식의 한계**
 - **Faster R-CNN** - (1)과 (2) 때문에 느림
 - **YOLO** - single-shot으로 속도를 높였지만 정확도가 부족
 
 **SSD의 차별점**
 - Faster R-CNN과 달리 proposal도 feature resampling도 없이 바로 검출
 - YOLO처럼 single-shot이면서 높은 정확도
-
-속도와 정확도를 동시에 얻는 방법이 이 논문의 내용이다.
 
 ---
 
@@ -120,7 +118,7 @@ VOC2007 test 기준이다.
 - Nvidia Titan X 기준. SSD300이 Faster R-CNN보다 정확하면서 8배 이상 빠르고, YOLO보다 훨씬 정확하면서 더 빠름
 - 더 큰 데이터셋으로 학습하면 SSD300 77.2%, SSD512 79.8%까지 오름
 
-**3.2 Model analysis - 무엇이 약점인가**
+**3.2 Model analysis**
 
 - 작은 객체에서 약함 → 큰 feature map에서만 잡히는데 그 층은 의미 정보가 얕음
 - 이것이 3.6절의 augmentation 설계로 이어짐

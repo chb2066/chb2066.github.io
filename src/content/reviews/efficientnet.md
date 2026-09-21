@@ -102,7 +102,7 @@ model scaling은 층의 연산자 자체를 바꾸지 않으므로 좋은 baseli
 
 ![그림](/img/efficientnet/02.png)
 
-**MBConv의 숫자는 채널을 몇 배로 확장하는지를 뜻한다**
+**MBConv의 숫자 - 채널 확장 배수**
 1. 채널을 n배(1 또는 6)로 확장
 1. depthwise convolution 수행
 1. 다시 압축

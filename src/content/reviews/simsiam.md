@@ -139,5 +139,3 @@ L = 1/2 · D(p₁, stopgrad(z₂)) + 1/2 · D(p₂, stopgrad(z₁))
 - 6.1 ImageNet linear evaluation 에서 경쟁력 있는 성능. 특히 100 epoch 같은 짧은 학습에서는 다른 방법들을 앞섬
 - 전이 학습(검출·분할)에서도 경쟁력 유지
 - 6.2 SimCLR·SwAV·BYOL 을 SimSiam 의 특수한 경우로 배치해 각 방법이 무엇을 더 얹었는지 정리
-
-구조가 가장 단순한데 성능이 크게 뒤지지 않는다는 것이 요지다.

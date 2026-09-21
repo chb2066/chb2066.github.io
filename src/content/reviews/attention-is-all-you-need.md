@@ -29,7 +29,7 @@ draft: true
 
 ![그림](/img/attention-is-all-you-need/01.png)
 
-**어디에 쓰이는가**
+**쓰이는 곳**
 - **긍정/부정 분류** - `"I really love this movie. It was amazing!"` 에서 `love`, `amazing` 에 높은 가중치를 주고 긍정으로 분류
 - **질의응답** - 질문(query)과 지문(key)을 비교해 관련성이 높은 단어를 출력
 
@@ -183,6 +183,6 @@ WMT 2014 기계 번역 기준이다.
 - English→French 모델은 GPU 8장으로 3.5일 학습. 당시 최고 모델들의 학습 비용에 비하면 아주 작은 부분
 - **속도가 이 논문의 핵심 주장 중 하나** - 순환이 없으므로 시퀀스 전체를 병렬 처리할 수 있고, 그래서 같은 성능에 훨씬 적은 학습 시간
 
-**attention 이 실제로 무엇을 보는가**
+**attention 시각화**
 
 - encoder self-attention 에서 장거리 의존성을 따라가는 head 가 실제로 관찰됨

@@ -26,7 +26,7 @@ MIM을 "토크나이저로부터의 knowledge distillation"으로 정식화
 
 ## 1. Introduction
 
-**iBOT은 크게 두 가지 아이디어를 쓴다**
+**두 가지 아이디어**
 
 **DINO의 loss**
 - teacher와 student가 각각 다른 뷰를 보게 하고, student가 teacher의 확률 분포를 따라가게 만듦
