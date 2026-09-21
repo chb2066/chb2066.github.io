@@ -55,7 +55,7 @@ draft: true
 **2단계. 보상 모델 학습**
 1. 프롬프트와 그에 대한 여러 모델의 출력을 가져옴
 
-   > *"most of our comparison data comes from our supervised policies, with some coming from our PPO policies"*
+   > "most of our comparison data comes from our supervised policies, with some coming from our PPO policies"
 
    대부분은 1단계 모델의 출력을 쓰고, 일부는 PPO 로 정책을 갱신한 모델의 출력을 가져온다.
 

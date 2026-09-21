@@ -123,7 +123,7 @@ draft: false
 **깨지는 지점** - distribution shift. 학습 중 본 상태에서만 잘한다. 한 번 벗어나면 오차가 누적돼 복구가 안 된다. 이게 Behavior Cloning의 근본 한계다.
 
 > "오차가 시간축으로 누적되어 분포 밖으로 나간다"는 문제는
-> diffusion의 *분포 밖에서 안으로 투영*, test-time adaptation, 불확실성 기반 개입과
+> diffusion의 분포 밖에서 안으로 투영, test-time adaptation, 불확실성 기반 개입과
 > 정확히 같은 자리에서 만난다.
 
 ## DAgger

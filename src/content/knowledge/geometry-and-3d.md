@@ -162,7 +162,7 @@ multi-view consistency, equivariance, canonical frame. 이들은 라벨 없이 �
 **깨지는 지점** - 태스크가 실제로 그 대칭을 가져야 한다. 중력이나 바닥처럼 대칭을 깨는 요소가 있으면 과도한 제약이 된다. SE(3)가 아니라 SE(2)와 높이의 조합이 맞는 경우가 흔하다.
 
 > equivariance은 "공짜 일반화"지만 잘못 고른 대칭군은 성능을 깎는다.
-> 그래서 반드시 먼저 물어야 한다 - *이 도메인에서 진짜로 불변인 변환은 무엇인가?*
+> 그래서 반드시 먼저 물어야 한다 - 이 도메인에서 진짜로 불변인 변환은 무엇인가?
 
 ## Canonical Frame / Object-Centric Representation
 

@@ -61,18 +61,18 @@ diffusion 모델의 백본은 대부분 U-Net계열을 사용. 다른 분야에�
 
 **DiT Block** - adaLN-Zero(Adaptive Layer Norm - Zero, scale 파라미터를 0으로 초기화)를 쓴다.
 
-*기존 방식*
+기존 방식
 - Layer norm은 γ, β 로 한 이미지 내의 채널을 정규화
 - 시간 t 와 클래스 label c 는 단순히 더하는 방식으로 값의 분포를 바꿨음
 
-*adaLN-Zero 방식*
+adaLN-Zero 방식
 - γ, β 가 t, c 에 의해 바뀌도록 하는 layer norm → 단순 값 변환이 아니라 feature map의 강도와 분포를 결정
 - 메커니즘
   - z = Emb(t) + Emb(c)
   - MLP(z) = γ, β
   - adaLN(x, z) = γ(z) · LayerNorm(x) + β(z)
 
-*블록 구조*
+블록 구조
 - adaLN-Zero를 통과하며 시간과 클래스 정보가 주입됨
 - Self-Attention 으로 전역 정보를 얻고 noise 부분을 강조해 학습
 - Pointwise MLP(각 패치에 대한 MLP)로 정보를 가공하고 업데이트
