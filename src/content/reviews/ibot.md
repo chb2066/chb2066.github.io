@@ -28,12 +28,12 @@ MIM을 "토크나이저로부터의 knowledge distillation"으로 정식화
 
 **iBOT은 크게 두 가지 아이디어를 쓴다**
 
-**① DINO의 loss**
+**DINO의 loss**
 - teacher와 student가 각각 다른 뷰를 보게 하고, student가 teacher의 확률 분포를 따라가게 만듦
 - EMA로 teacher의 업데이트량을 조절
 - teacher는 큰 뷰를, student는 작은 뷰를 보게 해서 부분에서 전체를 맞히도록 학습
 
-**② iBOT의 MIM**
+**iBOT의 MIM**
 - teacher는 마스킹하지 않은 원본 이미지(global view만)를, student는 마스킹된 이미지를 봄
 - student가 보는 뷰는 global과 local을 섞는데 local이 훨씬 많음. 대략 2:8 ~ 2:10
 - global을 넣는 이유는 그게 없으면 학습이 안 되기 때문 → 부분과 전체의 관계를 볼 수 없음
@@ -129,12 +129,3 @@ L = L_MIM + L_CLS
 - **4.3.3 강건성** - 배경 변경, 가림, 분포 밖 예제에 대해 더 강건
 
 이렇게 학습된 특징이 강건성과 dense prediction 성능으로 이어진다는 것이 논문이 강조하는 부수 관찰이다.
-
----
-
-## 정리
-
-이 논문의 핵심은 "토크나이저를 미리 학습시켜야 한다"는 전제를 없앤 것이다.
-
-목표 모델도 토크나이저도 결국 시각적 의미를 얻으려는 것이라면, 둘을 분리할 이유가 없다. EMA teacher가 이미 그 역할을 할 수 있고, 그러면 다단계 파이프라인이 한 단계로 축소된다.
-

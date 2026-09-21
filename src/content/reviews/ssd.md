@@ -82,12 +82,12 @@ proposal과 resampling 단계를 아예 제거하고, 여러 해상도의 featur
 
 ### 2.2 Training
 
-**① Matching Strategy**
+**Matching Strategy**
 - 각 default box를 실제 객체의 bounding box와 매칭
 - IoU를 계산해 가장 높은 IoU를 가지는 default box를 매칭
 - IoU 0.5 이상이면 추가로 매칭해 학습을 유연하게
 
-**② Loss Function**
+**Loss Function**
 - **Localization Loss** - 실제 박스와 예측 박스의 차이를 Smooth L1으로. L2보다 튀는 값을 잘 반영. 값을 예측하므로 회귀 loss
 - **Confidence Loss** - 예측 클래스 확률과 실제 클래스의 차이를 Softmax Loss로
 
@@ -95,12 +95,12 @@ proposal과 resampling 단계를 아예 제거하고, 여러 해상도의 featur
 
 `N`은 매칭된 default box의 개수다.
 
-**③ Hard Negative Mining**
+**Hard Negative Mining**
 - IoU ≥ 0.5 → positive(객체 존재), IoU < 0.5 → negative(배경)
 - positive 박스에만 localization + confidence loss 적용. negative는 classification loss만
 - positive와 negative의 비율이 크게 불균형 → negative 중 손실이 큰 상위 3배수만 학습에 사용
 
-**④ Data Augmentation**
+**Data Augmentation**
 - random crop과 여러 비율의 사전 변형을 적용해 다양한 크기의 객체에 대응
 - 실험 결과 mAP가 8.8% 향상
 
@@ -129,14 +129,3 @@ VOC2007 test 기준이다.
 - 근본적인 개선은 proposal 생성과 픽셀 또는 feature resampling 단계를 없앤 것
 - 그 자리를 작은 conv filter로 대체
 - 그 필터를 여러 스케일의 feature map에 적용하고 종횡비별로 예측을 분리한 것이 정확도를 지켜줌
-
----
-
-## 정리
-
-SSD가 보여준 것은 "단계를 없애고 그 역할을 구조로 흡수할 수 있다"는 것이다.
-
-proposal 단계는 "어디를 볼지 정하는" 역할이었다. SSD는 그걸 미리 깔아둔 default box와 다중 스케일 feature map으로 대체한다. 어디를 볼지를 매번 계산하는 대신, 가능한 모든 곳에 후보를 미리 배치하고 한 번에 판정한다.
-
-같은 발상은 이후 one-stage 검출기 전반의 기본 골격이 됐다.
-

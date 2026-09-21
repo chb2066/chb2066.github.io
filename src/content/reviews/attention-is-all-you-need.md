@@ -90,18 +90,18 @@ h  →  Feed-Forward Network       →  + h  →  LayerNorm  →  h'
 
 예시 `[start] i am a student [EOS]` 를 `[start]` 기준으로 따라가면,
 
-**① Masked Self-Attention**
+**Masked Self-Attention**
 - 정답값을 query, key, value 에 넣음. 현재 `q: [start]`, `k: [start]`, `v: [start]` 이고 나머지는 mask 됨
 - 디코더가 예측한 단어들만 mask 가 풀림 → 지금은 `start` 만 unmasked, 이후 순차적으로 풀림
 - unmasked 된 단어들로 self-attention 해서 관계를 학습한 벡터를 만듦
 → 디코더가 지금까지 생성한 단어들의 context 를 학습
 
-**② Cross-Attention**
+**Cross-Attention**
 - 앞 단계 벡터를 query 에, encoder 의 context vector 를 key·value 에 넣음
 - query 는 mask 된 self-attention 에서 학습된 값을 받음
 → 디코더의 context 와 원본 정보가 함께 반영된 벡터가 나옴
 
-**③ FFN → ④ 단어 예측 → ⑤ 반복**
+**FFN → 단어 예측 → 반복**
 - FFN 을 거친 벡터를 선형 함수에 넣어 단어 점수(logits)로 변환. `W_vocab` 이 모든 단어에 대한 매핑
 - softmax 로 확률로 바꾸고, 가장 확률이 높은 단어를 다음 단어로 씀
 - 그 단어를 self-attention 과정에 추가해 반복
@@ -186,15 +186,3 @@ WMT 2014 기계 번역 기준이다.
 **attention 이 실제로 무엇을 보는가**
 
 - encoder self-attention 에서 장거리 의존성을 따라가는 head 가 실제로 관찰됨
-
----
-
-## 정리
-
-이 논문이 없앤 것은 순환이다. 그리고 순환이 하던 두 가지 일을 각각 다른 것으로 대체했다.
-
-- 순서 정보 → positional encoding
-- 장거리 의존성 → self-attention
-
-순환을 없애면 병렬화가 가능해지고, attention은 거리에 무관하게 연결하므로 오히려 장거리 의존성을 더 잘 잡는다. 잃은 것 없이 얻기만 한 것처럼 보이는데, 대가는 길이의 제곱에 비례하는 비용이다. 이후 연구들의 상당 부분이 그 비용을 줄이는 데 쓰인다.
-

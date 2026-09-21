@@ -157,14 +157,3 @@ Loss = (CE_x + CE_y + CE_z + CE_roll + CE_pitch + CE_yaw + CE_gripper) / 7
 **효율화**
 - **LoRA fine-tuning** - 소비자용 GPU에서 새 로봇 셋업으로 적응 가능
 - **양자화 서빙** - 메모리를 줄여도 downstream 성공률이 떨어지지 않음
-
----
-
-## 정리
-
-이 논문의 값어치는 새로운 알고리즘이 아니라 구성 변경에 있다.
-
-- RT-2의 행동 토큰화를 가져오되 binning을 min-max에서 quantile로 변경.
-- 인코더를 SigLIP 단독이 아니라 DINOv2와 융합해서 공간 정보를 보강.
-- 결과 7배 작은 모델로 55B급 모델을 이김.
-

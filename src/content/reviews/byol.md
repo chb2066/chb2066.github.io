@@ -82,11 +82,11 @@ target network 는 online 의 EMA - 자기 자신의 과거를 목표로 삼아 
 
 negative sample 없이 "두 출력을 가깝게 만들라"고만 하면 모든 것을 같은 값으로 내는 해가 존재한다. BYOL 이 그리로 가지 않는 이유는 두 가지가 함께 작용하기 때문이다.
 
-**① target 의 느린 변화**
+**target 의 느린 변화**
 - target 은 EMA 로 갱신되므로 큰 영향을 주지 않고 조금씩만 변함
 - online 이 target 을 쫓아가는 동안 target 은 거의 고정된 목표로 남음 → 다양한 정보를 계속 사용할 수 있음
 
-**② predictor 와 stop-gradient 의 비대칭**
+**predictor 와 stop-gradient 의 비대칭**
 - online 에만 predictor 가 있고 target 으로는 기울기가 흐르지 않음
 - 이 비대칭 때문에 두 네트워크가 같은 자명한 해로 동시에 수렴하지 못함
 
@@ -117,20 +117,3 @@ negative sample 없이 "두 출력을 가깝게 만들라"고만 하면 모든 �
 - τ 를 0으로 두면(target = online) 역시 붕괴. 느린 목표가 필요함
 
 두 번째와 세 번째가 실용적으로 중요하다. 큰 배치를 감당할 수 없거나, 도메인에 맞는 augmentation 을 잘 모를 때 선택지가 된다.
-
----
-
-## 정리
-
-BYOL이 보여준 것은 negative sample이 붕괴 방지의 유일한 방법은 아니라는 것이다.
-
-같은 것을 가깝게 만들되 무너지지 않게 하려면 어떤 형태의 비대칭이 필요한데, 그 비대칭을 negative sample로 만들 수도 있고 구조로 만들 수도 있다. BYOL은 후자를 택했다.
-
-그리고 여기서 떼어 쓸 수 있는 부품이 두 개 나온다.
-
-첫째, EMA target. "느리게 변하는 목표"라는 장치는 자기지도뿐 아니라 강화학습의 타깃 네트워크, knowledge distillation의 teacher 등 어디서나 재사용된다.
-
-둘째, predictor + stop-gradient 조합. 이후 SimSiam이 여기서 EMA까지 빼도 된다는 것을 보인다. 즉 BYOL이 필수라고 여겼던 것 중 일부는 사실 없어도 됐다.
-
-다만 대가가 있다. 붕괴 방지가 미묘한 균형에 의존해서 하이퍼파라미터에 민감하고, 왜 동작하는지에 대한 이론이 완전하지 않다.
-
