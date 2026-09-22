@@ -1,6 +1,6 @@
 ---
-title: 문단 단위 AI 생성 텍스트 판별을 multiple-instance learning 으로
-summary: 라운드가 바뀌면서 채점 단위가 글에서 문단으로 내려왔는데, 같은 글의 문단끼리 서로 참조하는 것은 여전히 허용됐다. 그 조합이 곧 bag 이라서 MIL 로 다시 짰다.
+title: 문단 단위 AI 생성 텍스트 판별
+summary: 문단 단위로 채점하되 같은 글의 문단끼리 참조가 허용되는 대회 과제를 multiple-instance learning 으로 구성했다. 같은 글의 문단을 bag 으로 묶어 문서 레벨로 집계한다. ROC-AUC 기준 46위.
 context: 2025 SW중심대학 디지털 경진대회 AI 부문
 period: 2025.07 ~ 2025.08
 role: 구현

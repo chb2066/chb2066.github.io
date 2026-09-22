@@ -1,9 +1,9 @@
 ---
 title: 위성 이미지 건물 영역 분할
-summary: 구조가 전혀 다른 모델 셋이 추론에서 똑같은 방식으로 실패했다. 문제는 어느 모델에도 없었고, train 과 test 의 해상도를 맞추는 방식에 있었다.
-context: 지난 대회 데이터셋으로 진행한 자습
+summary: 위성 이미지에서 건물 영역을 분할한다. 구조가 다른 모델 셋이 추론에서 같은 방식으로 실패했고, 원인은 train 1024px 와 test 224px 의 해상도를 맞추는 방식이었다.
+context: 지난 대회 데이터셋으로 한 개인 학습
 period: 2026.01 ~ 2026.02
-role: 분석, 학습, 추론, 오류 분석 전부
+role: 분석, 학습, 추론, 오류 분석
 stack: PyTorch, UAGLNet, DINOv2, Prithvi
 tags: [Segmentation, Remote Sensing, Data-Centric]
 date: 2026-02-28

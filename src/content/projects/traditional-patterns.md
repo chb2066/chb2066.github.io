@@ -1,11 +1,11 @@
 ---
 title: 전통문양 감성 라벨 예측
-summary: 서로 무관한 방법 아홉 개가 이미지 단독 정확도에서 같은 좁은 구간에 멈췄다. 이미지 쪽을 더 미는 대신 텍스트 쪽에 투자한 이유와, 거기서 나온 융합 모델.
+summary: 전통문양 이미지에 감성 형용사 5개를 다는 태깅 모델. 이미지 단독 성능이 아홉 가지 접근 모두 F1@5 0.59 근처에서 멈춰 텍스트 쪽으로 방향을 틀었고, 이미지·텍스트 융합 앙상블로 0.8000 을 달성했다.
 context: AiRLab · ETRI 과제
 period: 2026.06 ~ 2026.08
 role: 실험 설계, 학습, 분석
 stack: PyTorch, DINOv3, klue-roberta
-tags: [Vision-Language, Knowledge Distillation, Multi-label]
+tags: [Vision-Language, Multi-label]
 date: 2026-08-26
 draft: false
 ---
