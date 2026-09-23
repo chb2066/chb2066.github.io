@@ -15,3 +15,15 @@ dist/
 
 # 저장소 루트의 개인 작업 파일 (사이트에서 서빙되지 않음)
 cv.html
+
+# ETRI 원본 데이터셋. 공개 데이터가 아니므로 절대 커밋하지 않는다
+orig_4.4k_260519/
+
+# 실험용 가상환경
+.venv-siglip/
+
+# 실험 중간 산출물
+experiments/cache/
+experiments/_*.json
+experiments/run.log
+experiments/**/checkpoints/
