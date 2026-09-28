@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""SigLIP2 이미지/텍스트 인코더 동결 조건 비교.
+"""텍스트 인코더만 바꿔가며 같은 파이프라인에서 비교.
+
+이미지 feature(동결 SigLIP2 vision), head, split, seed, LR, epoch 을 전부 고정하고
+텍스트 인코더만 교체한다. 그래야 '인코더 차이' 와 '파이프라인 차이' 가 안 섞인다.
+
+원본 주석:
+SigLIP2 이미지/텍스트 인코더 동결 조건 비교.
 
 물음: 텍스트 타워만 풀면 어떻게 되나, 둘 다 풀면 어떻게 되나.
 
@@ -89,18 +95,25 @@ class Collate:
     창을 나눠 각각 태우고 평균내면 '길이 제약'만 따로 떼어 볼 수 있다.
     """
 
-    def __init__(self, tok, chunks=1):
-        self.tok, self.chunks = tok, chunks
+    def __init__(self, tok, chunks=1, win=MAX_TOK):
+        self.tok, self.chunks, self.win = tok, chunks, win
 
     def __call__(self, batch):
         img = torch.stack([b[0] for b in batch])
         enc = self.tok([b[1] for b in batch], padding="max_length", truncation=True,
-                       max_length=MAX_TOK * self.chunks, return_tensors="pt")
+                       max_length=self.win * self.chunks, return_tensors="pt")
         ids = enc["input_ids"]
+        # SigLIP2 토크나이저는 attention_mask 를 안 내놓는다. 없으면 pad 로 만든다.
+        if "attention_mask" in enc:
+            mask = enc["attention_mask"]
+        else:
+            pad = self.tok.pad_token_id
+            mask = torch.ones_like(ids) if pad is None else (ids != pad).long()
         if self.chunks > 1:
-            ids = ids.view(ids.size(0), self.chunks, MAX_TOK)
+            ids = ids.view(ids.size(0), self.chunks, self.win)
+            mask = mask.view(mask.size(0), self.chunks, self.win)
         y = torch.stack([b[2] for b in batch])
-        return img, ids, y
+        return img, ids, mask, y
 
 
 class FusionHead(nn.Module):
@@ -121,18 +134,18 @@ class FusionHead(nn.Module):
 
 
 class Net(nn.Module):
-    def __init__(self, base, n_cls, train_vision, train_text):
+    def __init__(self, base, n_cls, train_vision, train_text, text_tower=None, dim_t=None):
         super().__init__()
         self.train_vision, self.train_text = train_vision, train_text
         self.vision = base.vision_model if train_vision else None
-        self.text = base.text_model
+        self.text = text_tower if text_tower is not None else base.text_model
         for p in self.text.parameters():
             p.requires_grad = train_text
         if self.vision is not None:
             for p in self.vision.parameters():
                 p.requires_grad = True
         self.head = FusionHead(base.config.vision_config.hidden_size,
-                               base.config.text_config.hidden_size, n_cls=n_cls)
+                               dim_t or base.config.text_config.hidden_size, n_cls=n_cls)
 
     def train(self, mode=True):
         """동결한 타워는 항상 eval 로 둔다.
@@ -145,21 +158,30 @@ class Net(nn.Module):
             self.text.eval()
         return self
 
-    def _text(self, ids):
-        """ids 가 (B, chunks, 64) 면 창별로 태운 뒤 평균낸다."""
+    def _pool(self, ids, mask):
+        o = self.text(input_ids=ids, attention_mask=mask)
+        p = getattr(o, "pooler_output", None)
+        if p is not None:
+            return p
+        h = o.last_hidden_state
+        m = mask.unsqueeze(-1).to(h.dtype)
+        return (h * m).sum(1) / m.sum(1).clamp(min=1e-6)
+
+    def _text(self, ids, mask):
+        """ids 가 (B, chunks, L) 면 창별로 태운 뒤 평균낸다."""
         if ids.dim() == 3:
             b, k, t = ids.shape
-            out = self.text(input_ids=ids.reshape(b * k, t)).pooler_output
+            out = self._pool(ids.reshape(b * k, t), mask.reshape(b * k, t))
             return out.view(b, k, -1).mean(1)
-        return self.text(input_ids=ids).pooler_output
+        return self._pool(ids, mask)
 
-    def forward(self, img, ids):
+    def forward(self, img, ids, mask):
         vi = self.vision(pixel_values=img).pooler_output if self.vision is not None else img
         if self.train_text:
-            vt = self._text(ids)
+            vt = self._text(ids, mask)
         else:
             with torch.no_grad():
-                vt = self._text(ids)
+                vt = self._text(ids, mask)
         return self.head(vi, vt)
 
 
@@ -173,10 +195,10 @@ def evaluate(net, loader, dev, n_cls):
     net.eval()
     tot = n = 0
     hit = torch.zeros(n_cls); gt = torch.zeros(n_cls); pred = torch.zeros(n_cls)
-    for img, ids, y in loader:
-        img, ids = img.to(dev, non_blocking=True), ids.to(dev, non_blocking=True)
+    for img, ids, mask, y in loader:
+        img, ids, mask = img.to(dev, non_blocking=True), ids.to(dev, non_blocking=True), mask.to(dev, non_blocking=True)
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            lg = net(img, ids).float().cpu()
+            lg = net(img, ids, mask).float().cpu()
         tot += f1_at5(lg, y) * y.size(0); n += y.size(0)
         top5 = lg.topk(5, dim=1).indices
         for b in range(y.size(0)):
@@ -192,9 +214,15 @@ def run(cond, train_vision, train_text, vocab, tr, va, args, bank, proc):
     set_seed()
     dev = "cuda"
     base = AutoModel.from_pretrained(MODEL)
-    net = Net(base, len(vocab), train_vision, train_text).to(dev)
+    tower, dim_t, tok = None, None, proc.tokenizer
+    if args.text_model:
+        from transformers import AutoTokenizer
+        tower = AutoModel.from_pretrained(args.text_model)
+        dim_t = tower.config.hidden_size
+        tok = AutoTokenizer.from_pretrained(args.text_model)
+    net = Net(base, len(vocab), train_vision, train_text, tower, dim_t).to(dev)
 
-    coll = Collate(proc.tokenizer, args.chunks)
+    coll = Collate(tok, args.chunks, args.win)
 
     def mk(rs, sh):
         return DataLoader(PatternSet(rs, vocab, bank, train_vision), batch_size=args.bs,
@@ -218,16 +246,17 @@ def run(cond, train_vision, train_text, vocab, tr, va, args, bank, proc):
     print("[%s] vision=%s text=%s | chunks %d (%d토큰) | trainable %.1fM"
           % (cond, "train" if train_vision else "frozen",
              "train" if train_text else "frozen", args.chunks,
-             MAX_TOK * args.chunks, ntr / 1e6), flush=True)
+             args.win * args.chunks, ntr / 1e6), flush=True)
 
     best, best_f1c, hist, t0 = 0.0, None, [], time.time()
     for ep in range(1, args.epochs + 1):
         net.train()
         rl = 0.0
-        for img, ids, y in dl_tr:
-            img, ids, y = img.to(dev, non_blocking=True), ids.to(dev, non_blocking=True), y.to(dev)
+        for img, ids, mask, y in dl_tr:
+            img, ids, mask, y = (img.to(dev, non_blocking=True), ids.to(dev, non_blocking=True),
+                                 mask.to(dev, non_blocking=True), y.to(dev))
             with torch.autocast("cuda", dtype=torch.bfloat16):
-                loss = lossf(net(img, ids).float(), y)
+                loss = lossf(net(img, ids, mask).float(), y)
             opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_([p for p in net.parameters() if p.requires_grad], 1.0)
@@ -259,6 +288,9 @@ def main():
     ap.add_argument("--head_lr", type=float, default=1e-3)
     ap.add_argument("--backbone_lr", type=float, default=1e-5)
     ap.add_argument("--workers", type=int, default=2)
+    ap.add_argument("--text_model", default="",
+                    help="비우면 SigLIP2 자체 텍스트 타워. 예: klue/roberta-large")
+    ap.add_argument("--win", type=int, default=MAX_TOK, help="창 하나의 토큰 수")
     ap.add_argument("--chunks", type=int, default=1,
                     help="64토큰 창 개수. 1이면 잘라 쓰고, 3이면 192토큰을 세 창으로 나눠 평균")
     ap.add_argument("--only", default="")
@@ -287,7 +319,8 @@ def main():
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         json.dump({"model": MODEL, "seed": SEED, "epochs": args.epochs,
                    "batch_size": args.bs, "head_lr": args.head_lr,
-                   "backbone_lr": args.backbone_lr, "text_max_tokens": MAX_TOK * args.chunks, "chunks": args.chunks,
+                   "backbone_lr": args.backbone_lr, "text_model": args.text_model or MODEL, "win": args.win,
+                   "text_max_tokens": args.win * args.chunks, "chunks": args.chunks,
                    "split": {"train": len(tr), "val": len(va)}, "runs": out},
                   open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
