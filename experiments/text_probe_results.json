@@ -1,0 +1,58 @@
+[
+ {
+  "text_model": "google/siglip2-base-patch16-224 (text tower)",
+  "win": 64,
+  "chunks": 1,
+  "pool": "pooler",
+  "dim": 768,
+  "best_f1": 0.4848,
+  "last_f1": 0.4848,
+  "epochs": 200,
+  "split": {
+   "train": 3954,
+   "val": 446
+  }
+ },
+ {
+  "text_model": "google/siglip2-base-patch16-224 (text tower)",
+  "win": 64,
+  "chunks": 4,
+  "pool": "pooler",
+  "dim": 768,
+  "best_f1": 0.4892,
+  "last_f1": 0.4883,
+  "epochs": 200,
+  "split": {
+   "train": 3954,
+   "val": 446
+  }
+ },
+ {
+  "text_model": "klue/roberta-large",
+  "win": 256,
+  "chunks": 1,
+  "pool": "cls",
+  "dim": 1024,
+  "best_f1": 0.5951,
+  "last_f1": 0.5946,
+  "epochs": 200,
+  "split": {
+   "train": 3954,
+   "val": 446
+  }
+ },
+ {
+  "text_model": "klue/roberta-large",
+  "win": 256,
+  "chunks": 1,
+  "pool": "mean",
+  "dim": 1024,
+  "best_f1": 0.6054,
+  "last_f1": 0.6049,
+  "epochs": 200,
+  "split": {
+   "train": 3954,
+   "val": 446
+  }
+ }
+]
